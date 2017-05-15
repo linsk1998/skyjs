@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>全局对象</title>
+	<link href="ting.css" rel="stylesheet">
+	<script src="../sky.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<h2>全局对象</h2>
+		<h3>JSON</h3>
+		<p>JSON 对象包含用于解析 JSON 的方法</p>
+		<pre><code>JSON.stringify({a:"s\"tr",b:[1,2,NaN],c:false,d:{a:new Date(),b:/reg/,c:function(){}}})</code></pre>
+		<a class="btn btn-primary" href='javascript:alert(JSON.stringify({a:"s\"tr",b:[1,2,NaN],c:false,d:{a:new Date(),b:/reg/,c:function(){}}}))'>测试</a>
+		<pre><code>JSON.parse("{\"a\":1,\"b\":2}")</code></pre>
+		<a class="btn btn-primary" href='javascript:alert(JSON.parse("{\"a\":1,\"b\":2}").a)'>测试</a>
+		<h3 id="localStorage">localStorage</h3>
+		<p>没有时间限制的数据存储，但是IE67只在同目录有效</p>
+		<pre><code>localStorage.setItem('key','value');
+localStorage.setItem('key');
+localStorage.removeItem('key');</code></pre>
+		<a class="btn btn-primary" href="javascript:localStorage.setItem('key',prompt('记录到localStorage的值','value'))">localStorage.setItem</a>
+		<a class="btn btn-primary" href="javascript:alert(localStorage.getItem('key'))">localStorage.getItem</a>
+		<a class="btn btn-primary" href="javascript:localStorage.removeItem('key')">localStorage.removeItem</a>
+		<h3 id="sessionStorage">sessionStorage</h3>
+		<p>针对一个 session 的数据存储，但是IE67只在同目录有效</p>
+		<pre><code>sessionStorage.setItem('key','value');
+sessionStorage.setItem('key');
+sessionStorage.removeItem('key');</code></pre>
+		<a class="btn btn-primary" href="javascript:sessionStorage.setItem('key',prompt('记录到sessionStorage的值','value'))">sessionStorage.setItem</a>
+		<a class="btn btn-primary" href="javascript:alert(sessionStorage.getItem('key'))">sessionStorage.getItem</a>
+		<a class="btn btn-primary" href="javascript:sessionStorage.removeItem('key')">sessionStorage.removeItem</a>
+		<h3 id="DOMParser">DOMParser</h3>
+		<p>解析XML用的</p>
+		<pre><code>var stringContainingXMLSource='<eg><hahaha value="ggg"/></eg>';
+var parser = new DOMParser();
+var doc = parser.parseFromString(stringContainingXMLSource, "text/xml");
+alert(doc.getElementsByTagName("hahaha")[0].getAttribute("value"));</code></pre>
+		<a class="btn btn-primary" href="javascript:void 0">试一试</a>
+		<script>
+			Sky.getPrevElement(Sky.getCurrentScript()).onclick=function(){
+				var stringContainingXMLSource='<eg><hahaha value="ggg"/></eg>';
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(stringContainingXMLSource, "text/xml");
+				alert(doc.getElementsByTagName("hahaha")[0].getAttribute("value"));
+			};
+		</script>
+		<h3 id="Set">Set</h3>
+		<p>无序集合</p>
+		<table class="table table-bordered table-condensed table-striped">
+			<thead>
+			<tr class="info">
+				<th>方法</th><th>返回</th><th>描述</th>
+			</tr>
+			</thead>
+			<tbody class="table-hover">
+			<tr>
+				<td>add</td><td></td><td>添加元素</td>
+			</tr>
+			<tr>
+				<td>has</td><td>返回布尔值</td><td>判断是否存在某个元素</td>
+			</tr>
+			<tr>
+				<td>clear</td><td></td><td>清除内部所有元素</td>
+			</tr>
+			<tr>
+				<td>forEach</td><td></td><td>对数组的每个元素执行一次提供的函数(回调函数)</td>
+			</tr>
+			<tr>
+				<td>remove</td><td>返回是否移除</td><td>从集中移除指定的元素</td>
+			</tr>
+			<tr>
+				<td>addAll</td><td>返回Set对象本身</td><td>添加多个元素</td>
+			</tr>
+			<tr>
+				<td>removeAll</td><td>返回Set对象本身</td><td>移除多个元素</td>
+			</tr>
+			<tr>
+				<td>retainAll</td><td>返回Set对象本身</td><td>保留元素其他都删了</td>
+			</tr>
+			<tr>
+				<td>toArray</td><td>返回数组</td><td>转化为数组</td>
+			</tr>
+			</tbody>
+		</table>
+		<pre><code>var s = new Set();
+s.add("Thomas Jefferson");
+s.add(1776);
+s.add("founding father");
+
+s.forEach(function (item) {
+	alert(item);
+});</code></pre>
+		<a class="btn btn-primary" href="javascript:void 0">试一试</a>
+		<script>
+			Sky.getPrevElement(Sky.getCurrentScript()).onclick=function(){
+				var s = new Set();
+				s.add("Thomas Jefferson");
+				s.add(1776);
+				s.add("founding father");
+
+				s.forEach(function (item) {
+					alert(item);
+				});
+			};
+		</script>
+		<pre><code>var a=new Set();
+a.add(1);
+a.add(2);
+var b = new Set();
+b.add(2);
+b.add(3);
+
+//交集
+var c=new Set().addAll(a).retainAll(b);
+//并集
+var d=new Set().addAll(a).addAll(b);
+//差集
+var c=new Set().addAll(a).removeAll(b);</code></pre>
+		<a class="btn btn-primary" href="javascript:void 0">试一试</a>
+		<script>
+			Sky.getPrevElement(Sky.getCurrentScript()).onclick=function(){
+				var a=new Set();
+				a.add(1);
+				a.add(2);
+				var b = new Set();
+				b.add(2);
+				b.add(3);
+
+				//交集
+				alert(new Set().addAll(a).retainAll(b).toArray());
+				//并集
+				alert(new Set().addAll(a).addAll(b).toArray());
+				//差集
+				alert(new Set().addAll(a).removeAll(b).toArray());
+				a.clear();
+			};
+		</script>
+		<h3 id="console">console</h3>
+		<p>控制台</p>
+		<a class="btn btn-primary" href="javascript:console.log(11);void 0">试一试</a>
+		<h3 id="Promise">Promise</h3>
+		<p>Promise 对象用于异步计算。一个 Promise 表示一个现在、将来或永不可能可用的值。</p>
+		<table class="table table-bordered table-condensed table-striped">
+			<thead>
+			<tr class="info">
+				<th>方法</th><th>描述</th>
+			</tr>
+			</thead>
+			<tbody class="table-hover">
+			<tr>
+				<td>Promise.prototype.then(onFulfilled, onRejected)</td><td>添加肯定和否定回调到当前 promise, 返回一个新的 promise, 将以回调的返回值 来resolve.</td>
+			</tr>
+			</tbody>
+		</table>
+		<table class="table table-bordered table-condensed table-striped">
+			<thead>
+			<tr class="info">
+				<th>静态方法</th><th>描述</th>
+			</tr>
+			</thead>
+			<tbody class="table-hover">
+			<tr>
+				<td>Promise.all(iterable)</td><td>这个方法返回一个新的promise对象，该promise对象在iterable里所有的promise对象都成功的时候才会触发成功，
+				一旦有任何一个iterable里面的promise对象失败则立即触发该promise对象的失败。这个新的promise对象在触发成功状态以后，
+				会把一个包含iterable里所有promise返回值的数组作为成功回调的返回值，顺序跟iterable的顺序保持一致；如果这个新的promise对象触发了失败状态，
+				它会把iterable里第一个触发失败的promise对象的错误信息作为它的失败错误信息。Promise.all方法常被用于处理多个promise对象的状态集合。</td>
+			</tr>
+			<tr>
+				<td>Promise.race(iterable)</td><td>当iterable参数里的任意一个子promise被成功或失败后，父promise马上也会用子promise的成功返回值或失败详情作为参数调用父promise绑定的相应句柄，并返回该promise对象。</td>
+			</tr>
+			<tr>
+				<td>Promise.reject(reason)</td><td>调用Promise的rejected句柄，并返回这个Promise对象。</td>
+			</tr>
+			<tr>
+				<td>Promise.resolve(value)</td><td>用成功值value完成一个Promise对象。如果该value为可继续的（thenable，即带有then方法），返回的Promise对象会“跟随”这个value，采用这个value的最终状态；否则的话返回值会用这个value满足（fullfil）返回的Promise对象。</td>
+			</tr>
+			</tbody>
+		</table>
+		<pre><code>var myFirstPromise = new Promise(function(resolve, reject){
+	//当异步代码执行成功时，我们才会调用resolve(...), 当异步代码失败时就会调用reject(...)
+	//在本例中，我们使用setTimeout(...)来模拟异步代码，实际编码时可能是XHR请求或是HTML5的一些API方法.
+	setTimeout(function(){
+		resolve("成功!"); //代码正常执行！
+	}, 250);
+});
+
+myFirstPromise.then(function(successMessage){
+	//successMessage的值是上面调用resolve(...)方法传入的值.
+	//successMessage参数不一定非要是字符串类型，这里只是举个例子
+	console.log("Yay! " + successMessage);
+});</code></pre>
+		<a class="btn btn-primary" href="javascript:void 0">试一试</a>
+		<script>
+			Sky.getPrevElement(Sky.getCurrentScript()).onclick=function(){
+				var myFirstPromise = new Promise(function(resolve, reject){
+					setTimeout(function(){
+						resolve("成功!"); //代码正常执行！
+					}, 250);
+				});
+
+				myFirstPromise.then(function(successMessage){
+					alert("Yay! " + successMessage);
+				});
+			};
+		</script>
+		<h3 id="Observable">Observable</h3>
+		<p>Observable基类为了发布事件提供了一个通用接口，类似Ext中的Observable、Flash中的EventDispatcher 。</p>
+		<table class="table table-bordered table-condensed table-striped">
+			<thead>
+			<tr class="info">
+				<th>方法</th><th>描述</th>
+			</tr>
+			</thead>
+			<tbody class="table-hover">
+			<tr>
+				<td>addListener</td><td>添加监听器</td>
+			</tr>
+			<tr>
+				<td>removeListener</td><td>移除监听器</td>
+			</tr>
+			<tr>
+				<td>on</td><td>添加开始监听器</td>
+			</tr>
+			<tr>
+				<td>after</td><td>添加结束监听器</td>
+			</tr>
+			<tr>
+				<td>dispatchEvent</td><td>分发事件</td>
+			</tr>
+			<tr>
+				<td>fireEvent</td><td>分发前事件</td>
+			</tr>
+			<tr>
+				<td>fireAfterEvent</td><td>分发后事件</td>
+			</tr>
+			<tr>
+				<td>addEvent</td><td>注册事件</td>
+			</tr>
+			</tbody>
+		</table>
+		<h3 id="StringBuilder">StringBuilder</h3>
+		<p>用于频繁大量的字符串拼接操作。</p>
+		<table class="table table-bordered table-condensed table-striped">
+			<thead>
+			<tr class="info">
+				<th>方法</th><th>描述</th>
+			</tr>
+			</thead>
+			<tbody class="table-hover">
+			<tr>
+				<td>append</td><td>添加字符串</td>
+			</tr>
+			<tr>
+				<td>toString</td><td>生成字符串</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

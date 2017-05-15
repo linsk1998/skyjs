@@ -1,0 +1,98 @@
+<!-- ie6-8 use quirks mode-->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>浏览器</title>
+	<link href="ting.css" rel="stylesheet">
+	<script src="../sky.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h2>浏览器操作</h2>
+	<h3>Sky.isReady</h3>
+	<p>判断文档是否加载完成</p>
+	<h3>Sky.ready <small id="loadInfo"></small></h3>
+	<script>
+		document.addEventListener("DOMContentLoaded",function(){
+			document.getElementById("loadInfo").appendChild(document.createTextNode("DOMContentLoaded "));
+		},false);
+		window.onload=function(){
+			document.getElementById("loadInfo").appendChild(document.createTextNode("onLoad "));
+		};
+	</script>
+	<p>文档加载完成回调，返回一个Promise</p>
+	<pre><code>Sky.ready(function(){
+	//文档加载完成后执行，如果文档已经加载，不会执行
+});
+Sky.ready().then(function(){
+	//文档加载完成后执行，如果文档已经加载，也会执行
+});</code></pre>
+	<h3 id="browser">Sky.browser</h3>
+	<p>获取浏览器类型</p>
+	<table class="table table-bordered table-condensed table-striped">
+		<thead>
+		<tr class="info">
+			<th>属性</th><th>描述</th>
+		</tr>
+		</thead>
+		<tbody class="table-hover">
+		<tr><td>version</td><td>版本</td></tr>
+		<tr><td>webkit</td><td>webkit</td></tr>
+		<tr><td>opera</td><td>opera</td></tr>
+		<tr><td>msie</td><td>ie</td></tr>
+		<tr><td>firefox</td><td>火狐</td></tr>
+		<tr><td>safari</td><td>safari</td></tr>
+		<tr><td>chrome</td><td>chrome</td></tr>
+		<tr><td>moblie</td><td>移动</td></tr>
+		<tr><td>android</td><td>安卓</td></tr>
+		<tr><td>ios</td><td>IOS</td></tr>
+		<tr><td>ie</td><td>ie的版本</td></tr>
+		<tr><td>ie6</td><td>ie6</td></tr>
+		<tr><td>ie11</td><td>ie11</td></tr>
+		</tbody>
+	</table>
+	<h3 id="cookie">Sky.getCookie</h3>
+	<p>获取cookie,按decodeURIComponent解码</p>
+	<a class="btn btn-primary" href='javascript:alert(Sky.getCookie("key"))'>alert(Sky.getCookie("key"))</a>
+	<h3>Sky.setCookie</h3>
+	<p>setCookie,按encodeURIComponent编码</p>
+	<h4>语法：</h4>
+	<pre><code>Sky.setCookie(key,value[,timeout][,path][,domain]);</code></pre>
+	<a class="btn btn-primary" href='javascript:Sky.setCookie("key",prompt("记录到cookie的值","value"))'>Sky.setCookie("key",prompt("记录到cookie的值","value"))</a>
+	<h3 id="clearSelect">Sky.clearSelect</h3>
+	<p>清楚选取的文字</p>
+	<a class="btn btn-primary" href='javascript:Sky.clearSelect();'>Sky.clearSelect();</a>
+	<h3>localStorage</h3>
+	<p>没有时间限制的数据存储，但是IE67只在同目录有效</p>
+<pre><code>localStorage.setItem('key','value');
+localStorage.setItem('key');
+localStorage.removeItem('key');</code></pre>
+	<a class="btn btn-primary" href="javascript:localStorage.setItem('key',prompt('记录到localStorage的值','value'))">localStorage.setItem</a>
+	<a class="btn btn-primary" href="javascript:alert(localStorage.getItem('key'))">localStorage.getItem</a>
+	<a class="btn btn-primary" href="javascript:localStorage.removeItem('key')">localStorage.removeItem</a>
+	<h3>sessionStorage</h3>
+	<p>针对一个 session 的数据存储，但是IE67只在同目录有效</p>
+<pre><code>sessionStorage.setItem('key','value');
+sessionStorage.setItem('key');
+sessionStorage.removeItem('key');</code></pre>
+	<a class="btn btn-primary" href="javascript:sessionStorage.setItem('key',prompt('记录到sessionStorage的值','value'))">sessionStorage.setItem</a>
+	<a class="btn btn-primary" href="javascript:alert(sessionStorage.getItem('key'))">sessionStorage.getItem</a>
+	<a class="btn btn-primary" href="javascript:sessionStorage.removeItem('key')">sessionStorage.removeItem</a>
+	<h3 id="addFavorite">Sky.addFavorite</h3>
+	<p><a onclick="Sky.addFavorite(location.protocol+'//'+window.location.host,'站名');" href="javascript:void 0;">加入收藏</a>
+	<h3 id="setHome">Sky.setHome</h3>
+	<p><a href="https://www.baidu.com/cache/sethelp/index.html">设为首页</a
+	><script>
+		Sky.setHome(Sky.getCurrentScript().previousSibling,"http://www.baidu.com/");
+	</script></p>
+	<h3 id="copyToClipboard">Sky.copyToClipboard</h3>
+	<p>复制到剪贴板</p>
+	<a class="btn btn-primary" href="javascript:Sky.copyToClipboard(new Date().toISOString());void 0;">Sky.copyToClipboard(new Date().toISOString());</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!-- ie6-8 use quirks mode-->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title></title>
+	<link href="demo/ting.css" rel="stylesheet">
+	<style>
+		h3{ padding-left:16px;}
+		dl{ padding-left:20px;}
+		dt{ font-size:16px;}
+		dd{ text-indent:16px;}
+	</style>
+</head>
+<body>
+<h3>Sky.js</h3>
+<dl class="list-group">
+	<dt>对象扩展</dt>
+	<dd><a href="demo/prototype.html" target="main">Array</a></dd>
+	<dd><a href="demo/prototype.html#Date" target="main">Date</a></dd>
+	<dd><a href="demo/prototype.html#Node" target="main">Node</a></dd>
+	<dd><a href="demo/prototype.html#String" target="main">String</a></dd>
+	<dd><a href="demo/prototype.html#Function" target="main">Function</a></dd>
+	<dt>网络</dt>
+	<dd><a href="demo/network.html" target="main">ajax</a></dd>
+	<dd><a href="demo/network.html#getJSONP" target="main">JSONP</a></dd>
+	<dd><a href="demo/network.html#getScript" target="main">getScript</a></dd>
+	<dt>全局对象</dt>
+	<dd><a href="demo/global.html" target="main">JSON</a></dd>
+	<dd><a href="demo/global.html#localStorage" target="main">localStorage</a></dd>
+	<dd><a href="demo/global.html#sessionStorage" target="main">sessionStorage</a></dd>
+	<dd><a href="demo/global.html#DOMParser" target="main">DOMParser</a></dd>
+	<dd><a href="demo/global.html#Set" target="main">Set</a></dd>
+	<dd><a href="demo/global.html#console" target="main">console</a></dd>
+	<dd><a href="demo/global.html#Promise" target="main">Promise</a></dd>
+	<dd><a href="demo/global.html#Observable" target="main">Observable</a></dd>
+	<dd><a href="demo/global.html#StringBuilder" target="main">StringBuilder</a></dd>
+	<dt>浏览器功能</dt>
+	<dd><a href="demo/browser.html" target="main">ready</a></dd>
+	<dd><a href="demo/browser.html#browser" target="main">browser</a></dd>
+	<dd><a href="demo/browser.html#cookie" target="main">cookie</a></dd>
+	<dd><a href="demo/browser.html#clearSelect" target="main">clearSelect</a></dd>
+	<dd><a href="demo/browser.html#addFavorite" target="main">addFavorite</a></dd>
+	<dd><a href="demo/browser.html#setHome" target="main">setHome</a></dd>
+	<dd><a href="demo/browser.html#copyToClipboard" target="main">copyToClipboard</a></dd>
+	<dt>字符串</dt>
+	<dd><a href="demo/string.html" target="main">pad</a></dd>
+	<dd><a href="demo/string.html#escape" target="main">escape</a></dd>
+	<dd><a href="demo/string.html#unescape" target="main">unescape</a></dd>
+	<dd><a href="demo/string.html#escapeString" target="main">escapeString</a></dd>
+	<dd><a href="demo/string.html#escapeRegExp" target="main">escapeRegExp</a></dd>
+	<dd><a href="demo/string.html#strlen" target="main">strlen</a></dd>
+	<dd><a href="demo/string.html#trunc" target="main">trunc</a></dd>
+	<dd><a href="demo/string.html#parseQuery" target="main">parseQuery</a></dd>
+	<dd><a href="demo/string.html#buildQuery" target="main">buildQuery</a></dd>
+	<dd><a href="demo/string.html#parseURL" target="main">parseURL</a></dd>
+	<dd><a href="demo/string.html#getAbsPath" target="main">getAbsPath</a></dd>
+	<dt>数组操作</dt>
+	<dd><a href="demo/array.html" target="main">findIndex</a></dd>
+	<dd><a href="demo/array.html#findLastIndex" target="main">findLastIndex</a></dd>
+	<dd><a href="demo/array.html#find" target="main">find</a></dd>
+	<dd><a href="demo/array.html#findLast" target="main">findLast</a></dd>
+	<dd><a href="demo/array.html#shuffle" target="main">shuffle</a></dd>
+	<dd><a href="demo/array.html#sortBy" target="main">sortBy</a></dd>
+	<dd><a href="demo/array.html#pluck" target="main">pluck</a></dd>
+	<dd><a href="demo/array.html#sortedIndex" target="main">sortedIndex</a></dd>
+	<dd><a href="demo/array.html#sortedLastIndex" target="main">sortedLastIndex</a></dd>
+	<dd><a href="demo/array.html#times" target="main">times</a></dd>
+	<dt>对象操作</dt>
+	<dd><a href="demo/object.html" target="main">apply applyIf</a></dd>
+	<dd><a href="demo/object.html#forIn" target="main">forIn forOwn</a></dd>
+	<dd><a href="demo/object.html#parseQuery" target="main">parseQuery buildQuery</a></dd>
+	<dd><a href="demo/object.html#isXxx" target="main">isArray isString ...</a></dd>
+	<dd><a href="demo/object.html#isXxx" target="main">isPlainObject</a></dd>
+	<dd><a href="demo/object.html#isXxx" target="main">isDefined</a></dd>
+	<dd><a href="demo/object.html#isXxx" target="main">isArrayLike</a></dd>
+	<dd><a href="demo/object.html#isXxx" target="main">isElement</a></dd>
+	<dd><a href="demo/object.html#isXxx" target="main">isEmpty</a></dd>
+	<dd><a href="demo/object.html#JSON" target="main">JSON.stringify</a></dd>
+	<dt>数学函数</dt>
+	<dd><a href="demo/math.html" target="main">pad</a></dd>
+	<dd><a href="demo/math.html#round" target="main">round</a></dd>
+	<dd><a href="demo/math.html#ceil" target="main">ceil</a></dd>
+	<dd><a href="demo/math.html#floor" target="main">floor</a></dd>
+	<dd><a href="demo/math.html#random" target="main">random</a></dd>
+	<dt>DOM操作</dt>
+	<dd><a href="demo/dom.html" target="main">id</a></dd>
+	<dd><a href="demo/dom.html#byId" target="main">byId</a></dd>
+	<dd><a href="demo/dom.html#getCurrentScript" target="main">getCurrentScript</a></dd>
+	<dd><a href="demo/dom.html#getCurrentPath" target="main">getCurrentPath</a></dd>
+	<dd><a href="demo/dom.html#getElementStyle" target="main">getElementStyle</a></dd>
+	<dd><a href="demo/dom.html#attachEvent" target="main">attachEvent detachEvent fireEvent</a></dd>
+	<dd><a href="demo/dom.html#hasClass" target="main">hasClass addClass removeClass toggleClass</a></dd>
+	<dd><a href="demo/dom.html#getPrevElement" target="main">getPrevElement getNextElement</a></dd>
+	<dd><a href="demo/dom.html#getPageTop" target="main">getPageTop getPageLeft</a></dd>
+	<dd><a href="demo/dom.html#getElementsByClassName" target="main">getElementsByClassName</a></dd>
+	<dd><a href="demo/dom.html#matches" target="main">matches</a></dd>
+	<dd><a href="demo/dom.html#querySelector" target="main">querySelector</a></dd>
+	<dd><a href="demo/dom.html#getFormData" target="main">getFormData</a></dd>
+	<dd><a href="demo/dom.html#getFormData" target="main">setFormData</a></dd>
+	<dt>DOM批量操作</dt>
+	<dd><a href="demo/batch.html" target="main">query</a></dd>
+	<dd><a href="demo/batch.html#create" target="main">create</a></dd>
+	<dd><a href="demo/batch.html#each" target="main">each</a></dd>
+	<dd><a href="demo/batch.html#appendTo" target="main">appendTo</a></dd>
+	<dd><a href="demo/batch.html#addClass" target="main">addClass removeClass</a></dd>
+	<dd><a href="demo/batch.html#css" target="main">css</a></dd>
+	<dd><a href="demo/batch.html#prop" target="main">prop attr</a></dd>
+	<dd><a href="demo/batch.html#html" target="main">html text</a></dd>
+	<dd><a href="demo/batch.html#val" target="main">val data</a></dd>
+	<dd><a href="demo/batch.html#remove" target="main">remove empty</a></dd>
+	<dt>实践</dt>
+	<dd><a href="router.html" target="_blank">router</a></dd>
+	<dd><a href="Class.html" target="_blank">Class</a></dd>
+</dl>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!-- ie6-8 use quirks mode-->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>扩展对象</title>
+	<link href="ting.css" rel="stylesheet">
+	<script src="../sky.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h2>扩展对象</h2>
+	<h3 id="Array">Array</h3>
+	<h4>Array.prototype.indexOf</h4>
+	<p>返回给定元素能找在数组中找到的第一个索引值,否则返回-1。</p>
+<pre><code>var a = [2, 9, 9];
+a.indexOf(2); // 0
+a.indexOf(7); // -1
+if (a.indexOf(7) === -1) {
+	// element doesn't exist in array
+}</code></pre>
+	<h4>Array.prototype.lastIndexOf</h4>
+	<p>返回指定元素在数组中的最后一个的索引，如果不存在则返回 -1。从数组的后面向前查找，从 fromIndex 处开始。</p>
+	<h4>Array.prototype.forEach</h4>
+	<p>对数组的每个元素执行一次提供的函数(回调函数)。</p>
+<pre><code>var words=["one","two","three","four"];
+words.forEach(function(word){
+	console.log(word);
+});</code></pre>
+	<h4>Array.prototype.map</h4>
+	<p>返回一个由原数组中的每个元素调用一个指定方法后的返回值组成的新数组。</p>
+<pre><code>var numbers = [1, 4, 9];
+var roots = numbers.map(Math.sqrt);
+/* roots的值为[1, 2, 3], numbers的值仍为[1, 4, 9] */</code></pre>
+<pre><code>var users = [{id:"admin", name:"管理员"}, {id:"100360", name:"王小明"}, {id:"100361", name:"张敏敏"}];
+	var ids = users.map(function(user){
+	return user.id;
+});
+//["admin", "100360", "100361"]</code></pre>
+	<h4>Array.prototype.filter</h4>
+	<p>使用指定的函数测试所有元素，并创建一个包含所有通过测试的元素的新数组。</p>
+	<h4>Array.prototype.some</h4>
+	<p>测试数组中的某些元素是否通过了指定函数的测试。</p>
+	<h4>Array.prototype.every</h4>
+	<p>测试数组的所有元素是否都通过了指定函数的测试。</p>
+	<h3 id="Object">Object</h3>
+	<h4>Object.keys</h4>
+	<p>方法会返回一个由给定对象的自身可枚举属性组成的数组</p>
+	<h3 id="Date">Date</h3>
+	<h4>Date.prototype.toLocaleFormat</h4>
+	<p>按特定的格式将一个日期转换成一个字符串。</p>
+	<table class="table table-bordered table-condensed table-striped">
+		<thead>
+			<tr class="info">
+				<th>格式</th><th>描述</th><th>例子</th>
+			</tr>
+		</thead>
+		<tbody class="table-hover">
+			<tr>
+				<td>%x</td><td>本地日期格式</td><td>2014/06/03</td>
+			</tr>
+			<tr>
+				<td>%X</td><td>本地时间格式</td><td>06:03:04</td>
+			</tr>
+			<tr>
+				<td>%T</td><td>时间格式</td><td>06:03:04</td>
+			</tr>
+			<tr>
+				<td>%Y</td><td>年完整版</td><td>2008</td>
+			</tr>
+			<tr>
+				<td>%y</td><td>年缩写</td><td>09</td>
+			</tr>
+			<tr>
+				<td>%m</td><td>月</td><td>1~12</td>
+			</tr>
+			<tr>
+				<td>%e</td><td>日(一个月中的第几天)(不会补0)</td><td>1~31</td>
+			</tr>
+			<tr>
+				<td>%d</td><td>日(一个月中的第几天)</td><td>01~31</td>
+			</tr>
+			<tr>
+				<td>%H</td><td>几时(按24小时)</td><td>00~23</td>
+			</tr>
+			<tr>
+				<td>%i</td><td>几时(按12小时)</td><td>00~11</td>
+			</tr>
+			<tr>
+				<td>%M</td><td>分</td><td>00~59</td>
+			</tr>
+			<tr>
+				<td>%S</td><td>秒</td><td>00~59</td>
+			</tr>
+			<tr>
+				<td>%p</td><td>AM或PM"</td><td>AM或PM</td>
+			</tr>
+			<tr>
+				<td>%%</td><td>原义的%</td><td>%</td>
+			</tr>
+		</tbody>
+	</table>
+	<a class="btn btn-primary" href="javascript:alert(new Date().toLocaleFormat('%Y-%m-%d %H:%M:%S'))">%Y-%m-%d %H:%M:%S</a>
+	<a class="btn btn-primary" href="javascript:alert(new Date().toLocaleFormat('%x %X %T %Y %y %e %d %H %i %M %S %p %%x%'))">%x %X %T %Y %y %e %d %H %i %M %S %p %%x%</a>
+	<h4>Date.prototype.toISOString</h4>
+	<p>返回一个 ISO（ISO 8601 Extended Format）格式的字符串。</p>
+	<a class="btn btn-primary" href="javascript:alert(new Date().toISOString())">toISOString</a>
+	<h4>Date.prototype.toJSON</h4>
+	<p>使用JSON.stringify时，对Date的处理。</p>
+	<a class="btn btn-primary" href="javascript:alert(new Date().toJSON())">toJSON</a>
+	<a class="btn btn-primary" href="javascript:alert(JSON.stringify(new Date()))">JSON.stringify</a>
+	<h4>Date.prototype.toLocaleString</h4>
+	<p>返回该日期对象的字符串。</p>
+	<a class="btn btn-primary" href="javascript:alert(new Date().toLocaleString())">toLocaleString</a>
+	<a class="btn btn-primary" href="javascript:alert(new Date().toLocaleDateString())">toLocaleDateString</a>
+	<a class="btn btn-primary" href="javascript:alert(new Date().toLocaleTimeString())">toLocaleTimeString</a>
+	<h4>Date.prototype.format</h4>
+	<p>按SimpleDateFormat的格式将一个日期转换成一个字符串。</p>
+	<table class="table table-bordered table-condensed table-striped">
+		<thead>
+		<tr class="info">
+			<th>格式</th><th>描述</th><th>例子</th>
+		</tr>
+		</thead>
+		<tbody class="table-hover">
+		<tr>
+			<td>yyyy</td><td>年</td><td>2014</td>
+		</tr>
+		<tr>
+			<td>yy</td><td>年</td><td>14</td>
+		</tr>
+		<tr>
+			<td>MM</td><td>月</td><td>01~31</td>
+		</tr>
+		<tr>
+			<td>M</td><td>月</td><td>1~31</td>
+		</tr>
+		<tr>
+			<td>dd</td><td>日</td><td>01~31</td>
+		</tr>
+		<tr>
+			<td>d</td><td>日</td><td>1~31</td>
+		</tr>
+		<tr>
+			<td>HH</td><td>几时(按24小时)</td><td>00~23</td>
+		</tr>
+		<tr>
+			<td>H</td><td>几时(按24小时)</td><td>0~23</td>
+		</tr>
+		<tr>
+			<td>hh</td><td>几时(按12小时)</td><td>00~11</td>
+		</tr>
+		<tr>
+			<td>h</td><td>几时(按12小时)</td><td>0~11</td>
+		</tr>
+		<tr>
+			<td>mm</td><td>分</td><td>00~59</td>
+		</tr>
+		<tr>
+			<td>m</td><td>分</td><td>0~59</td>
+		</tr>
+		<tr>
+			<td>ss</td><td>秒</td><td>00~59</td>
+		</tr>
+		<tr>
+			<td>s</td><td>秒</td><td>0~59</td>
+		</tr>
+		<tr>
+			<td>SSS</td><td>毫秒</td><td>%</td>
+		</tr>
+		<tr>
+			<td>a</td><td>AM或PM</td><td>AM或PM</td>
+		</tr>
+		</tbody>
+	</table>
+	<a class="btn btn-primary" href="javascript:alert(new Date().format('yyyy-MM-dd HH:mm:ss.SSS'))">yyyy-MM-dd HH:mm:ss.SSS</a>
+	<h4>Date.now</h4>
+	<p>获取当前时间戳。</p>
+	<h3 id="Node">Node</h3>
+	<h4>Node.prototype.contains</h4>
+	<p>返回一个布尔值来表示是否传入的节点是该节点的子节点。</p>
+	<h3 id="String">String</h3>
+	<h4>String.prototype.trim</h4>
+	<p>方法会删除一个字符串两端的空白字符。在这个字符串里的空格包括所有的空格字符 (space, tab, no-break space 等)以及所有的行结束符（如 LF，CR）。</p>
+	<h4>String.prototype.startsWith</h4>
+	<p>用来判断当前字符串是否是以另外一个给定的子字符串“开头”的，根据判断结果返回 true 或 false。</p>
+	<h4>String.prototype.endsWith</h4>
+	<p>用来判断当前字符串是否是以另外一个给定的子字符串“结尾”的，根据判断结果返回 true 或 false。</p>
+	<h4>String.prototype.repeat</h4>
+	<p>构造并返回一个新字符串，该字符串包含被连接在一起的指定数量的字符串的副本。</p>
+	<h4>String.prototype.padStart</h4>
+	<p>会用第二个参数中指定的填充字符串，在当前字符串的头部不断填充，直到它达到第一个参数中指定的目标长度。</p>
+	<a class="btn btn-primary" href="javascript:alert('20'.padStart(5,'0'))">'20'.padStart(5,'0')</a>
+	<h4>String.prototype.padEnd</h4>
+	<p>会用第二个参数中指定的填充字符串，在当前字符串的尾部不断填充，直到它达到第一个参数中指定的目标长度。</p>
+	<h4>String.prototype.replaceAll</h4>
+	<p>替换此字符串匹配给定的第一个子字符串。</p>
+	<a class="btn btn-primary" href="javascript:alert('\\n\t\d\\n'.replaceAll('\\n','0').replaceAll('\t','1').replaceAll('\d','2'))">
+		'\\n\t\d\\n'.replaceAll('\\n','0').replaceAll('\t','1').replaceAll('\d','2')
+	</a>
+	<h3 id="Function">Function</h3>
+	<h4>Function.prototype.bind</h4>
+	<p>bind方法会创建一个新函数,称为绑定函数.当调用这个绑定函数时,绑定函数会以创建它时传入bind方法的第一个参数作为this。</p>
+</div>
+</body>
+</html>

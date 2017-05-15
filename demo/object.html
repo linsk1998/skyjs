@@ -1,0 +1,75 @@
+<!-- ie6-8 use quirks mode-->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>对象操作</title>
+	<link href="ting.css" rel="stylesheet">
+	<script src="../sky.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h2>对象操作</h2>
+	<h3 id="apply">Sky.apply applyIf</h3>
+	<p>属性拷贝，apply会覆盖，applyIf不会覆盖</p>
+	<h3 id="extend">Sky.extend</h3>
+	<p>扩展对象</p>
+<pre><code>var result=$.extend({},{name:"Tom",age:21},{name:"Jerry",sex:"Boy"});
+//{name: "Jerry", age: 21, sex: "Boy"}</code></pre>
+	<p>第一个参数boolean代表是否进行深度拷贝</p>
+<pre><code>var result=$.extend( true, {}, { name: "John", location: {city: "Boston",county:"USA"} }, { last: "Resig", location: {state: "MA",county:"China"} } );
+//{"name":"John","location":{"city":"Boston","county":"China","state":"MA"},"last":"Resig"}</code></pre>
+	<h3 id="forIn">Sky.forIn forOwn</h3>
+	<p>遍历对象的元素</p>
+<pre><code>Sky.forIn( {"key":"value"}, function( key, value){
+	alert(this[key]);
+});</code></pre>
+	<h3 id="parseQuery">Sky.parseQuery</h3>
+	<p>解析url参数</p>
+<pre><code>var param=Sky.parseQuery(location.search);
+var param2=Sky.parseQuery("a=1&b=2&c=3");   //{"a":"1","b":"2","c":"3"}
+</code></pre>
+	<h3>Sky.buildQuery</h3>
+	<p>转变为url数据(utf-8)</p>
+<pre><code>var param={"a":"1","b":"2","c":"3"};
+alert(Sky.buildQuery(param));   //a=1&b=2&c=3
+</code></pre>
+	<h3 id="isXxx">Sky.isXxx</h3>
+	<p>判断类型</p>
+	<table class="table table-bordered table-condensed table-striped">
+		<thead>
+		<tr class="info">
+			<th>方法</th><th>描述</th>
+		</tr>
+		</thead>
+		<tbody class="table-hover">
+		<tr><td>isArray</td><td>是否是数组</td></tr>
+		<tr><td>isDate</td><td>是否是日期</td></tr>
+		<tr><td>isString</td><td>是否是字符串</td></tr>
+		<tr><td>isRegExp</td><td>是否是正则表达式</td></tr>
+		<tr><td>isFunction</td><td>是否是函数</td></tr>
+		<tr><td>isNumber</td><td>是否是数字</td></tr>
+		<tr><td>isObject</td><td>是否是对象（typeof）</td></tr>
+		<tr><td>isPlainObject</td><td>是否是纯对象</td></tr>
+		<tr><td>isNumeric</td><td>是否是数字 "10" "10.3"</td></tr>
+		<tr><td>isDefined</td><td>是否未定义</td></tr>
+		<tr><td>isArrayLike</td><td>是否是类数组</td></tr>
+		<tr><td>isElement</td><td>是否是元素</td></tr>
+		<tr><td>isEmpty</td><td>是否是空 包括Set Array ArrayLike</td></tr>
+		</tbody>
+	</table>
+	<h3>JSON.stringify</h3>
+	<pre><code>JSON.stringify({a:"s\"tr",b:[1,2,NaN],c:false,d:{a:new Date(),b:/reg/,c:function(){}}})</code></pre>
+	<a class="btn btn-primary" href='javascript:alert(JSON.stringify({a:"s\"tr",b:[1,2,NaN],c:false,d:{a:new Date(),b:/reg/,c:function(){}}}))'>测试</a>
+	<h3>JSON.parse</h3>
+	<pre><code>JSON.parse("{\"a\":1,\"b\":2}")</code></pre>
+	<a class="btn btn-primary" href='javascript:alert(JSON.parse("{\"a\":1,\"b\":2}").a)'>测试</a>
+	<h3>Sky.noop</h3>
+	<p>函数是一个空函数,它什么也不做。</p>
+</div>
+</body>
+</html>
