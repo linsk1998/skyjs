@@ -7,6 +7,8 @@ Sky.declare=function(conf){
 			//在IE8中 Sky.support.defineProperty为false
 			if(!Sky.support.defineProperty && Sky.support.VBScript){
 				me=VBClassFactory(conf);
+				me.__proto__=constructor.prototype;
+				me.constructor=constructor;
 				for(member in conf.method){
 					me[member]=conf.method[member].bind(me);
 				}
@@ -65,7 +67,9 @@ if(Sky.support.VBScript){
 			var buffer = ["Class "+className];
 			var key;
 			var uniq={
-				'$propertys':true
+				'$propertys':true,
+				'__proto__':true,
+				'constructor':true
 			};
 			for(key in uniq){
 				buffer.push('Public ['+key+']');
