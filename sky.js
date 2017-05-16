@@ -1161,7 +1161,7 @@ Sky.getAbsPath=function(relativePath, absolutePath) {
 	if(arr){
 		return url.prefix+relativePath;
 	}
-	return fixURI(url.folder + "/" + relativePath).replace(/^\/(\.\.\/)+/,"/");
+	return url.prefix+fixURI(url.folder + "/" + relativePath).replace(/^\/(\.\.\/)+/,"/");
 	function fixURI(uri){
 		var pattern=/[^\/]*\/\.\.\//;
 		if(uri.match(pattern)){
