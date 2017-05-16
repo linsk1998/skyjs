@@ -2719,6 +2719,9 @@ if(typeof alert=="unknown"){
 	Sky.support.VBScript=true;
 }
 Sky.noop=function(){};
+Sky.later=function(fn){
+	setTimeout(fn,0);
+};
 if(!document.addEventListener){
 	Sky.support.addEventListener=false;
 	Sky.support.DOMContentLoaded=false;
