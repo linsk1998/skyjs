@@ -604,6 +604,7 @@ if(!this.Promise){
 			try {
 				resolver(resolvePromise, rejectPromise);
 			} catch(e) {
+				console.error(e);
 				rejectPromise(e);
 			}
 		}
@@ -618,6 +619,7 @@ if(!this.Promise){
 				try {
 					value = callback(value);
 				} catch(e) {
+					console.error(e);
 					reject(promise, e);
 				}
 			}
