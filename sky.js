@@ -275,6 +275,18 @@ if(!String.prototype.endsWith){
 		return this.slice(position-length, position) === prefix;
 	};
 }
+if(!String.prototype.includes) {
+	String.prototype.includes = function(search, start) {
+		if(typeof start!=='number'){
+			start=0;
+		}
+		if(start+search.length>this.length){
+			return false;
+		}else{
+			return this.indexOf(search, start)!==-1;
+		}
+	};
+}
 if(!String.prototype.repeat){
 	String.prototype.repeat=function(count){
 		if(count<0){
