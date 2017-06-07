@@ -18,6 +18,12 @@ if(typeof $=="undefined"){
 }
 Sky.support={};
 (function(){
+	try{
+		a.b.c();
+	}catch(e){
+		var stack=e.stack || e.sourceURL || e.stacktrace || '';
+		Sky.support.stack=!!stack;
+	}
 	var userAgent = navigator.userAgent.toLowerCase();
 	Sky.browser={
 		version:(userAgent.match( /.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/ ) || [])[1],
@@ -1205,10 +1211,13 @@ Sky.extend=function(){//扩展对象
 	}
 	return temp;
 };
+Sky.dontEnumMembers = ["toString", "toLocaleString", "valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable","constructor"];
 Sky.forIn=function(obj,fn){
 	for(var key in obj) {
-		if(fn.call(obj,obj[key],key)===false){
-			break;
+		if(Sky.dontEnumMembers.indexOf(key)<0 && key.indexOf("__")!=0){
+			if(fn.call(obj,obj[key],key)===false){
+				break;
+			}
 		}
 	}
 };
@@ -1312,6 +1321,17 @@ Sky.sortedLastIndex=function(arr,value){
 		}
 	}
 };
+if(!Sky.support.stack){
+	Sky.setTimeout=window.setTimeout;
+	window.setTimeout=function(func,delay){
+		var currentPath=Sky.getCurrentPath();
+		Sky.setTimeout(function(){
+			Sky.currentPath=currentPath;
+			func.call(this);
+			Sky.currentPath=null;
+		},delay);
+	};
+}
 Sky.ajax=function(options){
 	var targetUrl=options.url;
 	var success=options.success;
@@ -1320,8 +1340,15 @@ Sky.ajax=function(options){
 	var complete=options.complete;
 	var xhr=Sky.ajax.createXMLHttpRequest();
 	if(options.timeout) xhr.timeout=options.timeout;
+	var currentPath;
+	if(!Sky.support.stack){
+		currentPath=Sky.getCurrentPath();
+	}
 	xhr.onreadystatechange = function(){
 		if(xhr.readyState == 4 ) {
+			if(!Sky.support.stack){
+				Sky.currentPath=currentPath;
+			}
 			if(xhr.status == 200 || xhr.status==0){//本地访问为0
 				var returnType=xhr.getResponseHeader("Content-Type");
 				if(returnType){
@@ -1351,6 +1378,9 @@ Sky.ajax=function(options){
 				error.call(xhr,xhr.responseText);
 			}
 			if(complete) complete.call(xhr,xhr.responseText);
+			if(!Sky.support.stack){
+				Sky.currentPath=null;
+			}
 		}
 	};
 	if(options.type && options.type.toUpperCase()=="POST"){
@@ -1454,18 +1484,29 @@ Sky.getJSONP=function(url, callback){
 		url+=cbname;
 	}
 	var script=document.createElement("script");
-	window[cbname]=function(response){
-		try{
-			callback(response);
-		}finally{
-			if(!-[1,]){//ie6-8
+	var currentPath;
+	if(!Sky.support.stack){
+		currentPath=Sky.getCurrentPath();
+		window[cbname]=function(response){
+			try{
+				Sky.currentPath=currentPath;
+				callback(response);
+				Sky.currentPath=null;
+			}finally{
 				window[cbname]=undefined;
-			}else{
-				delete window[cbname];
+				script.parentNode.removeChild(script);
 			}
-			script.parentNode.removeChild(script);
-		}
-	};
+		};
+	}else{
+		window[cbname]=function(response){
+			try{
+				callback(response);
+			}finally{
+				delete window[cbname];
+				script.parentNode.removeChild(script);
+			}
+		};
+	}
 	script.src=url;
 	document.body.appendChild(script);
 };
@@ -1481,6 +1522,10 @@ Sky.getScript=function(src, func) {
 	var script = document.createElement('script');
 	script.async = "async";
 	script.src = src;
+	var currentPath;
+	if(!Sky.support.stack){
+		currentPath=Sky.getCurrentPath();
+	}
 	if(func){
 		if('onreadystatechange' in script){
 			script.onreadystatechange = function(){
@@ -1488,7 +1533,13 @@ Sky.getScript=function(src, func) {
 					document.head.appendChild(script);
 				}else if(this.readyState == "complete"){
 					this.onreadystatechange = null;
+					if(!Sky.support.stack){
+						Sky.currentPath=currentPath;
+					}
 					func();
+					if(!Sky.support.stack){
+						Sky.currentPath=null;
+					}
 				}
 			};
 		}else{
@@ -1499,55 +1550,65 @@ Sky.getScript=function(src, func) {
 		document.head.appendChild(script);
 	}
 };
-Sky.getCurrentScript=function(){
-	if(document.currentScript){
+if("currentScript" in document){
+	Sky.getCurrentScript=function(){
 		return document.currentScript;
-	}
-	var nodes=document.getElementsByTagName('SCRIPT');
-	for(var i = nodes.length - 1; i >= 0; i--) {
-		var node=nodes[i];
-		if( node.readyState === "interactive") {
-			return node;
+	};
+}else{
+	Sky.getCurrentScript=function(){
+		var nodes=document.getElementsByTagName('SCRIPT');
+		for(var i = nodes.length - 1; i >= 0; i--) {
+			var node=nodes[i];
+			if( node.readyState === "interactive") {
+				return node;
+			}
 		}
-	}
-	return nodes[nodes.length-1];
-};
-Sky.getCurrentPath=function(){
-	if(document.currentScript){
-		return Sky.getAbsPath(document.currentScript.src,location.href);
-	}
-	var nodes=document.getElementsByTagName('SCRIPT');
-	for(var i = nodes.length - 1; i >= 0; i--) {
-		var node=nodes[i];
-		if( node.readyState === "interactive") {
-			return Sky.getAbsPath(node.src,location.href);
+		if(Sky.isReady){
+			nodes=document.head.getElementsByTagName('SCRIPT');
 		}
-	}
-	var e = new Error('err');
-	var stack = e.stack || e.sourceURL || e.stacktrace || '';
-	if(!stack){ try{a.b.c();}catch(e){stack=e.stack;}}
-	var stacks=stack.split("\n");
-	for(var i = stacks.length - 1; i >= 0; i--) {
-		if(stacks[i]) {
-			stack=stacks[i];
-			break ;
+		return nodes[nodes.length-1];
+	};
+}
+if(Sky.support.stack){
+	Sky.getCurrentPath=function(){
+		var e = new Error('err');
+		var stack = e.stack || e.sourceURL || e.stacktrace || '';
+		if(!stack){ try{a.b.c();}catch(e){
+			stack=e.stack || e.sourceURL || e.stacktrace || '';
+		}}
+		var stacks=stack.split("\n");
+		for(var i = stacks.length - 1; i >= 0; i--) {
+			if(stacks[i]) {
+				stack=stacks[i];
+				break ;
+			}
 		}
-	}
-	var arr=stack.match(/^@(.*):\d+$/);
-	if(arr){return arr[1];}
-	arr=stack.match(/^\s+at (.*):\d+:\d+$/);
-	if(arr){return arr[1];}
-	arr=stack.match(/code \((.*):\d+:\d+\)$/);
-	if(arr){return arr[1];}
-	nodes=document.getElementsByTagName('HEAD')[0].getElementsByTagName('SCRIPT');
-	for(var i = nodes.length - 1; i >= 0; i--) {
-		var node=nodes[i];
-		if( node.src) {
-			return Sky.getAbsPath(node.src,location.href);
+		var path;
+		var arr=stack.match(/^@(.*):\d+$/);
+		if(arr){
+			path=arr[1];
+		}else if(arr=stack.match(/^\s+at (.*):\d+:\d+$/)){
+			path=arr[1];
+		}else if(arr=stack.match(/^\s+at [^\(]*\((.*):\d+:\d+\)$/)){
+			path=arr[1];
+		}else{
+			return null;
 		}
-	}
-	return stack;
-};
+		if(path==location.href){
+			return null;
+		}
+		return path;
+	};
+}else{
+	Sky.getCurrentPath=function(){
+		if(Sky.currentPath) return Sky.currentPath;
+		var currentScript=Sky.getCurrentScript();
+		if(currentScript && currentScript.src){
+			return Sky.getAbsPath(currentScript.src,location.href);
+		}
+		return null;
+	};
+}
 (function(){
 	var uid=0;
 	Sky.id=function(check) {
