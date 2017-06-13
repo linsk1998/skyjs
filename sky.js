@@ -59,7 +59,7 @@ if (!Object.keys) {
 		return result;
 	};
 }
-Sky.support.defineProperty=Object.defineProperty && document.addEventListener;
+Sky.support.defineProperty=!!Object.defineProperty && !!document.addEventListener;
 if(Sky.support.__defineSetter__){
 	Sky.support.defineProperty=true;
 	if (!Object.defineProperty) {
@@ -1172,7 +1172,7 @@ Sky.getAbsPath=function(relativePath, absolutePath) {
 	if(relativePath.match(/^[a-zA-Z]+:/)){
 		return relativePath;
 	}
-	var url=Sky.parseURL(absolutePath);
+	var url=Sky.parseURL(absolutePath || location.href);
 	var arr=relativePath.match(/^\.\//);
 	if(arr){
 		return url.prefix+url.folder+relativePath.substring(1,relativePath.length);

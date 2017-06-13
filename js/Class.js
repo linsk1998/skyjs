@@ -7,11 +7,13 @@ Sky.declare=function(conf){
 			//在IE8中 Sky.support.defineProperty为false
 			if(!Sky.support.defineProperty && Sky.support.VBScript){
 				me=VBClassFactory(conf);
-				me.__proto__=constructor.prototype;
 				me.constructor=constructor;
 				for(member in conf.method){
 					me[member]=conf.method[member].bind(me);
 				}
+				me.hasOwnProperty=function(){
+					return false;
+				};
 			}
 			var value;
 			for(member in conf.property){
@@ -58,6 +60,7 @@ if(Sky.support.VBScript){
 		var property = propertys[name];
 		return property.get.call(instance);
 	};
+	//从avalon学到的方式，通过VB
 	var VBClassFactory=function(conf){
 		var cacheKey=JSON.stringify(conf);
 		var className=VBClassPool[cacheKey];
@@ -67,12 +70,13 @@ if(Sky.support.VBScript){
 			var buffer = ["Class "+className];
 			var key;
 			var uniq={
-				'$propertys':true,
-				'__proto__':true,
-				'constructor':true
+				'__propertys__':true
 			};
-			for(key in uniq){
+			buffer.push('Public [__propertys__]');
+			for(var i=0;i<Sky.dontEnumMembers.length;i++){
+				key=Sky.dontEnumMembers[i];
 				buffer.push('Public ['+key+']');
+				uniq[key]=true;
 			}
 			for(key in conf.method){
 				if(!uniq[key]){
@@ -87,16 +91,16 @@ if(Sky.support.VBScript){
 						buffer.push(
 							//由于不知对方会传入什么,因此set, let都用上
 							'Public Property Let ['+key+'](value)', //setter
-							'Call VBSetter(Me, [$propertys], "'+key+'",value)',
+							'Call VBSetter(Me, [__propertys__], "'+key+'",value)',
 							'End Property',
 							'Public Property Set ['+key+'](value)', //setter
-							'Call VBSetter(Me, [$propertys], "' + name + '",value)',
+							'Call VBSetter(Me, [__propertys__], "' + name + '",value)',
 							'End Property',
 							'Public Property Get ['+key+']', //getter
 							'On Error Resume Next', //必须优先使用set语句,否则它会误将数组当字符串返回
-							'Set['+key+'] = VBGetter(Me, [$propertys],"'+key+'")',
+							'Set['+key+'] = VBGetter(Me, [__propertys__],"'+key+'")',
 							'If Err.Number <> 0 Then',
-							'['+key+'] = VBGetter(Me, [$propertys],"'+key+'")',
+							'['+key+'] = VBGetter(Me, [__propertys__],"'+key+'")',
 							'End If',
 							'On Error Goto 0',
 							'End Property');
@@ -111,7 +115,7 @@ if(Sky.support.VBScript){
 				'Function ' + className + '_Factory(property)', //创建实例并传入两个关键的参数
 				'Dim o',
 				'Set o = New '+className,
-				'Set o.[$propertys] = property',
+				'Set o.[__propertys__] = property',
 				'Set '+className+'_Factory=o',
 				'End Function'
 			);

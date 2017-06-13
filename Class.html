@@ -8,9 +8,9 @@
 </head>
 <body>
 <button type="button" onclick="mao.say()">say</button>
-<button type="button" onclick="mao.age=parseInt(prompt('年龄','10'));alert(mao.birthday.toISOString());">setAge</button>
 <button type="button" onclick="alert(mao.age);">getAge</button>
 <button type="button" onclick="alert(mao.birthday.toISOString());">getBirthday</button>
+<button type="button" onclick="mao.age=parseInt(prompt('年龄','10'));alert(mao.birthday.toISOString());">setAge</button>
 <script type="text/javascript">
 	var Cat=Sky.declare({
 		'constructor':function(){
@@ -42,6 +42,9 @@
 		}
 	});
 	var mao=new Cat();
+	Sky.forIn(mao,function(value,member){
+		//alert(member);
+	});
 </script>
 </body>
 </html>
