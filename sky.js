@@ -1238,7 +1238,7 @@ Sky.hasOwn=function(obj,key){
 };
 Sky.apply=function(obj,config){
 	for(var k in config) {
-		if(Sky.hasOwn(config,key)){
+		if(Sky.hasOwn(config,k)){
 			obj[k] = config[k];
 		}
 	}
@@ -1277,7 +1277,7 @@ Sky.findLastIndex=function(arr,key,value){
 };
 Sky.find=function(arr,key,value){
 	for(var i=0; i<arr.length; i++){
-		if(arr[i][key]===value){return value;}
+		if(arr[i][key]===value){return arr[i];}
 	}
 };
 Sky.findLast=function(arr,key,value){
@@ -1336,7 +1336,7 @@ Sky.ajax=function(options){
 	var targetUrl=options.url;
 	var success=options.success;
 	var error=options.error;
-	var dataType=options.dataType?options.dataType:'text';
+	var dataType=options.dataType?options.dataType:'auto';
 	var complete=options.complete;
 	var xhr=Sky.ajax.createXMLHttpRequest();
 	if(options.timeout) xhr.timeout=options.timeout;
@@ -1351,7 +1351,7 @@ Sky.ajax=function(options){
 			}
 			if(xhr.status == 200 || xhr.status==0){//本地访问为0
 				var returnType=xhr.getResponseHeader("Content-Type");
-				if(returnType){
+				if(dataType=="auto" && returnType){
 					var arr=returnType.split("/");
 					if(arr && arr.length>1){
 						dataType=arr[arr.length-1];
@@ -1592,7 +1592,7 @@ if(Sky.support.stack){
 		}else if(arr=stack.match(/^\s+at [^\(]*\((.*):\d+:\d+\)$/)){
 			path=arr[1];
 		}else{
-			return null;
+			path=stack;
 		}
 		if(path==location.href){
 			return null;
@@ -1623,7 +1623,7 @@ if(Sky.support.stack){
 	};
 })();
 Sky.byId=function(id){
-	document.getElementById(id);
+	return document.getElementById(id);
 }
 Sky.attachEvent=function(obj, evt, func) {
 	if(obj.addEventListener) {
@@ -1654,6 +1654,7 @@ Sky.fireEvent=function(e,eventName){
 	}
 };
 Sky.hasClass=function(obj,cls){
+	if(!obj) return false;
 	return obj.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
 };
 Sky.addClass=function(obj,cls){
@@ -2328,18 +2329,22 @@ Sky.fn.appendTo=function(parent){
 	}
 	return this;
 };
-Sky.fn.append=function(sub){
-	if(Sky.isString(sub)){
-		return this.each(function(){
-			var tn=document.createTextNode(sub);
-			this.appendChild(tn);
-		});
-	}else if(sub.appendTo){
-		sub.appendTo(this);
-		return this;
-	}else if(this.length){
-		this[0].appendChild(sub);
-	}
+Sky.fn.append=function(){
+	var args=Array.prototype.slice.call(arguments,0);
+	args.forEach(function(sub){
+		if(!sub) return ;
+		if(Sky.isString(sub) || Sky.isNumber(sub)){
+			return this.each(function(){
+				var tn=document.createTextNode(sub);
+				this.appendChild(tn);
+			});
+		}else if(sub.appendTo){
+			sub.appendTo(this);
+			return this;
+		}else if(this.length){
+			this[0].appendChild(sub);
+		}
+	},this);
 	return this;
 };
 Sky.fn.prepend=function(sub){
@@ -2685,7 +2690,7 @@ Sky.fn.mouseleave=function(callback){
 };
 if("ontouchstart" in document){
 	Sky.fn.tap=function(callback){
-		return this.bind("touchstart",function(e){console.log(e);
+		return this.bind("touchstart",function(e){
 			this.data.lastTouchTime=Date.now();
 		}).bind("touchend",function(e){
 			if(Date.now()-this.data.lastTouchTime<200){
@@ -2698,7 +2703,7 @@ if("ontouchstart" in document){
 }
 if("ontouchstart" in document){
 	Sky.fn.tap=function(callback){
-		return this.bind("touchstart",function(e){console.log(e);
+		return this.bind("touchstart",function(e){
 			this.data.lastTouchTime=Date.now();
 		}).bind("touchend",function(e){
 				if(Date.now()-this.data.lastTouchTime<200){
