@@ -90,6 +90,26 @@ if (!Array.prototype.lastIndexOf) {
 		return -1;
 	};
 }
+if (!Array.prototype.findIndex) {
+	Array.prototype.find = function(callback, thisArg) {
+		for(var i=0,j; i<this.length; i++){
+			j=this[i];
+			var r=callback.call(thisArg,j,i,this);
+			if(r){
+				return i;
+			}
+		}
+		return -1;
+	};
+}
+if (!Array.prototype.find) {
+	Array.prototype.find = function(callback, thisArg) {
+		var i=this.findIndex(callback, thisArg);
+		if(i>=0){
+			return this[i];
+		}
+	};
+}
 //遍历数组
 if(!Array.prototype.forEach ){
 	Array.prototype.forEach =function(callback, thisArg){
@@ -1518,9 +1538,11 @@ if(!window.execScript){
 		window["eval"].call( window,script);
 	};
 }
-Sky.getScript=function(src, func) {
+Sky.getScript=function(src, func, charset) {
 	var script = document.createElement('script');
 	script.async = "async";
+	if(!charset){charset="UTF-8"};
+	script.charset=charset;
 	script.src = src;
 	var currentPath;
 	if(!Sky.support.stack){

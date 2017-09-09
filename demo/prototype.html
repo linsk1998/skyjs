@@ -25,6 +25,16 @@ if (a.indexOf(7) === -1) {
 }</code></pre>
 	<h4>Array.prototype.lastIndexOf</h4>
 	<p>返回指定元素在数组中的最后一个的索引，如果不存在则返回 -1。从数组的后面向前查找，从 fromIndex 处开始。</p>
+	<h4>Array.prototype.find</h4>
+	<p>方法返回数组中满足提供的测试函数的第一个元素的值。否则返回 undefined。</p>
+	<h4>Array.prototype.findIndex</h4>
+	<p>方法返回数组中满足提供的测试函数的第一个元素的索引。否则返回-1。</p>
+<pre><code>function isBigEnough(element) {
+	return element >= 15;
+}
+
+[12, 5, 8, 130, 44].find(isBigEnough); // 130
+[12, 5, 8, 130, 44].findIndex(isBigEnough); // 3</code></pre>
 	<h4>Array.prototype.forEach</h4>
 	<p>对数组的每个元素执行一次提供的函数(回调函数)。</p>
 <pre><code>var words=["one","two","three","four"];
