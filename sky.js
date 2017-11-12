@@ -1680,11 +1680,11 @@ Sky.hasClass=function(obj,cls){
 	return obj.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
 };
 Sky.addClass=function(obj,cls){
-	if(!Sky.hasClass(obj,cls)) obj.className+=" "+cls;
+	if(!Sky.hasClass(obj,cls)) obj.className=obj.className.trim()+" "+cls;
 };
 Sky.removeClass=function(obj,cls){
 	if(Sky.hasClass(obj,cls)){
-		var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
+		var reg = new RegExp('(\\s*|^)'+cls+'(\\s*|$)');
 		obj.className=obj.className.replace(reg,' ');
 	}
 };
@@ -2150,7 +2150,7 @@ if(document.getElementsByClassName){
 		var nodes=new Batch();
 		this.forEach(function(ele){
 			var parent=ele;
-			while(parent=parent.parentNode){
+			while((parent=parent.parentNode) && parent!=document){
 				if(nodes.indexOf(parent)<0){
 					if(selector && !Sky.matches(parent,selector)){
 						continue ;
@@ -2616,6 +2616,12 @@ Sky.fn.data=function(key,value){
 		return null;
 	}
 };
+Sky.fn.hide=function(){
+	return this.css("display","none");
+};
+Sky.fn.show=function(){
+	return this.css("display","");
+};
 Sky.fn.remove=function(selector){
 	var r=this;
 	if(selector){
@@ -2697,7 +2703,7 @@ Sky.fn.click=function(callback){
 Sky.fn.mouseenter=function(callback){
 	return this.bind("mouseover",function(e){
 		var related=e.relatedTarget=e.relatedTarget || e.fromElement || this;
-		if(!related || (this=== e.target && related.contains(this))){
+		if(!related || ((this===e.target || this.contains(e.target)) && related.contains(this))){
 			callback.call(this, e);
 		}
 	});
@@ -2705,7 +2711,7 @@ Sky.fn.mouseenter=function(callback){
 Sky.fn.mouseleave=function(callback){
 	return this.bind("mouseout",function(e){
 		var related=e.relatedTarget=e.relatedTarget || e.toElement || this;
-		if(!related || (this === e.target && related.contains(this))){
+		if(!related || ((this===e.target || this.contains(e.target)) && related.contains(this))){
 			callback.call(this, e);
 		}
 	});
