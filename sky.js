@@ -1,6 +1,6 @@
 var Sky=function(arg1,arg2){
 	if(Sky.isString(arg1)){
-		if(arg2 && ('getElementsByName' in arg2)){
+		if(arg2 && ('getElementsByTagName' in arg2)){
 			return Sky.query(arg1,arg2);
 		}
 		if(arg1.match(/[\s>,#]+/)){
@@ -1372,9 +1372,10 @@ Sky.ajax=function(options){
 			if(xhr.status == 200 || xhr.status==0){//本地访问为0
 				var returnType=xhr.getResponseHeader("Content-Type");
 				if(dataType=="auto" && returnType){
-					var arr=returnType.split("/");
-					if(arr && arr.length>1){
-						dataType=arr[arr.length-1];
+					if(returnType.match(/\/json/i)){
+						dataType="JSON";
+					}else if(returnType.match(/\/xml/i)){
+						dataType="XML";
 					}
 				}
 				if(dataType.toUpperCase() == 'XML') {
@@ -1429,9 +1430,6 @@ Sky.ajax.createXMLHttpRequest=function(){
 	var request=false;
 	if(window.XMLHttpRequest){
 		request = new XMLHttpRequest();
-		if(request.overrideMimeType){
-			request.overrideMimeType('text/xml');
-		}
 	}else if(window.ActiveXObject){
 		var versions = ['Microsoft.XMLHTTP', 'MSXML.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.7.0', 'Msxml2.XMLHTTP.6.0', 'Msxml2.XMLHTTP.5.0', 'Msxml2.XMLHTTP.4.0', 'MSXML2.XMLHTTP.3.0', 'MSXML2.XMLHTTP'];
 		for(var i=0; i<versions.length; i++){
@@ -1684,16 +1682,16 @@ Sky.addClass=function(obj,cls){
 };
 Sky.removeClass=function(obj,cls){
 	if(Sky.hasClass(obj,cls)){
-		var reg = new RegExp('(\\s*|^)'+cls+'(\\s*|$)');
+		var reg = new RegExp('(\\s+|^)'+cls+'(\\s+|$)');
 		obj.className=obj.className.replace(reg,' ');
 	}
 };
 Sky.toggleClass=function(obj,cls){
 	if(Sky.hasClass(obj,cls)){
-		var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
+		var reg = new RegExp('(\\s+|^)'+cls+'(\\s+|$)');
 		obj.className=obj.className.replace(reg,' ');
 	}else{
-		obj.className+=" "+cls;
+		obj.className=obj.className.trim()+" "+cls;
 	}
 };
 Sky.getElementStyle=function(el, prop){
@@ -1871,6 +1869,25 @@ Sky.setFormData=function(form,data){
 						input.value="";
 					}
 			}
+		}
+	}
+};
+Sky.clearFormData=function(form){
+	if(Sky.isString(form)){
+		form=document.forms[form];
+	}
+	if(!form.tagName.toUpperCase()=="FORM"){
+		throw "form is not exit";
+	}
+	for(var i=0; i<form.length; i++){
+		var input=form[i];
+		switch (input.type) {
+			case "checkbox":
+			case "radio":
+				input.checked=false;
+				break;
+			default:
+				input.value="";
 		}
 	}
 };
@@ -2131,18 +2148,6 @@ if(document.getElementsByClassName){
 			if(parent && nodes.indexOf(parent)<0){
 				nodes.push(parent);
 			}
-		});
-		return nodes;
-	};
-	Sky.fn.parents=function(){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var parent=ele;
-			while(parent=parent.parentNode){
-				if(nodes.indexOf(parent)<0){
-					nodes.push(parent);
-				}
-			};
 		});
 		return nodes;
 	};
