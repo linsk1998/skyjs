@@ -1,4 +1,4 @@
-<!-- ie6-8 use quirks mode-->
+<!-- quirks -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,14 +8,13 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 	<meta name="renderer" content="webkit"/>
 	<title>元素操作</title>
-	<link href="ting.css" rel="stylesheet">
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<link href="/linsk1998/ting/master/theme/bootstrap/indigo.css" rel="stylesheet"/>
 	<script src="../sky.js"></script>
 </head>
 <body>
 <div class="container-fluid">
 	<h2>元素操作</h2>
-	<h3 id="id">Sky.id</h3>
-	<p>生成一个唯一的id值</p>
 	<h3 id="byId">Sky.byId</h3>
 	<p>根据ID获取当前元素</p>
 	<h3 id="getCurrentScript">Sky.getCurrentScript</h3>
@@ -28,7 +27,7 @@
 	</script>
 	<h3 id="getCurrentPath">Sky.getCurrentPath</h3>
 	<p>获取当前脚本的路径</p>
-	<a class="btn btn-primary" href='javascript:Sky.getScript("../js/getCurrentPath.js")'>alert(Sky.getCurrentPath());</a>
+	<a class="btn btn-primary" href='javascript:Sky.getScript("getCurrentPath.js")'>alert(Sky.getCurrentPath());</a>
 	<h3 id="getElementStyle">Sky.getElementStyle</h3>
 	<p>获取元素的样式，包括在CSS中设置的</p>
 	<pre><code>Sky.getElementStyle(this,prompt('样式名称','color'))</code></pre>
@@ -37,6 +36,14 @@
 	</a>
 	<h3 id="attachEvent">Sky.attachEvent detachEvent fireEvent</h3>
 	<p>绑定事件 解除绑定 触发事件</p>
+	<script>
+		function clickHandle(){
+			alert("点击事件");
+		}
+	</script>
+	<a class="btn btn-primary" href='javascript:Sky.attachEvent(Sky.byId("bindEgBtn"),"click",clickHandle);void 0'>绑定事件</a>
+	<a class="btn btn-primary" href='javascript:Sky.detachEvent(Sky.byId("bindEgBtn"),"click",clickHandle);void 0'>解除绑定</a>
+	<a class="btn btn-default" href='javascript:void 0' id="bindEgBtn">测试按钮</a>
 	<h3 id="hasClass">Sky.hasClass addClass removeClass toggleClass</h3>
 	<p>判断是否有一个类样式 添加类样式 移除类样式 切换类样式</p>
 	<h3 id="getPrevElement">Sky.getPrevElement getNextElement</h3>
@@ -44,18 +51,20 @@
 	<h3 id="getPageTop">Sky.getPageTop getPageLeft</h3>
 	<p>获取元素的位置。</p>
 	<h3 id="getElementsByClassName">Sky.getElementsByClassName</h3>
-	<p>根据一个类样式查找元素。</p>
+	<p>根据一个类样式查找元素，返回一个Array不是HTMLCollection。</p>
 	<pre><code>Sky.getElementsByClassName(document,"btn")</code></pre>
 	<p>
 		<a class="btn btn-primary" href='javascript:void 0' onclick='Sky.getElementsByClassName(this.parentNode, "btn")[1].innerHTML="button"'>Sky.getElementsByClassName(this.parentNode, "btn")[1].innerHTML="button"</a>
 		<a class="btn btn-primary" href='http://www.linsk.us/'>btn</a>
 	</p>
 	<h3 id="matches">Sky.matches(element, selector)</h3>
-	<p>判断一个元素是否满足id css attribute。</p>
-	<a class="btn btn-primary" href='javascript:void 0' onclick='alert(Sky.matches(this, ".btn"))'>alert(Sky.matches(this, ".btn"))</a>
-	<a class="btn btn-primary" href='javascript:void 0' onclick='alert(Sky.matches(this, ".button"))'>alert(Sky.matches(this, ".button"))</a>
+	<p>判断一个元素是否满足id css attribute，匹配成功返回匹配到的元素，不匹配返回false。</p>
+	<p>
+		<a class="btn btn-primary" href='javascript:void 0' onclick='alert(!!Sky.matches(this, ".btn",null,true))'>alert(Sky.matches(this, ".btn"))</a>
+		<a class="btn btn-primary" href='javascript:void 0' onclick='alert(Sky.matches(this, ".button"))'>alert(Sky.matches(this, ".button"))</a>
+	</p>
 	<h3 id="querySelector">Sky.querySelector(element, selector)</h3>
-	<p>判断一个元素是否满足id css attribute。</p>
+	<p>多个元素是否满足id css attribute，返回一个Array不是HTMLCollection。</p>
 	<p class="query-eg">
 		<a class="btn btn-primary" href='javascript:void 0' onclick='Sky.querySelector(document, ".container-fluid .query-eg .btn")[0].innerHTML="button"'>
 			Sky.querySelector(document, ".container-fluid .query-eg .btn,.query-eg")[0].innerHTML="button"

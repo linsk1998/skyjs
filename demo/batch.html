@@ -1,4 +1,4 @@
-<!-- ie6-8 use quirks mode-->
+<!-- quirks -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,7 +8,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 	<meta name="renderer" content="webkit"/>
 	<title>元素批量操作</title>
-	<link href="ting.css" rel="stylesheet">
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<link href="/linsk1998/ting/master/theme/bootstrap/indigo.css" rel="stylesheet"/>
 	<script src="../sky.js"></script>
 </head>
 <body>
@@ -71,54 +72,12 @@ $batch.css({"paddingLeft":"100px","color":"#fff"});</code></pre>
 	<p>批量移除元素</p>
 	<h3 id="empty">Sky.fn.empty</h3>
 	<p>批量清空所有子元素</p>
-	<h3 id="bind">Sky.fn.bind</h3>
-	<p>添加事件绑定</p>
-	<pre><code>$batch.bind('click',callback);</code></pre>
-	<h3 id="unbind">Sky.fn.unbind</h3>
-	<p>解除事件绑定</p>
-	<pre><code>$batch.unbind('click',callback);
-//第二个参数为必填</code></pre>
-	<h3 id="mouseenter">Sky.fn.mouseenter Sky.fn.mouseleave</h3>
-	<div id="mouseenterWrap" class="alert alert-info">
-		<div class="alert alert-warning">鼠标移入移出</div>
-	</div>
-	<script>
-		Sky.query("#mouseenterWrap").mouseenter(function(){
-			console.log("mouseenter");
-		}).mouseleave(function(){
-			console.log("mouseleave");
-		});
-
-	</script>
-	<h3 id="tap">Sky.fn.tap</h3>
-	<p>轻按事件绑定</p>
-	<div id="tapWrap" class="alert alert-info">鼠标轻按</div>
-	<script>
-		Sky.query("#tapWrap").tap(function(){
-			alert("tap");
-		});
-		$("#tapWrap2").bind("touchstart",function(){
-			alert("tap");
-		});
-	</script>
-	<h3 id="input">Sky.fn.input</h3>
-	<p>监视输入:</p>
-	<form name="inputForm">
-		<input type="text" value="" name="eg">
-	</form>
-	<script>
-		var textNode=document.createTextNode("");
-		Sky.getPrevElement(document.inputForm).appendChild(textNode);
-		$(document.inputForm.eg).input(function(){
-			textNode.data=this.value;
-		});
-	</script>
 	<h3 id="append">Sky.fn.append Sky.fn.prepend Sky.fn.before Sky.fn.after</h3>
-	<p>添加元素</p>
-	<a class="btn btn-primary" href='javascript:Sky.query(".btn").append(" append")'>append</a>
-	<a class="btn btn-primary" href='javascript:Sky.query(".btn").prepend("prepend ")'>prepend</a>
-	<a class="btn btn-primary" href='javascript:Sky.query(".btn").before("before ")'>before</a>
-	<a class="btn btn-primary" href='javascript:Sky.query(".btn").after(" after")'>after</a>
+	<div class="alert alert-warning"><span class="label label-default" id="addWrap">添加元素</span></div>
+	<a class="btn btn-primary" href='javascript:Sky.query("#addWrap").append(" append");void 0'>append</a>
+	<a class="btn btn-primary" href='javascript:Sky.query("#addWrap").prepend("prepend ");void 0'>prepend</a>
+	<a class="btn btn-primary" href='javascript:Sky.query("#addWrap").before("before ");void 0'>before</a>
+	<a class="btn btn-primary" href='javascript:Sky.query("#addWrap").after(" after");void 0'>after</a>
 </div>
 </body>
 </html>

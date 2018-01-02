@@ -1,4 +1,4 @@
-<!-- ie6-8 use quirks mode-->
+<!-- quirks -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,7 +8,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 	<meta name="renderer" content="webkit"/>
 	<title>网络</title>
-	<link href="ting.css" rel="stylesheet">
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<link href="/linsk1998/ting/master/theme/bootstrap/indigo.css" rel="stylesheet"/>
 	<script src="../sky.js"></script>
 </head>
 <body>
@@ -91,7 +92,7 @@
 	<p>getScript() 方法通过 HTTP GET 请求载入并执行 JavaScript 文件。</p>
 	<pre><code>Sky.getScript("http://pv.sohu.com/cityjson?ie=utf-8",function(){alert(returnCitySN.cname)});</code></pre>
 	<a class="btn btn-primary" href='javascript:Sky.getScript("http://pv.sohu.com/cityjson?ie=utf-8",function(){alert(returnCitySN.cname)});void 0'>试一试</a>
-	<a class="btn btn-primary" href='javascript:Sky.getScript("../js/getCurrentPath.js")'>内部获取路径</a>
+	<a class="btn btn-primary" href='javascript:Sky.getScript("getCurrentPath.js")'>内部获取路径</a>
 </div>
 </body>
 </html>

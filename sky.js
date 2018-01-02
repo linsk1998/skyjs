@@ -19,7 +19,7 @@ if(typeof $=="undefined"){
 Sky.support={};
 (function(){
 	try{
-		a.b.c();
+		Sky.a.b.c();
 	}catch(e){
 		var stack=e.stack || e.sourceURL || e.stacktrace || '';
 		Sky.support.stack=!!stack;
@@ -46,9 +46,157 @@ Sky.support={};
 	Sky.browser.ie9=ie&&!!document.addEventListener&&!window.atob;
 	Sky.browser.ie10=ie&&!!window.atob&&!!window.attachEvent;
 	Sky.browser.ie11=ie&&!!window.atob&&!window.attachEvent;
-	if(ie) Sky.browser.ie=parseInt(Sky.browser.version);
+	if(Sky.browser.ie11){
+		Sky.browser.ie=11;
+	}else if(ie){
+		Sky.browser.ie=parseInt(Sky.browser.version);
+	}
 })();
-if (!Object.keys) {
+
+Sky.isArray=function(a){
+	return Array.isArray(a);
+};
+Sky.isDate=function(obj){
+	return Object.prototype.toString.call(obj)==='[object Date]';
+};
+Sky.isRegExp=function(obj){
+	return Object.prototype.toString.call(obj)==='[object RegExp]';
+};
+Sky.isString=function(obj){
+	return Object.prototype.toString.call(obj)==='[object String]';
+};
+Sky.isFunction=function(obj){
+	return Object.prototype.toString.call(obj)==='[object Function]';
+};
+Sky.isNumber=function(obj){
+	return Object.prototype.toString.call(obj)==='[object Number]';
+};
+Sky.isObject=function(obj){
+	var type=typeof obj;
+	if(type!=="object"){
+		return false;
+	}
+	type=Object.prototype.toString.call(obj);
+	switch(type){
+		case '[object String]':
+		case '[object Number]':
+		case '[object Function]':
+		case '[object Boolean]':
+			return false;
+	}
+	return true;
+};
+Sky.isDefined=function(obj){
+	return obj!==undefined;
+};
+Sky.isPlainObject=function(obj){
+	var key;
+	if(typeof obj !=="object"){
+		return false;
+	}
+	if(obj.toString()!=='[object Object]'){
+		return false;
+	}
+	var hasOwn=Object.prototype.hasOwnProperty;
+	try{
+		if(obj.constructor && obj.constructor!=Object){
+			return false;
+		}
+	}catch(e){
+		return false;
+	}
+	for( key in obj ){
+		if(!hasOwn.call(obj,key)){
+			return false;
+		}
+	}
+	return true;
+};
+Sky.isArrayLike=function(obj){
+	var length=obj.length;
+	if(typeof length !="number" || length<0 || isNaN(length) || Math.ceil(length)!=length){
+		return false;
+	}
+	return true;
+};
+Sky.isNumeric=function(obj){
+	var n=parseFloat(obj);
+	return !isNaN(n);
+};
+if(this.HTMLElement){
+	Sky.isElement=function(obj){
+		return obj instanceof HTMLElement;
+	};
+}else{
+	Sky.isElement=function(obj){
+		return obj?obj.nodeType===1:false;
+	};
+}
+Sky.isEmpty=function(obj){
+	if(obj==null) return true;
+	if(Sky.isNumber(obj.length)){
+		return !obj.length;
+	}
+	if(Sky.isNumber(obj.size)){
+		return !obj.size;
+	}
+	if(Sky.isFunction(obj.size)){
+		return !obj.size();
+	}
+	if(Sky.isFunction(obj.toArray)){
+		return !obj.toArray().length;
+	}
+	return false;
+};
+
+Sky.getCookie=function(name){
+	var arr = document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
+	if (arr != null) return decodeURIComponent(arr[2]); return null;
+};
+Sky.setCookie=function(name,value){
+	var path="/";
+	var seconds;
+	var domain;
+	var expires;
+	if(arguments.length>2){
+		for(var i=2;i<arguments.length;i++){
+			if(Sky.isNumber(arguments[i])){
+				seconds=arguments[i];
+			}else if(Sky.isString(arguments[i])){
+				if(arguments[i].indexOf(".")>=0){
+					domain=arguments[i];
+				}else if(arguments[i].indexOf("/")>=0){
+					path=arguments[i];
+				}
+			}
+		}
+	}
+	if(value == null || seconds <= 0) {
+		value = '';
+		seconds = -2592000;
+	}
+	if(!isNaN(seconds)){
+		expires=new Date();
+		expires.setTime(expires.getTime() + seconds * 1000);
+	}
+	document.cookie = name + '=' + encodeURIComponent(value)
+		+ (expires ? '; expires=' + expires.toGMTString() : '')
+		+ '; path=' + path
+		+ (domain ? '; domain=' + domain : '')
+};
+Sky.support.VBScript=false;
+if(window.execScript){
+	window.execScript([
+		'Function alert(msg)',
+		'msgbox msg',
+		'End Function' //去除弹窗的图标
+	].join('\n'), 'VBScript');
+	if(typeof alert=="unknown"){
+		Sky.support.VBScript=true;
+	}
+}
+Sky.noop=function(){};
+if(!Object.keys){
 	Object.keys = function(obj) {
 		var result = [], prop;
 		for(prop in obj) {
@@ -69,6 +217,20 @@ if(Sky.support.__defineSetter__){
 		};
 	}
 }
+if(!Array.from){
+	Array.from=function(arrayLike, mapFn, thisArg){
+		var arr=Array.prototype.slice.call(arrayLike);
+		if(mapFn){
+			arr=arr.map( mapFn, thisArg);
+		}
+		return arr;
+	};
+}
+if(!Array.isArray){
+	Array.isArray=function(obj){
+		return Object.prototype.toString.call(obj)==='[object Array]';
+	};
+}
 //判断一个元素在数组中的位置
 if(!Array.prototype.indexOf){
 	Array.prototype.indexOf=function(e,fromIndex){
@@ -80,7 +242,7 @@ if(!Array.prototype.indexOf){
 		return -1;
 	};
 }
-if (!Array.prototype.lastIndexOf) {
+if(!Array.prototype.lastIndexOf){
 	Array.prototype.lastIndexOf = function(e, fromIndex) {
 		fromIndex=isNaN(fromIndex)?this.length-1:fromIndex;
 		for (var i=fromIndex,j; i<this.length; i--) {
@@ -90,8 +252,8 @@ if (!Array.prototype.lastIndexOf) {
 		return -1;
 	};
 }
-if (!Array.prototype.findIndex) {
-	Array.prototype.find = function(callback, thisArg) {
+if(!Array.prototype.findIndex){
+	Array.prototype.findIndex = function(callback, thisArg) {
 		for(var i=0,j; i<this.length; i++){
 			j=this[i];
 			var r=callback.call(thisArg,j,i,this);
@@ -102,7 +264,7 @@ if (!Array.prototype.findIndex) {
 		return -1;
 	};
 }
-if (!Array.prototype.find) {
+if(!Array.prototype.find){
 	Array.prototype.find = function(callback, thisArg) {
 		var i=this.findIndex(callback, thisArg);
 		if(i>=0){
@@ -111,7 +273,7 @@ if (!Array.prototype.find) {
 	};
 }
 //遍历数组
-if(!Array.prototype.forEach ){
+if(!Array.prototype.forEach){
 	Array.prototype.forEach =function(callback, thisArg){
 		for(var i=0,j; i<this.length; i++){
 			j=this[i];
@@ -119,7 +281,7 @@ if(!Array.prototype.forEach ){
 		}
 	};
 }
-if (!Array.prototype.map) {
+if(!Array.prototype.map){
 	Array.prototype.map = function(fn, context) {
 		var arr = [];
 		for (var k = 0, length = this.length; k < length; k++) {
@@ -128,7 +290,7 @@ if (!Array.prototype.map) {
 		return arr;
 	};
 }
-if (!Array.prototype.filter) {
+if(!Array.prototype.filter){
 	Array.prototype.filter = function(fn, context) {
 		var arr = [];
 		for (var k = 0, length = this.length; k < length; k++) {
@@ -137,7 +299,7 @@ if (!Array.prototype.filter) {
 		return arr;
 	};
 }
-if (!Array.prototype.some) {
+if(!Array.prototype.some){
 	Array.prototype.some = function(fn, context) {
 		var passed = false;
 		for (var k = 0, length = this.length; k < length; k++) {
@@ -147,7 +309,7 @@ if (!Array.prototype.some) {
 		return passed;
 	};
 }
-if (!Array.prototype.every) {
+if(!Array.prototype.every){
 	Array.prototype.every = function(fn, context) {
 		var passed = true;
 		for (var k = 0, length = this.length; k < length; k++) {
@@ -157,65 +319,66 @@ if (!Array.prototype.every) {
 		return passed;
 	};
 }
-/** 时间对象的格式化; **/
-/* eg:format="%Y-%m-%d %H:%M:%S"; */
-if (!Date.prototype.toLocaleFormat) {//部分浏览器支持
-	Date.prototype.toLocaleFormat = function(format) {
-		var Y=this.getFullYear();
-		var M=Sky.pad(this.getMonth()+1,2);
-		var D=Sky.pad(this.getDate(),2);
-		var h=Sky.pad(this.getHours(),2);
-		var m=Sky.pad(this.getMinutes(),2);
-		var s=Sky.pad(this.getSeconds(),2);
-		var o={
-			"%x":Y+"/"+M+"/"+D,
-			"%X":h+":"+m+":"+s,
-			"%Y":Y,
-			"%y":Sky.pad(this.getYear()%100,2),
-			"%m":M,
-			"%e":this.getDate(),
-			"%d":D,
-			"%H":h,
-			"%i":Sky.pad(this.getHours()%12,2),
-			"%M":m,
-			"%S":s,
-			"%p":this.getHours()%12>1?"PM":"AM",
-			"%%":"%"
-		};
-		o["%T"]=o["%X"];
-		return format.replace(/%[xXTYymedHiMSp%]/g,function(word){
-			for(var k in o){
-				if(k==word){
-					return o[k];
-				}
-			}
-			return word;
-		});
-	};
-}
-if (!Date.prototype.toISOString){//部分浏览器支持
-	(function(){
-		function pad(number) {
-			if(number<10){
-				return '0'+number;
-			}
-			return number;
+
+(function(){
+	/** 时间对象的格式化; **/
+	/* eg:format="%Y-%m-%d %H:%M:%S"; */
+	function pad2(number) {
+		if(number<10){
+			return '0'+number;
 		}
+		return number;
+	}
+	if (!Date.prototype.toLocaleFormat) {//部分浏览器支持
+		Date.prototype.toLocaleFormat = function(format) {
+			var Y=this.getFullYear();
+			var M=pad2(this.getMonth()+1);
+			var D=pad2(this.getDate());
+			var h=pad2(this.getHours());
+			var m=pad2(this.getMinutes());
+			var s=pad2(this.getSeconds());
+			var o={
+				"%x":Y+"/"+M+"/"+D,
+				"%X":h+":"+m+":"+s,
+				"%Y":Y,
+				"%y":Sky.pad(this.getYear()%100,2),
+				"%m":M,
+				"%e":this.getDate(),
+				"%d":D,
+				"%H":h,
+				"%i":Sky.pad(this.getHours()%12,2),
+				"%M":m,
+				"%S":s,
+				"%p":this.getHours()%12>1?"PM":"AM",
+				"%%":"%"
+			};
+			o["%T"]=o["%X"];
+			return format.replace(/%[xXTYymedHiMSp%]/g,function(word){
+				for(var k in o){
+					if(k==word){
+						return o[k];
+					}
+				}
+				return word;
+			});
+		};
+	}
+	if (!Date.prototype.toISOString){//部分浏览器支持
 		Date.prototype.toISOString = function() {
 			return this.getUTCFullYear()+
-				'-'+pad(this.getUTCMonth()+1)+
-				'-'+pad( this.getUTCDate() ) +
-				'T'+pad( this.getUTCHours() ) +
-				':'+pad( this.getUTCMinutes() ) +
-				':'+pad( this.getUTCSeconds() ) +
+				'-'+pad2(this.getUTCMonth()+1)+
+				'-'+pad2( this.getUTCDate() ) +
+				'T'+pad2( this.getUTCHours() ) +
+				':'+pad2( this.getUTCMinutes() ) +
+				':'+pad2( this.getUTCSeconds() ) +
 				'.'+Sky.pad(this.getUTCMilliseconds(),3)+'Z';
 		};
-	})();
-}
+	}
+})();
 if(!Date.prototype.toJSON){
 	Date.prototype.toJSON=Date.prototype.toISOString;
 }
-if(new Date().toLocaleString().match(/[a-z]/i)){//谷歌浏览器，360用谷歌内核，会显示成英文
+if(new Date().toLocaleString().match(/[a-z]/i)){//谷歌浏览器，360用谷歌内核，会显示成英文(未考虑语言环境)
 	Date.prototype.toLocaleString = function() {
 		return this.toLocaleFormat("%Y-%m-%d %H:%M:%S");
 	};
@@ -226,27 +389,6 @@ if(new Date().toLocaleString().match(/[a-z]/i)){//谷歌浏览器，360用谷歌
 		return this.toLocaleFormat("%H:%M:%S");
 	};
 }
-/* eg:format="yyyy-MM-dd HH:mm:ss.SSS"; */
-Date.prototype.format=function(format){//自己加的，没有浏览器支持
-	format=format.replace(/yyyy/gi,this.getFullYear())
-		.replace(/yy/gi,Sky.pad(this.getYear()%100,2))
-		.replace(/MM/g,Sky.pad(this.getMonth()+1,2))
-		.replace(/M/g,this.getMonth()+1)
-		.replace(/dd/g,Sky.pad(this.getDate(),2))
-		.replace(/d/g,this.getDate())
-		.replace(/HH/g,Sky.pad(this.getHours(),2))
-		.replace(/H/g,this.getHours())
-		.replace(/hh/g,Sky.pad(this.getHours()%12,2))
-		.replace(/h/g,this.getHours()%12)
-		.replace(/mm/g,Sky.pad(this.getMinutes(),2))
-		.replace(/m/g,this.getMinutes())
-		.replace(/ss/g,Sky.pad(this.getSeconds(),2))
-		.replace(/s/g,this.getSeconds())
-		.replace(/sss/g,Sky.pad(this.getMilliseconds(),3))
-		.replace(/a/g,this.getHours()%12>1?"PM":"AM")
-		.replace(/S+/g,Sky.pad(this.getMilliseconds(),3));
-	return format;
-};
 if(!Date.now){
 	Date.now=function(){
 		return new Date().getTime();
@@ -254,7 +396,7 @@ if(!Date.now){
 }
 document.head=document.getElementsByTagName("head")[0];
 /** 判断一个节点后代是否包含另一个节点 **/
-if(window.Node && Node.prototype && !Node.prototype.contains){
+if(this.Node && Node.prototype && !Node.prototype.contains){
 	Node.prototype.contains=function(arg){
 		return !!(this.compareDocumentPosition(arg) & 16);
 	}
@@ -270,7 +412,7 @@ if(!document.contains){
 		return false;
 	};
 }
-if(window.HTMLElement && !document.head.children) {
+if(this.HTMLElement && !document.head.children) {
 	HTMLElement.prototype.__defineGetter__("children", function() {
 		var a=[];
 		for(var i=0; i<this.childNodes.length; i++){
@@ -346,108 +488,73 @@ String.prototype.replaceAll = function(reallyDo, replaceWith, ignoreCase) {
 Math.log2 = Math.log2 || function(n){ return Math.log(n) / Math.log(2); };
 if (!Function.prototype.bind){
 	Function.prototype.bind=function(context){
-		var self =this,args=Array.prototype.slice.call(arguments);
+		var self =this,args=Array.from(arguments);
 		return function(){
 			return self.apply(context,args.slice(1));
 		};
 	};
 }
-Sky.isArray=function(obj){
-	return Object.prototype.toString.call(obj)==='[object Array]';
-};
-if(!Array.isArray){
-	Array.isArray=Sky.isArray;
-}
-Sky.isDate=function(obj){
-	return Object.prototype.toString.call(obj)==='[object Date]';
-};
-Sky.isRegExp=function(obj){
-	return Object.prototype.toString.call(obj)==='[object RegExp]';
-};
-Sky.isString=function(obj){
-	return Object.prototype.toString.call(obj)==='[object String]';
-};
-Sky.isFunction=function(obj){
-	return Object.prototype.toString.call(obj)==='[object Function]';
-};
-Sky.isNumber=function(obj){
-	return Object.prototype.toString.call(obj)==='[object Number]';
-};
-Sky.isObject=function(obj){
-	var type=typeof obj;
-	if(type!=="object"){
-		return false;
-	}
-	type=Object.prototype.toString.call(obj);
-	if(type=='[object String]' || type=='[object Number]' || type=='[object Function]' || type=='[object Boolean]'){
-		return false;
-	}
-	return true;
-};
-Sky.isDefined=function(obj){
-	return obj!==undefined;
-};
-Sky.isPlainObject=function(obj){
-	var key;
-	if(typeof obj !=="object"){
-		return false;
-	}
-	if(obj.toString()!=='[object Object]'){
-		return false;
-	}
-	var hasOwn=Object.prototype.hasOwnProperty;
-	try{
-		if(obj.constructor && obj.constructor!=Object){
-			return false;
-		}
-	}catch(e){
-		return false;
-	}
-	for( key in obj ){
-		if(!hasOwn.call(obj,key)){
-			return false;
-		}
-	}
-	return true;
-};
-Sky.isArrayLike=function(obj){
-	var length=obj.length;
-	if(typeof length !="number" || length<0 || isNaN(length) || Math.ceil(length)!=length){
-		return false;
-	}
-	return true;
-};
-Sky.isNumeric=function(obj){
-	var n=parseFloat(obj);
-	return !isNaN(n);
-};
-if(window.HTMLElement){
-	Sky.isElement=function(obj){
-		return obj instanceof HTMLElement;
+if(!this.Map){
+	Map=function() {
+		this.items=[];
+		this.size=0;
 	};
-}else{
-	Sky.isElement=function(obj){
-		return obj?obj.nodeType===1:false;
+	Map.prototype.clear=function(){
+		this.items.splice(0,this.items.length);
+		this.size=0;
+	};
+	Map.prototype["delete"]=function(key){
+		var i=this.items.findIndex(function(item){
+			return item[0]===key;
+		});
+		if(i>=0){
+			var r=this.items[i];
+			this.items.splice(i,1);
+			this.size=this.items.length;
+			return r;
+		}
+		return false;
+	};
+	Map.prototype.forEach=function(callbackfn,thisArg){
+		for(var i=0,j;i<this.size; i++){
+			j=this.items[i];
+			callbackfn.call(thisArg,j[0],j[1],i,this);
+		}
+	};
+	Map.prototype.get=function(key){
+		var r=this.items.find(function(item){
+			return item[0]===key;
+		});
+		if(r){
+			return r[1];
+		}
+	};
+	Map.prototype.has=function(key){
+		return this.items.some(function(item){
+			return item[0]===key;
+		});
+	};
+	Map.prototype.set=function(key,value){
+		var r=this.items.find(function(item){
+			return item[0]===key;
+		});
+		if(r){
+			r[1]=value;
+		}else{
+			this.items.push([key,value]);
+		}
+		this.size=this.items.length;
+		return this;
 	};
 }
-Sky.isEmpty=function(obj){
-	if(obj==null) return true;
-	if(Sky.isNumber(obj.length)){
-		return !obj.length;
-	}
-	if(Sky.isNumber(obj.size)){
-		return !obj.size;
-	}
-	if(Sky.isFunction(obj.size)){
-		return !obj.size();
-	}
-	if(Sky.isFunction(obj.toArray)){
-		return !obj.toArray().length;
-	}
-	return false;
-};
-if(!window.Set){
-	window.Set=function() {
+if(!Map.prototype.remove){
+	Map.prototype.remove=Map.prototype['delete'];
+}
+if(!Map.prototype.put){
+	Map.prototype.put=Map.prototype.set;
+}
+if(!this.Set){
+	Set=function() {
 		this.items=[];
 		this.size=0;
 	};
@@ -459,9 +566,7 @@ if(!window.Set){
 			this.items.push(value);
 			this.size=this.items.length;
 		}
-		return this;
 	};
-	//noinspection Deprecation
 	Set.prototype['delete']=function(value){
 		var i=this.items.indexOf(value);
 		if(i>=0){
@@ -472,7 +577,7 @@ if(!window.Set){
 		return false;
 	};
 	Set.prototype.clear=function(){
-		this.items=[];
+		this.items.splice(0,this.items.length);
 		this.size=0;
 	};
 	Set.prototype.forEach=function(callback,thisArg){
@@ -538,9 +643,9 @@ if(!Set.prototype.toArray){
 		return r;
 	};
 }
-if(!window.console){
-	window.console={};
-	if(window.Debug){
+if(!this.console){
+	console={};
+	if(this.Debug){
 		console.log=console.info=console.error=console.warn=function(data){
 			window.status=data;
 			Debug.writeln(data);
@@ -551,9 +656,10 @@ if(!window.console){
 		};
 	}
 }
-if(!window.JSON){
+Sky.support.JSON=true;
+if(!this.JSON){
 	Sky.support.JSON=false;
-	window.JSON={
+	JSON={
 		'stringify':function(obj){
 			switch(obj){
 				case null:
@@ -595,16 +701,218 @@ if(!window.JSON){
 		}
 	};
 }
-if (!window.DOMParser){
+Sky.support.DOMParser=true;
+if(!this.DOMParser){
 	Sky.support.DOMParser=false;
 	DOMParser=function(){};
 	DOMParser.prototype.parseFromString=function(xmlStr){
-		var xmlDoc = new window.ActiveXObject("Microsoft.XMLDOM");
+		var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
 		xmlDoc.async = "false";
 		xmlDoc.loadXML(xmlStr);
 		return xmlDoc;
 	};
 }
+
+Sky.support.localStorage=true;
+if(!this.localStorage){
+	Sky.support.localStorage=false;
+	localStorage=new function(){
+		var ele=document.createElement("localStorage");
+		if(ele.addBehavior){
+			ele.addBehavior("#default#userData");
+			var head=document.documentElement.firstChild;
+			head.appendChild(ele);
+			this.getItem=function(key){
+				ele.load("localStorage");
+				return ele.getAttribute(key);
+			};
+			this.setItem=function(key,value){
+				ele.setAttribute(key,value+"");
+				ele.save("localStorage");
+			};
+			this.removeItem=function(key){
+				ele.removeAttribute(key);
+				ele.save("localStorage");
+			};
+		}
+	}();
+}
+Sky.support.sessionStorage=true;
+if(!this.sessionStorage){
+	Sky.support.sessionStorage=false;
+	sessionStorage=new function(){
+		var ele=document.createElement("sessionStorage");
+		var sessionId=Sky.getCookie("JSESSIONID");
+		if(!sessionId){
+			sessionId=Math.random()+"";
+			Sky.setCookie("JSESSIONID",sessionId);
+		}
+		if(ele.addBehavior){
+			ele.addBehavior("#default#userData");
+			var head=document.documentElement.firstChild;
+			head.appendChild(ele);
+			this.getItem=function(key){
+				ele.load(sessionId);
+				return ele.getAttribute(key);
+			};
+			this.setItem=function(key,value){
+				ele.setAttribute(key,value+"");
+				ele.save(sessionId);
+			};
+			this.removeItem=function(key){
+				ele.removeAttribute(key);
+				ele.save(sessionId);
+			};
+		}
+	}();
+}
+if(!window.execScript){
+	window.execScript=function(script,lang) {
+		if(lang && lang.toUpperCase().indexOf("VB")>=0){
+			return ;
+		}
+		window["eval"].call( window,script);
+	};
+}
+
+var StringBuilder;
+if(!-[1,]){//ie6-8
+	StringBuilder=function() {
+		this._source=new Array();
+	};
+	StringBuilder.prototype.append = function(str){
+		this._source.push(str);
+	}
+	StringBuilder.prototype.toString = function(){
+		return this._source.join("");
+	}
+}else{
+	StringBuilder=function() {
+		this._source="";
+	};
+	StringBuilder.prototype.append = function(str){
+		this._source+=str;
+	}
+	StringBuilder.prototype.toString = function(){
+		return this._source;
+	}
+}
+function DateFormat(){}
+DateFormat.format=function(date){
+	return date.toLocaleFormat("%Y/%m/%d %H:%M:%S");
+};
+DateFormat.parse=function(str){
+	var d=new Date(str);
+	if(isNaN(d)){
+		d=new Date(str.replace(/\-/g,"/"));
+		if(isNaN(d)){
+			throw "ParseException";
+		}
+	}
+	return d;
+};
+function SimpleDateFormat(pattern){
+	this.pattern=pattern;
+}
+SimpleDateFormat.prototype.format=function(date){
+	return this.pattern.replace(/yyyy/g,date.getFullYear())
+		.replace(/yy/g,Sky.pad(date.getYear()%100,2))
+		.replace(/MM/g,Sky.pad(date.getMonth()+1,2))
+		.replace(/M/g,date.getMonth()+1)
+		.replace(/dd/g,Sky.pad(date.getDate(),2))
+		.replace(/d/g,date.getDate())
+		.replace(/HH/g,Sky.pad(date.getHours(),2))
+		.replace(/H/g,date.getHours())
+		.replace(/hh/g,date.getHours()<13?date.getHours():Sky.pad(date.getHours()%12,2))
+		.replace(/h/g,date.getHours()<13?date.getHours():(date.getHours()%12))
+		.replace(/mm/g,Sky.pad(date.getMinutes(),2))
+		.replace(/m/g,date.getMinutes())
+		.replace(/ss/g,Sky.pad(date.getSeconds(),2))
+		.replace(/s/g,date.getSeconds())
+		.replace(/a{1,3}/g,date.getHours()%12>1?"PM":"AM")
+		.replace(/S{3}/g,Sky.pad(date.getMilliseconds(),3));
+};
+SimpleDateFormat.prototype.parse=function(dateString){
+	var reg1=/(yyyy|yy|MM|M|dd|d|HH|H|hh|h|mm|m|ss|s|aaa|a|SSS)/g;
+	var keys=this.pattern.match(reg1);
+	if(!keys){
+		return dateString;
+	}
+	var reg2Text=Sky.escapeRegExp(this.pattern).replace(reg1,function(word){
+		if(word=="a"){
+			return "(PM|AM)";
+		}
+		return "(\\d{"+word.length+"})";
+	});
+	reg2Text="^"+reg2Text+"$";
+	var reg2=new RegExp(reg2Text);
+	var values=dateString.match(reg2);
+	if(!values) throw "ParseException";
+	var date=new Date();
+	var a12=false;
+	var h12=false;
+	for(var i=0;i<values.length;i++){
+		var key=keys[i];
+		var value;
+		if(!key.startsWith("a")){
+			value=parseInt(values[i+1]);
+			switch(key){
+				case "yyyy":
+					date.setFullYear(value);
+					break;
+				case "yy":
+					date.setYear(value+Math.floor(date.getYear()/100)*100);
+					break;
+				case "MM":
+				case "M":
+					date.setMonth(value-1);
+					break;
+				case "dd":
+				case "d":
+					date.setDate(value);
+					break;
+				case "HH":
+				case "H":
+					date.setHours(value);
+					h12=false;
+					break;
+				case "hh":
+				case "h":
+					h12=true;
+					if(a12 && value<12){
+						date.setHours(value+12);
+					}else{
+						date.setHours(value);
+					}
+					break;
+				case "mm":
+				case "m":
+					date.setMinutes(value);
+					break;
+				case "ss":
+				case "s":
+					date.setSeconds(value);
+					break;
+				case "SSS":
+					date.setMilliseconds(value);
+					break;
+				default:
+			}
+		}else{
+			value=values[i+1];
+			if(value=="PM" || value=="下午"){
+				a12=true;
+				if(h12){
+					var h=date.getHours();
+					if(h<12){
+						date.setHours(h+12);
+					}
+				}
+			}
+		}
+	}
+	return date;
+};
 if(!this.Promise){
 	(function(global){
 		var PENDING = 'pending';
@@ -786,7 +1094,7 @@ if(!this.Promise){
 		});
 	};
 	Promise.race=function(promises){
-		if (!Sky.isArray(promises)) {
+		if (!Array.isArray(promises)) {
 			throw new TypeError('You must pass an array to all.');
 		}
 		return new Promise(function(resolve,reject){
@@ -814,121 +1122,14 @@ Promise.prototype["catch"]=function(fail){
 	console.warn("catch is incompatible. Please use then(undefined,onRejected) instead.");
 	this.then(undefined,fail);
 };
-var StringBuilder;
-if(!-[1,]){//ie6-8
-	StringBuilder=function() {
-		this._source=new Array();
-	};
-	StringBuilder.prototype.append = function(str){
-		this._source.push(str);
-	}
-	StringBuilder.prototype.toString = function(){
-		return this._source.join("");
-	}
-}else{
-	StringBuilder=function() {
-		this._source="";
-	};
-	StringBuilder.prototype.append = function(str){
-		this._source+=str;
-	}
-	StringBuilder.prototype.toString = function(){
-		return this._source;
-	}
-}
-Sky.getCookie=function(name){
-	var arr = document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
-	if (arr != null) return decodeURIComponent(arr[2]); return null;
+Sky.later=function(fn){
+	setTimeout(fn,0);
 };
-Sky.setCookie=function(name,value){
-	var path="/";
-	var seconds;
-	var domain;
-	var expires;
-	if(arguments.length>2){
-		for(var i=2;i<arguments.length;i++){
-			if(Sky.isNumber(arguments[i])){
-				seconds=arguments[i];
-			}else if(Sky.isString(arguments[i])){
-				if(arguments[i].indexOf(".")>=0){
-					domain=arguments[i];
-				}else if(arguments[i].indexOf("/")>=0){
-					path=arguments[i];
-				}
-			}
-		}
-	}
-	if(value == null || seconds <= 0) {
-		value = '';
-		seconds = -2592000;
-	}
-	if(!isNaN(seconds)){
-		expires=new Date();
-		expires.setTime(expires.getTime() + seconds * 1000);
-	}
-	document.cookie = name + '=' + encodeURIComponent(value)
-		+ (expires ? '; expires=' + expires.toGMTString() : '')
-		+ '; path=' + path
-		+ (domain ? '; domain=' + domain : '')
-};
-if(!window.localStorage){
-	Sky.support.localStorage=false;
-	localStorage=new function(){
-		var ele=document.createElement("localStorage");
-		if(ele.addBehavior){
-			ele.addBehavior("#default#userData");
-			var head=document.documentElement.firstChild;
-			head.appendChild(ele);
-			this.getItem=function(key){
-				ele.load("localStorage");
-				return ele.getAttribute(key);
-			};
-			this.setItem=function(key,value){
-				ele.setAttribute(key,value+"");
-				ele.save("localStorage");
-			};
-			this.removeItem=function(key){
-				ele.removeAttribute(key);
-				ele.save("localStorage");
-			};
-		}
-	}();
-}
-if(!window.sessionStorage){
-	Sky.support.sessionStorage=false;
-	sessionStorage=new function(){
-		var ele=document.createElement("sessionStorage");
-		var sessionId=Sky.getCookie("JSESSIONID");
-		if(!sessionId){
-			sessionId=Math.random()+"";
-			Sky.setCookie("JSESSIONID",sessionId);
-		}
-		if(ele.addBehavior){
-			ele.addBehavior("#default#userData");
-			var head=document.documentElement.firstChild;
-			head.appendChild(ele);
-			this.getItem=function(key){
-				ele.load(sessionId);
-				return ele.getAttribute(key);
-			};
-			this.setItem=function(key,value){
-				ele.setAttribute(key,value+"");
-				ele.save(sessionId);
-			};
-			this.removeItem=function(key){
-				ele.removeAttribute(key);
-				ele.save(sessionId);
-			};
-		}
-	}();
-}
 Sky.clearSelect="getSelection" in window ? function(){
 	window.getSelection().removeAllRanges();
 } : function(){
 	document.selection.empty();
 };
-/*<a title="设为首页" onclick="this.style.behavior='url(#default#homepage)'; this.setHomePage('http://'+window.location.host);" href="javascript:void(0);">设为首页</a>
-<a onclick="Sky.addFavorite('http://'+window.location.host,'站名');" href="javascript:void 0;">加入收藏</a> <a onclick="Sky.addFavorite(window.location,document.title)">加入收藏</a>*/
 Sky.addFavorite=function(sURL, sTitle){
 	try{
 		window.external.addFavorite(sURL, sTitle);
@@ -1018,7 +1219,7 @@ Sky.escapeAttribute=function(str,quot){
 		return div.innerText || div.textContent ;
 	};
 })();
-Sky.escapeString=function(str) {
+Sky.escapeString=function(str) {//from lodash
 	var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
 	rx_escapable.lastIndex = 0;
 	return rx_escapable.test(str)
@@ -1032,7 +1233,7 @@ Sky.escapeString=function(str) {
 			: "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
 	}): str;
 };
-Sky.escapeRegExp=function(str){
+Sky.escapeRegExp=function(str){//from lodash
 	if(str){
 		var reRegExpChars = /^[:!,]|[\\^$.*+?()[\]{}|\/]|(^[0-9a-fA-Fnrtuvx])|([\n\r\u2028\u2029])/g;
 		reRegExpChars.lastIndex = 0;
@@ -1064,6 +1265,7 @@ Sky.escapeRegExp=function(str){
 	}
 	return "(?:)";
 };
+
 //获取字符串占位长度
 Sky.strlen=function(str){
 	var len=0;
@@ -1142,8 +1344,12 @@ Sky.parseQuery=function(str){
 };
 Sky.buildQuery=function(obj){
 	var s='';
-	for(var key in obj){
-		var value=obj[key];
+	if(obj instanceof Map){
+		obj.forEach(fn);
+	}else{
+		Sky.forOwn(obj,fn);
+	}
+	function fn(value,key){
 		if(value.toJSON) value=value.toJSON();
 		if(value.forEach){
 			value.forEach(function(value){
@@ -1243,9 +1449,11 @@ Sky.forIn=function(obj,fn){
 };
 Sky.forOwn=function(obj,fn){
 	for(var key in obj) {
-		if(Sky.hasOwn(obj,key)){
-			if(fn.call(obj,obj[key],key)===false){
-				break;
+		if(Sky.dontEnumMembers.indexOf(key)<0 && key.indexOf("__")!=0){
+			if(Sky.hasOwn(obj,key)){
+				if(fn.call(obj,obj[key],key)===false){
+					break;
+				}
 			}
 		}
 	}
@@ -1341,9 +1549,119 @@ Sky.sortedLastIndex=function(arr,value){
 		}
 	}
 };
+(function(){
+	var uid=0;
+	Sky.id=function(check) {
+		uid++;
+		var id=Date.now()+"_"+uid;
+		if(check){
+			if(Sky.byId(id)){
+				return Sky.id(check);
+			}
+		}
+		return id;
+	};
+	var defaultNextSequence;
+	var sequenceMap=new Map();
+	Sky.nextSequence=function(arg1,arg2){
+		if(Sky.isString(arg1)){
+			var s=sequenceMap.get(arg1);
+			if(Sky.isDefined(s)){
+				s++;
+			}else{
+				if(Sky.isNumber(arg2)){
+					s=arg2
+				}else{
+					s=1;
+				}
+			}
+			sequenceMap.set(arg1,s);
+			return s;
+		}else{
+			if(Sky.isDefined(defaultNextSequence)){
+				defaultNextSequence++;
+			}else{
+				if(Sky.isNumber(arg1)){
+					defaultNextSequence=arg1
+				}else{
+					defaultNextSequence=1;
+				}
+			}
+			return defaultNextSequence;
+		}
+	};
+})();
+
+/* ceil floor round */
+(function(){
+	function createRound(methodName) {
+		var func = Math[methodName];
+		return function(number, precision) {
+			precision = precision === undefined ? 0 : (+precision || 0);
+			if (precision) {
+				precision =Math.pow(10,precision);
+				return func(number * precision) / precision;
+			}
+			return func(number);
+		};
+	}
+	Sky.round=createRound('round');
+	Sky.floor=createRound('floor');
+	Sky.ceil=createRound('ceil');
+})();
+Sky.random=function(a, b){
+	var length=b-a+1;
+	return Math.floor(Math.random()*length)+a;
+};
+Sky.UUID=function() {
+	return new Promise(function(resolve, reject){
+		var d = new Date().getTime();
+		var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = (d + Math.random()*16)%16 | 0;
+			d = Math.floor(d/16);
+			return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+		});
+		resolve(uuid);
+	});
+};
+
+Sky.getScript=function(src, func, charset) {
+	var script = document.createElement('script');
+	script.async = "async";
+	if(!charset){charset="UTF-8"};
+	script.charset=charset;
+	script.src = src;
+	var currentPath;
+	if(!Sky.support.stack){
+		currentPath=Sky.getCurrentPath();
+	}
+	if(func){
+		if('onreadystatechange' in script){
+			script.onreadystatechange = function(){
+				if(this.readyState == 'loaded'){
+					document.head.appendChild(script);
+				}else if(this.readyState == "complete"){
+					this.onreadystatechange = null;
+					if(!Sky.support.stack){
+						Sky.currentPath=currentPath;
+					}
+					func();
+					if(!Sky.support.stack){
+						Sky.currentPath=null;
+					}
+				}
+			};
+		}else{
+			script.onload = func;
+			document.head.appendChild(script);
+		}
+	}else{
+		document.head.appendChild(script);
+	}
+};
 if(!Sky.support.stack){
-	Sky.setTimeout=window.setTimeout;
-	window.setTimeout=function(func,delay){
+	Sky.setTimeout=this.setTimeout;
+	this.setTimeout=function(func,delay){
 		var currentPath=Sky.getCurrentPath();
 		Sky.setTimeout(function(){
 			Sky.currentPath=currentPath;
@@ -1352,6 +1670,67 @@ if(!Sky.support.stack){
 		},delay);
 	};
 }
+if("currentScript" in document){
+	Sky.getCurrentScript=function(){
+		return document.currentScript;
+	};
+}else{
+	Sky.getCurrentScript=function(){
+		var nodes=document.getElementsByTagName('SCRIPT');
+		for(var i = nodes.length - 1; i >= 0; i--) {
+			var node=nodes[i];
+			if( node.readyState === "interactive") {
+				return node;
+			}
+		}
+		if(Sky.isReady){
+			nodes=document.head.getElementsByTagName('SCRIPT');
+		}
+		return nodes[nodes.length-1];
+	};
+}
+if(Sky.support.stack){
+	Sky.getCurrentPath=function(){
+		var e = new Error('err');
+		var stack = e.stack || e.sourceURL || e.stacktrace || '';
+		if(!stack){ try{a.b.c();}catch(e){
+			stack=e.stack || e.sourceURL || e.stacktrace || '';
+		}}
+		var stacks=stack.split("\n");
+		for(var i = stacks.length - 1; i >= 0; i--) {
+			if(stacks[i]) {
+				stack=stacks[i];
+				break ;
+			}
+		}
+		var path;
+		var arr=stack.match(/^@(.*):\d+$/);
+		if(arr){
+			path=arr[1];
+		}else if(arr=stack.match(/^\s+at (.*):\d+:\d+$/)){
+			path=arr[1];
+		}else if(arr=stack.match(/^\s+at [^\(]*\((.*):\d+:\d+\)$/)){
+			path=arr[1];
+		}else{
+			path=stack;
+		}
+		if(path==location.href){
+			return null;
+		}
+		return path;
+	};
+}else{
+	Sky.getCurrentPath=function(){
+		if(Sky.currentPath) return Sky.currentPath;
+		var currentScript=Sky.getCurrentScript();
+		if(currentScript && currentScript.src){
+			return Sky.getAbsPath(currentScript.src,location.href);
+		}
+		return null;
+	};
+}
+
+
 Sky.ajax=function(options){
 	var targetUrl=options.url;
 	var success=options.success;
@@ -1409,16 +1788,20 @@ Sky.ajax=function(options){
 		var data=options.data;
 		xhr.open('POST', targetUrl,options.async!==false);
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-		if(data && Sky.isPlainObject(data)){
-			xhr.setRequestHeader('Content-Type',contentType || 'application/x-www-form-urlencoded');
-			xhr.send(Sky.buildQuery(data));
-		}else{//字符串 ， 二进制流 ， 文件等
-			if(Sky.isString(data)){
-				xhr.setRequestHeader('Content-Type',contentType || 'text/plain');
-			}else{
-				contentType && xhr.setRequestHeader('Content-Type',contentType);
+		if(data){
+			if(Sky.isPlainObject(data) || data instanceof Map){
+				xhr.setRequestHeader('Content-Type',contentType || 'application/x-www-form-urlencoded');
+				xhr.send(Sky.buildQuery(data));
+			}else{//字符串 ， 二进制流 ， 文件等
+				if(contentType){
+					contentType && xhr.setRequestHeader('Content-Type',contentType);
+				}else if(Sky.isString(data)){
+					xhr.setRequestHeader('Content-Type','text/plain');
+				}
+				xhr.send(data);
 			}
-			xhr.send(data);
+		}else{
+			xhr.send(null);
 		}
 	}else{
 		xhr.open('GET', targetUrl,options.async!==false);
@@ -1528,150 +1911,8 @@ Sky.getJSONP=function(url, callback){
 	script.src=url;
 	document.body.appendChild(script);
 };
-if(!window.execScript){
-	window.execScript=function(script,lang) {
-		if(lang && lang.toUpperCase().indexOf("VB")>=0){
-			return ;
-		}
-		window["eval"].call( window,script);
-	};
-}
-Sky.getScript=function(src, func, charset) {
-	var script = document.createElement('script');
-	script.async = "async";
-	if(!charset){charset="UTF-8"};
-	script.charset=charset;
-	script.src = src;
-	var currentPath;
-	if(!Sky.support.stack){
-		currentPath=Sky.getCurrentPath();
-	}
-	if(func){
-		if('onreadystatechange' in script){
-			script.onreadystatechange = function(){
-				if(this.readyState == 'loaded'){
-					document.head.appendChild(script);
-				}else if(this.readyState == "complete"){
-					this.onreadystatechange = null;
-					if(!Sky.support.stack){
-						Sky.currentPath=currentPath;
-					}
-					func();
-					if(!Sky.support.stack){
-						Sky.currentPath=null;
-					}
-				}
-			};
-		}else{
-			script.onload = func;
-			document.head.appendChild(script);
-		}
-	}else{
-		document.head.appendChild(script);
-	}
-};
-if("currentScript" in document){
-	Sky.getCurrentScript=function(){
-		return document.currentScript;
-	};
-}else{
-	Sky.getCurrentScript=function(){
-		var nodes=document.getElementsByTagName('SCRIPT');
-		for(var i = nodes.length - 1; i >= 0; i--) {
-			var node=nodes[i];
-			if( node.readyState === "interactive") {
-				return node;
-			}
-		}
-		if(Sky.isReady){
-			nodes=document.head.getElementsByTagName('SCRIPT');
-		}
-		return nodes[nodes.length-1];
-	};
-}
-if(Sky.support.stack){
-	Sky.getCurrentPath=function(){
-		var e = new Error('err');
-		var stack = e.stack || e.sourceURL || e.stacktrace || '';
-		if(!stack){ try{a.b.c();}catch(e){
-			stack=e.stack || e.sourceURL || e.stacktrace || '';
-		}}
-		var stacks=stack.split("\n");
-		for(var i = stacks.length - 1; i >= 0; i--) {
-			if(stacks[i]) {
-				stack=stacks[i];
-				break ;
-			}
-		}
-		var path;
-		var arr=stack.match(/^@(.*):\d+$/);
-		if(arr){
-			path=arr[1];
-		}else if(arr=stack.match(/^\s+at (.*):\d+:\d+$/)){
-			path=arr[1];
-		}else if(arr=stack.match(/^\s+at [^\(]*\((.*):\d+:\d+\)$/)){
-			path=arr[1];
-		}else{
-			path=stack;
-		}
-		if(path==location.href){
-			return null;
-		}
-		return path;
-	};
-}else{
-	Sky.getCurrentPath=function(){
-		if(Sky.currentPath) return Sky.currentPath;
-		var currentScript=Sky.getCurrentScript();
-		if(currentScript && currentScript.src){
-			return Sky.getAbsPath(currentScript.src,location.href);
-		}
-		return null;
-	};
-}
-(function(){
-	var uid=0;
-	Sky.id=function(check) {
-		uid++;
-		var id=Date.now()+"_"+uid;
-		if(check){
-			if(Sky.byId(id)){
-				return Sky.id(check);
-			}
-		}
-		return id;
-	};
-})();
 Sky.byId=function(id){
 	return document.getElementById(id);
-}
-Sky.attachEvent=function(obj, evt, func) {
-	if(obj.addEventListener) {
-		obj.addEventListener(evt, func, false);
-	} else if(obj.attachEvent) {
-		obj.attachEvent('on' + evt, function(e){
-			e=e || window.event;
-			e.target=e.target || e.srcElement;
-			func.call(obj,e);
-		});
-	}
-};
-Sky.detachEvent=function(obj, evt, func, eventobj) {
-	eventobj = !eventobj ? obj : eventobj;
-	if(obj.removeEventListener) {
-		obj.removeEventListener(evt, func, false);
-	} else if(eventobj.detachEvent) {
-		obj.detachEvent('on' + evt, func);
-	}
-};
-Sky.fireEvent=function(e,eventName){
-	if(e.dispatchEvent) {
-		var ev = document.createEvent('Event');
-		ev.initEvent(eventName, false, false);
-		e.dispatchEvent(ev);
-	}else{
-		e.fireEvent("on"+eventName);
-	}
 };
 Sky.hasClass=function(obj,cls){
 	if(!obj) return false;
@@ -1744,11 +1985,20 @@ Sky.getNextElement=function(element){
 		return Sky.getNextElement(e);
 	}
 };
+Sky.getPrevElement=function(element){
+	var e = element.previousSibling;
+	if(e == null){ return null;}
+	if(e.nodeType==1){
+		return e;
+	}else{
+		return Sky.getPrevElement(e);
+	}
+};
 Sky.getFormData=function(form){
 	if(Sky.isString(form)){
 		form=document.forms[form];
 	}
-	if(!form.tagName.toUpperCase()=="FORM"){
+	if(form.tagName.toUpperCase()!="FORM"){
 		throw "form is not exit";
 	}
 	var o={};
@@ -1803,7 +2053,7 @@ Sky.setFormData=function(form,data){
 	if(Sky.isString(form)){
 		form=document.forms[form];
 	}
-	if(!form.tagName.toUpperCase()=="FORM"){
+	if(form.tagName.toUpperCase()!="FORM"){
 		throw "form is not exit";
 	}
 	for(var i=0; i<form.length; i++){
@@ -1876,7 +2126,7 @@ Sky.clearFormData=function(form){
 	if(Sky.isString(form)){
 		form=document.forms[form];
 	}
-	if(!form.tagName.toUpperCase()=="FORM"){
+	if(form.tagName.toUpperCase()!="FORM"){
 		throw "form is not exit";
 	}
 	for(var i=0; i<form.length; i++){
@@ -1891,18 +2141,9 @@ Sky.clearFormData=function(form){
 		}
 	}
 };
-Sky.getPrevElement=function(element){
-	var e = element.previousSibling;
-	if(e == null){ return null;}
-	if(e.nodeType==1){
-		return e;
-	}else{
-		return Sky.getPrevElement(e);
-	}
-};
 if(document.getElementsByClassName){
 	Sky.getElementsByClassName=function(e,className){
-		return Array.prototype.slice.call(e.getElementsByClassName(className));
+		return Array.from(e.getElementsByClassName(className));
 	};
 }else{
 	Sky.getElementsByClassName=function(e,className){
@@ -1916,6 +2157,41 @@ if(document.getElementsByClassName){
 		return result;
 	};
 }
+(function(){
+	Sky.isReady=false;
+	var p=new Promise(function(resolve, reject){
+		if(document.addEventListener){
+			document.addEventListener("DOMContentLoaded",function(){
+				resolve();
+			},false);
+		}else if(window==window.top){
+			(function() {
+				try{
+					document.documentElement.doScroll('left');
+					resolve();
+				}catch(e){
+					setTimeout(arguments.callee, 0);
+				}
+			})();
+		}else{
+			document.attachEvent("onreadystatechange",function(){
+				if(document.readyState === "complete") {
+					document.detachEvent("onreadystatechange", arguments.callee);
+					resolve();
+				}
+			});
+		}
+	});
+	Sky.ready=function(callback){
+		if(callback) p.then(function(){
+			if(!Sky.isReady){
+				callback.call(document);
+				Sky.isReady=true;
+			}
+		});
+		return p;
+	};
+})();
 (function(){
 	function parseNodeSelector(selector){
 		var result={};
@@ -1964,7 +2240,7 @@ if(document.getElementsByClassName){
 	}
 	if(document.getElementsByClassName){
 		Sky.getElementsByClassName=function(e,className){
-			return Array.prototype.slice.call(e.getElementsByClassName(className));
+			return Array.from(e.getElementsByClassName(className));
 		};
 	}else{
 		Sky.getElementsByClassName=function(e,className){
@@ -1978,125 +2254,92 @@ if(document.getElementsByClassName){
 			return result;
 		};
 	}
-	Sky.matches=function(element, selector){
-		if(element.matches){
-			Sky.matches=function(element, selector){return element.matches(selector);};
-		}else if(element.matchesSelector){
-			Sky.matches=function(element, selector){return element.matchesSelector(selector);};
-		}else if(element.webkitMatchesSelector){
-			Sky.matches=function(element, selector){return element.webkitMatchesSelector(selector);};
-		}else if(element.msMatchesSelector){
-			Sky.matches=function(element, selector){return element.msMatchesSelector(selector);};
-		}else if(element.mozMatchesSelector){
-			Sky.matches=function(element, selector){return element.mozMatchesSelector(selector);};
-		}else if(element.oMatchesSelector){
-			Sky.matches=function(element, selector){return element.oMatchesSelector(selector);};
-		}else{
-			Sky.matches=function(element, selector){
-				var nodeInfo=parseNodeSelector(selector);
-				return matchesInfo(element,nodeInfo);
-			};
+	Sky.matches=function(ele, selector, ancestor, canmid){
+		ancestor=ancestor || document;
+		if(ancestor==document){
+			if(ele.matches){
+				return ele.matches(selector);
+			}else if(ele.matchesSelector){
+				return ele.matchesSelector(selector);
+			}else if(ele.msMatchesSelector){
+				return ele.msMatchesSelector(selector);
+			}else if(ele.mozMatchesSelector){
+				return ele.mozMatchesSelector(selector);
+			}
 		}
-		return Sky.matches(element, selector);
+		if(!ancestor.contains(ele)){
+			return false;
+		}
+		var selectors=parseSelector(selector);
+		if(!canmid){
+			var last=selectors[selectors.length-1];
+			last=last[last.length-1];
+			if(selectors.length==0 && selectors[0].length==0){
+				return matchesInfo(ele,parseNodeSelector(last));
+			}
+		}
+		var parents=[];
+		var parent=ele;
+		while(parent!=ancestor){
+			if(parent){
+				parents.push(parent);
+			}else{
+				break ;
+			}
+			parent=parent.parentNode;
+		}
+		var first;
+		var checkIndex=0;
+		for(var i=0;i<selectors.length;i++){
+			while(true){
+				var several=selectors[selectors.length-1-i];
+				if(several.length+checkIndex>parents.length){
+					return false;
+				}
+				if(!checkSeveral(parents,checkIndex,several)){
+					if(checkIndex==0 && !canmid){
+						return false;
+					}
+					checkIndex++;
+				}else{
+					first=parents[checkIndex];
+					checkIndex+=selectors.length;
+					break ;
+				}
+			}
+		}
+		return first;
+	};
+	function checkSeveral(parents,checkIndex,several){
+		for(var i=0;i<several.length;i++){
+			if(!matchesInfo(parents[checkIndex+i],parseNodeSelector(several[several.length-1-i]))){
+				return false;
+			}
+		}
+		return true;
 	}
-	if(false && document.querySelectorAll){
+	function parseSelector(selector){
+		selector=selector.replace(/\s+>\s+/g,">").trim();
+		var arr=selector.split(/\s/);
+		return arr.map(function(p){
+			return p.split(">");
+		});
+	}
+	var matches=function(element, selector){
+		var nodeInfo=parseNodeSelector(selector);
+		return matchesInfo(element,nodeInfo);
+	};
+	if(document.querySelectorAll){
 		Sky.querySelector=function(e,selector){
-			return Array.prototype.slice.call(e.querySelectorAll(selector));
+			return Array.from(e.querySelectorAll(selector));
 		};
 	}else{
-		Sky.querySelector=function(parent,selector){
-			var r=new Array();
-			var arr,node;
-			arr=selector.match(/^#([a-zA-Z0-9_\-]+)$/);
-			if(arr){
-				node=document.getElementById(arr[1]);
-				if(node && (parent==document || parent.contains(node))){
-					r.push(node);
-				}
-				return r;
-			}
-			arr=selector.match(/^\.([a-zA-Z0-9_\-]+)$/);
-			if(arr){
-				arr=Array.prototype.slice.call(Sky.getElementsByClassName(parent,arr[1]));
-				if(arr.length) r.push.apply(r,arr);
-				return r;
-			}
-			selector=selector.replace(/\s+,\s+/g,",").replace(/\s+>\s+/g,">").replace(/\s+/g," ").trim();
-			var arr=selector.split(",");
-			arr.forEach(function(selector){
-				if(selector.match(/(>|\s)/)){
-					r.push.apply(r,queryOne(parent,selector));
-				}else{
-					r.push.apply(r,queryNode(parent,selector));
-				}
-			});
-			return r;
-			function queryNode(e,selector){
-				var r=[];
-				var nodeInfo=parseNodeSelector(selector);
-				if(nodeInfo.id){
-					var node=document.getElementById(nodeInfo.id);
-					if(node){
-						if(e.contains(node)){
-							if(matchesInfo(e,nodeInfo)){
-								r.push(node);
-							}
-						}
-					}
-					return r;
-				}
-				var nodes,i;
-				if(nodeInfo.tagName){
-					nodes= e.getElementsByTagName(nodeInfo.tagName);
-				}else if(nodeInfo.classNames.length>0){
-					nodes=Sky.getElementsByClassName(e,nodeInfo.classNames[0]);
-				}else{
-					nodes=e.getElementsByTagName("*");
-				}
-				for(i=0;i<nodes.length;i++){
-					if(matchesInfo(nodes[i],nodeInfo)){
-						r.push(nodes[i]);
-					}
-				}
-				return r;
-			}
-			function queryOne(e,selector){
-				selector=selector+" ";
-				var reg=/([0-9a-zA-Z_\-\[\]"'=#\.]+)(\s|>)/g;
-				var selectors=[];
-				var selectorsIsParent=[];
-				var arr;
-				while(arr=reg.exec(selector)){
-					selectors.push(arr[1]);
-					selectorsIsParent.push(arr[2]==">");
-				}
-				var leafSelector=selectors.reverse().shift();
-				selectorsIsParent.reverse().shift();
-				arr=queryNode(e,leafSelector);
-				arr=arr.filter(function(ele,i){
-					var checkIndex=0;
-					var parent=ele;
-					while((parent=parent.parentNode) && parent!=e){
-						if(selectorsIsParent[checkIndex]){
-							if(!Sky.matches(parent,selectors[checkIndex])) return false;
-							checkIndex++;
-						}else{
-							if(Sky.matches(parent,selectors[checkIndex])){
-								checkIndex++;
-							}
-						}
-						if(checkIndex>=selectors.length){
-							return true;
-						}
-					}
-					return false;
-				});
-				return arr;
-			}
+		Sky.querySelector=function(e,selector){
+			return Array.from(Sky.query(selector,e));
 		};
 	}
-	var Batch=function(){};
-	Batch.prototype =Sky.fn= {
+	var Batch=function(){ Array.call(this);};
+	Batch.prototype=Sky.fn={
 		constructor: Batch,
 		length: 0,
 		indexOf:Array.prototype.indexOf,
@@ -2136,9 +2379,130 @@ if(document.getElementsByClassName){
 	};
 	Sky.query=function(selector,parent){
 		parent=parent || document;
-		var arr=Sky.querySelector(parent,selector);
+		var arr,node;
+		arr=selector.match(/^#([a-zA-Z0-9_\-]+)$/);
 		var nodes=new Batch();
-		nodes.push.apply(nodes,arr);
+		if(arr){
+			node=document.getElementById(arr[1]);
+			if(node && (parent==document || parent.contains(node))){
+				return Sky.ele(node);
+			}
+			return nodes;
+		}
+		arr=selector.match(/^\.([a-zA-Z0-9_\-]+)$/);
+		if(arr){
+			arr=Sky.getElementsByClassName(parent,arr[1]);
+			if(arr.length) nodes.push.apply(nodes,arr);
+			return nodes;
+		}
+		selector=selector.replace(/\s+,\s+/g,",").replace(/\s+>\s+/g,">").replace(/\s+/g," ").trim();
+		return query1(parent,selector);
+	};
+	function query1(ancestor,selector){
+		var arr=selector.split(",");
+		if(arr.length==1){
+			return query2(ancestor,arr[0]);
+		}
+		var nodes=new Batch();
+		arr.forEach(function(selector){
+			query2(ancestor,selector).forEach(function(ele){
+				nodes.push(ele);
+			});
+		});
+		return nodes;
+	}
+	function query2(ancestor,selector){
+		var arr=selector.split(" ");
+		var arr2=[];
+		arr.forEach(function(sub){
+			arr2.push(sub.split(">"));
+		});
+		var nodes=query4(ancestor,arr2[0][0]);
+		for(var i=0;i<arr2.length;i++){
+			for(var j=0;i<arr2.length;i++){
+				if(j==0){
+					if(i!=0){
+						nodes=query3(nodes,arr2[i][0]);
+					}
+				}else{
+					nodes=nodes.children(arr2[i][0]);
+				}
+				if(nodes.length==0){
+					return nodes;
+				}
+			}
+		}
+		return nodes;
+	}
+	function query3(ancestors,selector){
+		var nodes=new Batch();
+		ancestors.forEach(function(ele){
+			var children=query4(ele,selector);
+			for(var i=0; i<children.length; i++){
+				var child=children[i];
+				if(nodes.indexOf(child)<0){
+					nodes.push(child);
+				}
+			}
+		});
+		return nodes;
+	}
+	function query4(e,selector){
+		var r=new Batch();
+		var nodeInfo=parseNodeSelector(selector);
+		if(nodeInfo.id){
+			var node=document.getElementById(nodeInfo.id);
+			if(node){
+				if(e.contains(node)){
+					if(matchesInfo(e,nodeInfo)){
+						r.push(node);
+					}
+				}
+			}
+			return r;
+		}
+		var nodes,i;
+		if(nodeInfo.tagName){
+			nodes= e.getElementsByTagName(nodeInfo.tagName);
+		}else if(nodeInfo.classNames.length>0){
+			nodes=Sky.getElementsByClassName(e,nodeInfo.classNames[0]);
+		}else{
+			nodes=e.getElementsByTagName("*");
+		}
+		for(i=0;i<nodes.length;i++){
+			if(matchesInfo(nodes[i],nodeInfo)){
+				r.push(nodes[i]);
+			}
+		}
+		return r;
+	}
+	Sky.fn.children=function(selector){
+		var nodes=new Batch();
+		this.forEach(function(ele){
+			var children=ele.children;
+			for(var i=0; i<children.length; i++){
+				var child=children[i];
+				if(nodes.indexOf(child)<0){
+					if(selector && !matches(child,selector)){
+						continue ;
+					}
+					nodes.push(child);
+				}
+			}
+		});
+		return nodes;
+	};
+	Sky.fn.find=function(selector){
+		var nodes=new Batch();
+		this.forEach(function(ele){
+			var children=query1(ele,selector);
+			for(var i=0; i<children.length; i++){
+				var child=children[i];
+				if(nodes.indexOf(child)<0){
+					nodes.push(child);
+				}
+			}
+		});
 		return nodes;
 	};
 	Sky.fn.parent=function(){
@@ -2157,7 +2521,7 @@ if(document.getElementsByClassName){
 			var parent=ele;
 			while((parent=parent.parentNode) && parent!=document){
 				if(nodes.indexOf(parent)<0){
-					if(selector && !Sky.matches(parent,selector)){
+					if(selector && !matches(parent,selector)){
 						continue ;
 					}
 					nodes.push(parent);
@@ -2173,42 +2537,13 @@ if(document.getElementsByClassName){
 			while(parent=parent.parentNode){
 				if(nodes.indexOf(parent)<0){
 					nodes.push(parent);
-					if(Sky.matches(parent,selector)) break ;
+					if(matches(parent,selector)) break ;
 				}
 			};
 		});
 		return nodes;
 	};
-	Sky.fn.children=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var children=ele.childNodes;
-			for(var i=0; i<children.length; i++){
-				var child=children[i];
-				if(child.nodeType==1){
-					if(nodes.indexOf(child)<0){
-						if(selector && !Sky.matches(child,selector)){
-							continue ;
-						}
-						nodes.push(child);
-					}
-				}
-			}
-		});
-		return nodes;
-	};
-	Sky.fn.find=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var arr=Sky.query(selector,ele);
-			arr.forEach(function(item){
-				if(nodes.indexOf(item)<0){
-					nodes.push(item);
-				}
-			});
-		});
-		return nodes;
-	};
+
 	Sky.fn.siblings=function(selector){
 		return this.parent().children(selector);
 	};
@@ -2357,7 +2692,7 @@ Sky.fn.appendTo=function(parent){
 	return this;
 };
 Sky.fn.append=function(){
-	var args=Array.prototype.slice.call(arguments,0);
+	var args=Array.from(arguments,0);
 	args.forEach(function(sub){
 		if(!sub) return ;
 		if(Sky.isString(sub) || Sky.isNumber(sub)){
@@ -2590,36 +2925,40 @@ Sky.fn.text=function(value){
 Sky.fn.val=function(value){
 	return this.prop("value",value);
 };
+
+Sky.domData=new Map();
 Sky.fn.data=function(key,value){
-	var attr="data-"+key;
 	var node;
 	if(value!==undefined){//set
 		for(var i=0;i<this.length;i++){
 			node=this[i];
-			if(node.hasAttribute(attr)){
-				node.setAttribute(attr,value);
-			}
-			if(!node.data) node.data={};
-			node.data[key]=value;
+			var data=Sky.domData.get(node);
+			if(!Sky.isDefined(data)) data={};
+			data[key]=value;
+			Sky.domData.set(node,data);
 		}
 		return this;
 	}else{//get
 		if(this.length>0){
 			node=this[0];
-			if(!node.data) node.data={};
-			if(value=node.data[key]){
-				if(node.hasAttribute(attr)){
-					node.setAttribute(attr,value);
-				}
+			var data=Sky.domData.get(node);
+			value=data[key];
+			if(value!==undefined){
 				return value;
-			}else if(node.hasAttribute(attr)){
+			}
+			var attr="data-"+key;
+			if(node.hasAttribute(attr)){
 				value=node.getAttribute(attr);
-				node.data[key]=value;
 				return value;
 			}
 		}
-		return null;
 	}
+};
+Sky.fn.removeData=function(key,value){
+	this.forEach(function(node){
+		Sky.domData["delete"](node);
+	});
+	return this;
 };
 Sky.fn.hide=function(){
 	return this.css("display","none");
@@ -2639,86 +2978,254 @@ Sky.fn.remove=function(selector){
 	return this;
 };
 Sky.fn.destroy=function(){
+	var $children=this.children();
+	if($children.length) $children.destroy();
 	this.forEach(function(dom){
 		var parent=dom.parentNode;
-		if(parent) parent.removeChild(dom);
-		if(dom.data && dom.data.events){
-			dom.data.events.forOwn(function(events){
-				if(events.forEach) events.forEach(function(callback){
-					Sky.detachEvent(dom,events,callback);
-				});
-			});
-		}
+		var data=Sky.domData.get(dom);
+		Sky.domData["delete"](dom);
+		Sky.detachEvent(dom);
 		for(var prop in dom){
 			if(prop.startsWith("on")) dom[prop]=null;
 		}
+		if(parent) parent.removeChild(dom);
 	});
-	var $children=this.children();
-	if($children.length) $children.destroy();
 	this.splice(0,this.length);
 	return this;
 };
-Sky.fn.empty=function(selector){
-	this.children(selector).destroy();
+Sky.fn.empty=function(){
+	this.children().destroy();
 	return this.prop("innerHTML",'');
-};
-Sky.fn.bind=function(event,callback){
-	this.forEach(function(dom){
-		if(!dom.data) dom.data={};
-		if(!dom.data.events) dom.data.events={};
-		if(!dom.data.events[event]) dom.data.events[event]=[];
-		var events=dom.data.events[event];
-		events.push(callback);
-		Sky.attachEvent(dom,event,callback);
-	});
-	return this;
-};
-Sky.fn.unbind=function(event,callback){
-	if(callback){
+};(function(window){
+	function attachEvent(obj, evt, func){
+		if(obj.addEventListener){
+			obj.addEventListener(evt, func, false);
+		}else if(obj.attachEvent){
+			obj.attachEvent( 'on'+evt, func);
+		}
+	}
+	function detachEvent(obj, evt, func){
+		if(obj.removeEventListener){
+			obj.removeEventListener(evt, func, false);
+		}else if(obj.detachEvent){
+			obj.detachEvent('on'+evt, func);
+		}
+	}
+	var eventMap=new Map();
+	var proxyMap=new Map();
+	proxyMap.addEvent=function(ele,func){
+		var handles=this.get(ele);
+		if(!handles){
+			handles=new Array();
+			this.set(ele,handles);
+		}
+		handles.push(func);
+	};
+	Sky.attachEvent=function(obj, evt, func){
+		evt=evt.toLowerCase();
+		var events=eventMap.get(obj);
+		if(!events){
+			events={};
+			eventMap.set(obj,events);
+		}
+		var handles=events[evt];
+		if(!handles){
+			handles=new Set();
+			events[evt]=handles;
+		}
+		if(!handles.has(func)){
+			handles.add(func);
+			if('on'+evt in obj){
+				attachEvent(obj, evt, func);
+			}else{//TODO
+
+			}
+		}
+	};
+	Sky.detachEvent=function(obj, evt, func) {
+		var events=eventMap.get(obj);
+		if(!events) return ;
+		if(evt){
+			var handles=events[evt];
+			if(!handles) return ;
+			if(func){
+				detachEvent(obj, evt, func);
+				handles['delete'](func);
+			}else{
+				handles.forEach(function(func){
+					Sky.detachEvent(obj, evt, func);
+				});
+			}
+		}else{
+			for(evt in events){
+				Sky.detachEvent(obj, evt);
+			}
+			eventMap['delete'](obj);
+			proxyMap['delete'](obj);
+		}
+	};
+	Sky.fireEvent=function(e,eventName){
+		if(e.dispatchEvent) {
+			var ev = document.createEvent('Event');
+			ev.initEvent(eventName, false, false);
+			e.dispatchEvent(ev);
+		}else{
+			e.fireEvent("on"+eventName);
+		}
+	};
+	Sky.event={};
+	Sky.event.fix={};
+	Sky.fn.bind=function(event,callback){
+		this.forEach(function(dom){
+			Sky.attachEvent(dom,event,callback);
+		});
+		return this;
+	};
+	Sky.fn.unbind=function(event,callback){
 		this.forEach(function(dom){
 			Sky.detachEvent(dom,event,callback);
 		});
-	}else{
+		return this;
+	};
+	Sky.fn.trigger=function(event){
 		this.forEach(function(dom){
-			if(!dom.data) dom.data={};
-			if(!dom.data.events) dom.data.events={};
-			if(!dom.data.events[event]) dom.data.events[event]=[];
-			var events=dom.data.events.events[event];
-			events.forEach(function(callback){
-				Sky.detachEvent(dom,event,callback);
-			});
+			Sky.fireEvent(dom,event);
 		});
+		return this;
+	};
+	var stopPropagation=function(){
+		this.cancelBubble=true;
+	};
+	var preventDefault=function(){
+		this.returnValue=false;
+	};
+	Sky.fn.on=function(evt,selector,func){
+		if(func){
+			return this.delegate(evt,selector,func);
+		}
+		func=selector;
+		if(evt.addEventListener){
+			return this.bind(evt,func);
+		}
+		this.forEach(function(ele){
+			var proxyHandle=function(e){
+				e=e || window.event;
+				e.target=e.target || e.srcElement;
+				e.currentTarget=ele;
+				e.stopPropagation=stopPropagation;
+				e.preventDefault=preventDefault;
+				return func.call(ele,e);
+			};
+			proxyHandle.target=func;
+			proxyHandle.element=ele;
+			proxyHandle.event=evt;
+			proxyMap.addEvent(ele,proxyHandle);
+			Sky.attachEvent(ele,evt,proxyHandle);
+		});
+	};
+	Sky.fn.delegate=function(evt,selector,func){
+		return this.forEach(function(ele){
+			var proxyHandle=function(e){
+				e=e || window.event;
+				e.target=e.target || e.srcElement;
+				e.stopPropagation=e.stopPropagation || stopPropagation;
+				e.preventDefault=e.preventDefault || preventDefault;
+				e.currentTarget=ele;
+				var me=Sky.matches(e.target, selector, ele, true);
+				if(me){
+					return func.call(me,e);
+				}
+			};
+			proxyHandle.target=func;
+			proxyHandle.element=ele;
+			proxyHandle.selector=selector;
+			proxyHandle.event=evt;
+			proxyMap.addEvent(ele,proxyHandle);
+			Sky.attachEvent(ele,evt,proxyHandle);
+		});
+	};
+	Sky.fn.off=Sky.fn.undelegate=function(evt,arg2,arg3){
+		var selector,func;
+		if(Sky.isString(arg2)){
+			selector=arg2;
+			if(Sky.isFunction(arg3)){
+				func=arg3;
+			}
+		}else if(Sky.isFunction(arg2)){
+			func=arg2;
+		}
+		return this.forEach(function(ele){
+			var proxyList=proxyMap.get(ele);
+			if(!proxyList) return ;
+			var arr=proxyList.filter(function(handle){
+				if(evt){
+					if(handle.event!=evt){
+						return false;
+					}
+				}
+				if(selector){
+					if(handle.selector!=selector){
+						return false;
+					}
+				}
+				if(func){
+					if(handle.target!=func){
+						return false;
+					}
+				}
+				Sky.detachEvent(ele,evt,handle);
+				return true;
+			});
+			for(var i=arr.length-1;i>=0;i--){
+				proxyList.splice(i,1);
+			}
+		});
+	};
+	if(Sky.browser.ie || "onmouseenter" in document){
+		Sky.fn.mouseenter=function(func){
+			return this.bind("mouseenter",func);
+		};
+	}else{
+		Sky.fn.mouseenter=function(func){
+			this.forEach(function(ele){
+				var proxyHandle=function(e){
+					var target= e.target;
+					var related=e.relatedTarget;
+					if(!related || (related!==ele && !ele.contains(related)) ){
+						return func.call(ele, e);
+					}
+				};
+				attachEvent(ele,"mouseover",proxyHandle);
+			});
+			return this;
+		};
 	}
-	return this;
-};
-Sky.fn.trigger=function(event,callback){
-	this.forEach(function(dom){
-		Sky.fireEvent(dom,event,callback);
-	});
-	return this;
-};
+	if(Sky.browser.ie || "onmouseleave" in document){
+		Sky.fn.mouseleave=function(func){
+			return this.bind("mouseleave",func);
+		};
+	}else{
+		Sky.fn.mouseleave=function(func){
+			this.forEach(function(ele){
+				var proxyHandle=function(e){
+					var target=e.target;
+					var related=e.relatedTarget;
+					if(!related || (related!==ele && !ele.contains(related)) ){
+						return func.call(ele, e);
+					}
+				};
+				attachEvent(ele,"mouseout",proxyHandle);
+			});
+			return this;
+		};
+	}
+})(this);
 Sky.fn.click=function(callback){
 	if(callback){
 		return this.bind('click',callback);
 	}
 	return this.each(function(){
 		this.click();
-	});
-};
-Sky.fn.mouseenter=function(callback){
-	return this.bind("mouseover",function(e){
-		var related=e.relatedTarget=e.relatedTarget || e.fromElement || this;
-		if(!related || ((this===e.target || this.contains(e.target)) && related.contains(this))){
-			callback.call(this, e);
-		}
-	});
-};
-Sky.fn.mouseleave=function(callback){
-	return this.bind("mouseout",function(e){
-		var related=e.relatedTarget=e.relatedTarget || e.toElement || this;
-		if(!related || ((this===e.target || this.contains(e.target)) && related.contains(this))){
-			callback.call(this, e);
-		}
 	});
 };
 if("ontouchstart" in document){
@@ -2730,19 +3237,6 @@ if("ontouchstart" in document){
 				callback.call(this,e);
 			}
 		});
-	};
-}else{
-	Sky.fn.tap=Sky.fn.click;
-}
-if("ontouchstart" in document){
-	Sky.fn.tap=function(callback){
-		return this.bind("touchstart",function(e){
-			this.data.lastTouchTime=Date.now();
-		}).bind("touchend",function(e){
-				if(Date.now()-this.data.lastTouchTime<200){
-					callback.call(this,e);
-				}
-			});
 	};
 }else{
 	Sky.fn.tap=Sky.fn.click;
@@ -2766,190 +3260,3 @@ Sky.fn.input=function(callback){
 		});
 	}
 };
-Sky.fn.on=function(evt,arg1,arg2){// TODO 还在考虑中
-	var func;
-	if(Sky.isFunction(arg1)){
-		func=arg1;
-	}else if(Sky.isFunction(arg2)){
-		func=arg2;
-	}
-	var target=e.target || e.srcElement || this;
-	this.forEach(function(ele){
-		if(ele.addEventListener) {
-			ele.addEventListener(evt, func, false);
-		} else if(obj.attachEvent) {
-			ele.attachEvent('on' + evt, function(){
-				func
-			});
-		}
-		Sky.attachEvent(event,function(e){
-			e=e || window.event;
-			var target=e.target=e.target || e.srcElement;
-			if(this==target){
-				callback.call(this,e);
-			}
-		});
-	});
-};
-/* ceil floor round */
-(function(){
-	function createRound(methodName) {
-		var func = Math[methodName];
-		return function(number, precision) {
-			precision = precision === undefined ? 0 : (+precision || 0);
-			if (precision) {
-				precision =Math.pow(10,precision);
-				return func(number * precision) / precision;
-			}
-			return func(number);
-		};
-	}
-	Sky.round=createRound('round');
-	Sky.floor=createRound('floor');
-	Sky.ceil=createRound('ceil');
-})();
-Sky.random=function(a, b){
-	var length=b-a+1;
-	return Math.floor(Math.random()*length)+a;
-};
-Sky.UUID=function() {
-	var d = new Date().getTime();
-	var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		var r = (d + Math.random()*16)%16 | 0;
-		d = Math.floor(d/16);
-		return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-	});
-	return uuid;
-};
-window.execScript([
-	'Function alert(msg)',
-	'msgbox msg',
-	'End Function' //去除弹窗的图标
-].join('\n'), 'VBScript');
-if(typeof alert=="unknown"){
-	Sky.support.VBScript=true;
-}
-Sky.noop=function(){};
-Sky.later=function(fn){
-	setTimeout(fn,0);
-};
-if(!document.addEventListener){
-	Sky.support.addEventListener=false;
-	Sky.support.DOMContentLoaded=false;
-	(function(){
-		var d=document;
-		var fn=[];
-		var done=function(e){
-			fn.forEach(function(item){
-				if(Sky.isFunction(item)){
-					item.call(d,window.event);
-				}
-			});
-			done=Sky.noop;
-		};
-		if(window==window.top)(function() {
-			try { d.documentElement.doScroll('left'); done.call(d); }
-			catch (err) { setTimeout(arguments.callee, 0); }
-		})();
-		document.attachEvent("onreadystatechange",function(){
-			if(d.readyState === "complete") {
-				d.detachEvent("onreadystatechange", arguments.callee);
-				done.call(d);
-			}
-		});
-		document.addEventListener=function(event,callback){
-			if(event=="DOMContentLoaded"){
-				fn.push(callback);
-			}else{
-				document.attachEvent(event,callback);
-			}
-		};
-		document.removeEventListener=function(event,callback){
-			if(event=="DOMContentLoaded"){
-				var index=fn.indexOf(callback);
-				fn.splice(index,1);
-			}else{
-				document.detachEvent(event,callback);
-			}
-		};
-	})();
-}
-(function(){
-	Sky.isReady=false;
-	var p=new Promise(function(resolve, reject){
-		document.addEventListener("DOMContentLoaded",function(){
-			Sky.isReady=true;
-			resolve();
-		},false);
-	});
-	Sky.ready=function(callback){
-		if(callback) document.addEventListener("DOMContentLoaded",callback);
-		return p;
-	};
-})();
-function Observable(){
-	var _events=new Array();
-	var evt={};
-	this.addEvent=function(ev,fn){
-		evt[ev]=fn;
-	};
-	this.addListener=function(ev,fn,before){
-		before=before?true:false;
-		if(ev in evt) evt[ev]();
-		_events.push({'ev':ev,'fn':fn,'before':before});
-	};
-	this.removeListener=function(ev,fn){
-		for(var i=_events.length-1;i>=0;i--){
-			var e=_events[i];
-			if(e.ev==ev && (!fn || e.fn==fn)){
-				_events.splice(i, 1);
-			}
-		}
-	};
-	this.on=function(ev,fn,before){
-		this.addListener(ev,fn,true);
-	};
-	this.after=function(ev,fn,before){
-		this.addListener(ev,fn,false);
-	};
-	this.dispatchEvent=function(ev,before,args){
-		if(args==undefined){ args=[];}
-		for(var i=0;i<_events.length;i++){
-			var e=_events[i];
-			if(e.ev==ev && e.before==before){
-				if(e.fn.apply(this,args)===false){
-					return false;
-				}
-			}
-		}
-		var when=before?'on':'after';
-		var eventName=when+ev;
-		if(this[eventName]){
-			if(this[eventName].apply(this,args)==false){
-				return false;
-			}else{
-				return true;
-			}
-		}
-		eventName=when+ev.replace(/\b(\w)/g, function(m){
-			return m.toUpperCase();
-		});
-		if(this[eventName]){
-			if(this[eventName].apply(this,args)==false){
-				return false;
-			}else{
-				return true;
-			}
-		}
-		return true;
-	};
-	this.fireEvent=function(type,args){
-		return this.dispatchEvent(type,true,args);
-	};
-	this.fireAfterEvent=function(type,args){
-		return this.dispatchEvent(type,false,args);
-	};
-}
-if(!window.$){
-	window.$=Sky;
-}

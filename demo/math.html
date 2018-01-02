@@ -1,4 +1,4 @@
-<!-- ie6-8 use quirks mode-->
+<!-- quirks -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,15 +8,20 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 	<meta name="renderer" content="webkit"/>
 	<title>数学函数</title>
-	<link href="ting.css" rel="stylesheet">
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<link href="/linsk1998/ting/master/theme/bootstrap/indigo.css" rel="stylesheet"/>
 	<script src="../sky.js"></script>
 </head>
 <body>
 <div class="container-fluid">
 	<h2>数学函数</h2>
 	<h3>Sky.pad</h3>
-	<p>开头补0</p>
+	<p>开头补0，字符串补全使用String.prototype.padStart。</p>
 	<a class="btn btn-primary" href="javascript:alert(Sky.pad(5,4))">Sky.pad(5,4)</a>
+	<h3 id="nextSequence">Sky.nextSequence</h3>
+	<p>获取下一个自增序列。</p>
+	<h3 id="UUID">Sky.UUID</h3>
+	<p>生成一个随机UUID，返回一个Promise。</p>
 	<h3 id="round">Sky.round</h3>
 	<p>四舍五入</p>
 <pre><code>Sky.round(4.006);

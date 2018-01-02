@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>ClassFactory</title>
+	<script src="../../sky.js" type="text/javascript"></script>
+	<script src="ClassFactory.js" type="text/javascript"></script>
+</head>
+<body>
+<button type="button" onclick="mao.say()">say</button>
+<button type="button" onclick="alert(mao.age);">getAge</button>
+<button type="button" onclick="alert(mao.birthday.toISOString());">getBirthday</button>
+<button type="button" onclick="mao.age=parseInt(prompt('年龄','10'));alert(mao.birthday.toISOString());">setAge</button>
+<script type="text/javascript">
+	var Cat=Sky.declare({
+		'constructor':function(){
+			this.birthday=new Date("2001/01/01 00:00:00");
+		},
+		'property':{
+			'birthday':null,//需要声明
+			'age':{
+				'get':function(){
+					return new Date().getFullYear()-this.birthday.getFullYear()+1
+				},
+				'set':function(age){
+					this.birthday.setFullYear(new Date().getFullYear()-age+1)
+				}
+			}
+		},
+		'method':{
+			'say':function(){
+				alert("喵");
+			},
+			'sleep':function(){
+				alert("zｚＺ");
+			}
+		},
+		'static':{
+			'save':function(cat){
+				alert("saved");
+			}
+		}
+	});
+	var mao=new Cat();
+	Sky.forIn(mao,function(value,member){
+		//alert(member);
+	});
+</script>
+</body>
+</html>

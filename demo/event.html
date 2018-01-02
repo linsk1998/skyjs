@@ -1,0 +1,118 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>元素操作</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<link href="/linsk1998/ting/master/theme/bootstrap/indigo.css" rel="stylesheet"/>
+	<script src="../sky.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<script>
+		function testHandle(){
+			alert("事件测试");
+		}
+	</script>
+	<h3 id="attachEvent">Sky.attachEvent detachEvent fireEvent</h3>
+	<p>绑定事件 解除绑定 触发事件</p>
+	<a class="btn btn-primary" href='javascript:Sky.attachEvent(Sky.byId("attachBtn"),"click",testHandle);void 0'>绑定事件</a>
+	<a class="btn btn-primary" href='javascript:Sky.detachEvent(Sky.byId("attachBtn"),"click",testHandle);void 0'>解除绑定</a>
+	<a class="btn btn-default" href='javascript:void 0' id="attachBtn">测试按钮</a>
+	<h3 id="bind">Sky.fn.bind Sky.fn.unbind</h3>
+	<p>批量绑定事件 解除绑定 触发事件</p>
+	<div class="alert alert-info">
+		<p>同个函数同个事件只能绑定一次。</p>
+		<p>上面两组绑定事件是直接绑定的，没有对e.target等进行封装。</p>
+		<p>绑定时会将元素和函数记录到一个内部变量中，解除绑定是可以解除多个。</p>
+	</div>
+	<script>
+		function testHandle2(e){
+			alert("事件测试");
+			alert(this.className);//btn btn-default
+			alert(e.target.className);//btn btn-default OR badge
+		}
+	</script>
+	<h3 id="on">Sky.fn.on Sky.fn.off</h3>
+	<p>批量绑定事件 解除绑定 触发事件</p>
+	<a class="btn btn-primary" href='javascript:$("#onBtn").on("click",testHandle2);void 0'>绑定事件</a>
+	<a class="btn btn-primary" href='javascript:$("#onBtn").off("click",testHandle2);void 0'>解除绑定</a>
+	<a class="btn btn-default vertical-align" href='javascript:void 0' id="onBtn"><span class="vertical-align-middle">测试按钮</span> <span class="badge">2</span></a>
+	<h3 id="delegate">Sky.fn.delegate Sky.fn.undelegate</h3>
+	<p>父被选元素的子元素添加事件</p>
+	<div class="alert alert-info" id="delegateWrap">
+		<a class="btn btn-default vertical-align" href='javascript:void 0'><span class="vertical-align-middle">测试按钮</span> <span class="badge">2</span></a>
+		<a class="btn btn-default vertical-align" href='javascript:void 0'><span class="vertical-align-middle">测试按钮</span> <span class="badge">2</span></a>
+	</div>
+	<a class="btn btn-primary" href='javascript:void 0'>添加元素</a>
+	<script>
+		Sky.getPrevElement(Sky.getCurrentScript()).onclick=function(){
+			$("#delegateWrap").append(
+				" ",
+				$("a.btn.btn-default.vertical-align").attr("href","javascript:void 0").append(
+					$("span.vertical-align-middle").append("新测试按钮"),
+					" ",
+					$("span.badge").append("2")
+				)
+			);
+		};
+		function testHandle3(e){
+			alert("事件测试");
+			alert(e.currentTarget.className);//alert alert-info
+			alert(this.className);//btn btn-default
+			alert(e.target.className);//btn btn-default OR badge
+		}
+	</script>
+	<a class="btn btn-primary" href='javascript:$("#delegateWrap").delegate("click",".btn",testHandle3);void 0'>绑定事件</a>
+	<a class="btn btn-primary" href='javascript:$("#delegateWrap").undelegate("click",testHandle3);void 0'>解除绑定</a>
+	<h3 id="mouseenter">Sky.fn.mouseenter Sky.fn.mouseleave</h3>
+	<div id="mouseenter1" style="background:#999; padding:10px 0; position:relative;">
+		aa
+		<div id="mouseenter2" style="background:#333; color:#FFF; padding:10px 0;">
+			mouseenter:0，mouseleave:0
+		</div>
+		bb
+	</div>
+	<script>
+		var mouseenter=0;
+		var mouseleave=0;
+		$("#mouseenter1").mouseenter(function(){
+			mouseenter=Sky.nextSequence("mouseenter");
+			$("#mouseenter2").text("mouseenter:"+mouseenter+"，mouseleave:"+mouseleave);
+		});
+		$("#mouseenter1").mouseleave(function(){
+			mouseleave=Sky.nextSequence("mouseleave");
+			$("#mouseenter2").text("mouseenter:"+mouseenter+"，mouseleave:"+mouseleave);
+		});
+	</script>
+	<h3 id="tap">Sky.fn.tap</h3>
+	<p>轻按事件绑定</p>
+	<div id="tapWrap" class="alert alert-info">鼠标轻按</div>
+	<script>
+		Sky.query("#tapWrap").tap(function(){
+			alert("tap");
+		});
+		$("#tapWrap2").bind("touchstart",function(){
+			alert("tap");
+		});
+	</script>
+	<h3 id="input">Sky.fn.input</h3>
+	<p>监视输入:</p>
+	<form name="inputForm">
+		<input type="text" value="" name="eg">
+	</form>
+	<script>
+		var textNode=document.createTextNode("");
+		Sky.getPrevElement(document.inputForm).appendChild(textNode);
+		$(document.inputForm.eg).input(function(){
+			textNode.data=this.value;
+		});
+	</script>
+</div>
+</body>
+</html>

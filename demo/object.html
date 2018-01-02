@@ -1,4 +1,4 @@
-<!-- ie6-8 use quirks mode-->
+<!-- quirks -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,7 +8,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 	<meta name="renderer" content="webkit"/>
 	<title>对象操作</title>
-	<link href="ting.css" rel="stylesheet">
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<link href="/linsk1998/ting/master/theme/bootstrap/indigo.css" rel="stylesheet"/>
 	<script src="../sky.js"></script>
 </head>
 <body>
@@ -25,7 +26,7 @@
 //{"name":"John","location":{"city":"Boston","county":"China","state":"MA"},"last":"Resig"}</code></pre>
 	<h3 id="forIn">Sky.forIn forOwn</h3>
 	<p>遍历对象的元素，会过滤toString等特殊元素。</p>
-<pre><code>Sky.forIn( {"key":"value"}, function( key, value){
+<pre><code>Sky.forIn( {"key":"value"}, function( value, key){
 	alert(this[key]);
 });</code></pre>
 	<h3 id="parseQuery">Sky.parseQuery</h3>

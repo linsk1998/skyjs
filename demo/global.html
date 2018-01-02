@@ -1,3 +1,4 @@
+<!-- quirks -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,7 +8,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 	<meta name="renderer" content="webkit"/>
 	<title>全局对象</title>
-	<link href="ting.css" rel="stylesheet">
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<link href="/linsk1998/ting/master/theme/bootstrap/indigo.css" rel="stylesheet"/>
 	<script src="../sky.js"></script>
 </head>
 <body>
@@ -141,6 +143,45 @@ var c=new Set().addAll(a).removeAll(b);</code></pre>
 				a.clear();
 			};
 		</script>
+		<h3 id="Map">Map</h3>
+		<p>对象保存键值对。任何值(对象或者原始值) 都可以作为一个键或一个值。</p>
+		<table class="table table-bordered table-condensed table-striped">
+			<thead>
+			<tr class="info">
+				<th>方法</th><th>返回</th><th>描述</th>
+			</tr>
+			</thead>
+			<tbody class="table-hover">
+			<tr>
+				<td>set</td><td></td><td>添加元素</td>
+			</tr>
+			<tr>
+				<td>has</td><td>返回布尔值</td><td>判断是否存在某个元素</td>
+			</tr>
+			<tr>
+				<td>clear</td><td></td><td>清除内部所有元素</td>
+			</tr>
+			<tr>
+				<td>forEach</td><td></td><td>对数组的每个元素执行一次提供的函数(回调函数)</td>
+			</tr>
+			<tr>
+				<td>remove</td><td>返回是否移除</td><td>从集中移除指定的元素</td>
+			</tr>
+			<tr>
+				<td>get</td><td>返回之前设置的值</td><td>获取键对应的值，如果不存在，则返回undefined</td>
+			</tr>
+			</tbody>
+		</table>
+		<pre><code>var a=new Set();
+var m = new Map();
+m.set(1, "black");
+m.set(2, "red");
+m.set("toString", 2);
+m.set({x:1}, 3);
+
+m.forEach(function(item, key, mapObj){
+	console.log(item);
+});</code></pre>
 		<h3 id="console">console</h3>
 		<p>控制台</p>
 		<a class="btn btn-primary" href="javascript:console.log(11);void 0">试一试</a>
@@ -209,41 +250,6 @@ myFirstPromise.then(function(successMessage){
 				});
 			};
 		</script>
-		<h3 id="Observable">Observable</h3>
-		<p>Observable基类为了发布事件提供了一个通用接口，类似Ext中的Observable、Flash中的EventDispatcher 。</p>
-		<table class="table table-bordered table-condensed table-striped">
-			<thead>
-			<tr class="info">
-				<th>方法</th><th>描述</th>
-			</tr>
-			</thead>
-			<tbody class="table-hover">
-			<tr>
-				<td>addListener</td><td>添加监听器</td>
-			</tr>
-			<tr>
-				<td>removeListener</td><td>移除监听器</td>
-			</tr>
-			<tr>
-				<td>on</td><td>添加开始监听器</td>
-			</tr>
-			<tr>
-				<td>after</td><td>添加结束监听器</td>
-			</tr>
-			<tr>
-				<td>dispatchEvent</td><td>分发事件</td>
-			</tr>
-			<tr>
-				<td>fireEvent</td><td>分发前事件</td>
-			</tr>
-			<tr>
-				<td>fireAfterEvent</td><td>分发后事件</td>
-			</tr>
-			<tr>
-				<td>addEvent</td><td>注册事件</td>
-			</tr>
-			</tbody>
-		</table>
 		<h3 id="StringBuilder">StringBuilder</h3>
 		<p>用于频繁大量的字符串拼接操作。</p>
 		<table class="table table-bordered table-condensed table-striped">
@@ -261,6 +267,70 @@ myFirstPromise.then(function(successMessage){
 			</tr>
 			</tbody>
 		</table>
+		<h3>DateFormat</h3>
+		<p>按通用格式将一个日期转换成一个字符串。</p>
+		<a class="btn btn-primary" href="javascript:alert(DateFormat.format(new Date()))">DateFormat.format(new Date())</a>
+		<a class="btn btn-primary" href="javascript:alert(DateFormat.parse('2017/12/14 02:16:27'))">DateFormat.parse('2017/12/14 02:16:27')</a>
+		<h3 id="SimpleDateFormat">SimpleDateFormat</h3>
+		<p>按SimpleDateFormat的格式将一个日期转换成一个字符串。</p>
+		<table class="table table-bordered table-condensed table-striped">
+			<thead>
+			<tr class="info">
+				<th>格式</th><th>描述</th><th>例子</th>
+			</tr>
+			</thead>
+			<tbody class="table-hover">
+			<tr>
+				<td>yyyy</td><td>年</td><td>2014</td>
+			</tr>
+			<tr>
+				<td>yy</td><td>年</td><td>14</td>
+			</tr>
+			<tr>
+				<td>MM</td><td>月</td><td>01~31</td>
+			</tr>
+			<tr>
+				<td>M</td><td>月</td><td>1~31</td>
+			</tr>
+			<tr>
+				<td>dd</td><td>日</td><td>01~31</td>
+			</tr>
+			<tr>
+				<td>d</td><td>日</td><td>1~31</td>
+			</tr>
+			<tr>
+				<td>HH</td><td>几时(按24小时)</td><td>00~23</td>
+			</tr>
+			<tr>
+				<td>H</td><td>几时(按24小时)</td><td>0~23</td>
+			</tr>
+			<tr>
+				<td>hh</td><td>几时(按12小时)</td><td>00~11</td>
+			</tr>
+			<tr>
+				<td>h</td><td>几时(按12小时)</td><td>0~11</td>
+			</tr>
+			<tr>
+				<td>mm</td><td>分</td><td>00~59</td>
+			</tr>
+			<tr>
+				<td>m</td><td>分</td><td>0~59</td>
+			</tr>
+			<tr>
+				<td>ss</td><td>秒</td><td>00~59</td>
+			</tr>
+			<tr>
+				<td>s</td><td>秒</td><td>0~59</td>
+			</tr>
+			<tr>
+				<td>SSS</td><td>毫秒</td><td>%</td>
+			</tr>
+			<tr>
+				<td>a</td><td>AM或PM</td><td>AM或PM</td>
+			</tr>
+			</tbody>
+		</table>
+		<a class="btn btn-primary" href="javascript:alert(new SimpleDateFormat('yyyy-MM-dd HH:mm:ss.SSS').format(new Date()))">yyyy-MM-dd HH:mm:ss.SSS</a>
 	</div>
 </body>
 </html>
