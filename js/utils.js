@@ -314,33 +314,6 @@ Sky.extend=function(){//扩展对象
 	}
 	return temp;
 };
-Sky.dontEnumMembers = ["toString", "toLocaleString", "valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable","constructor"];
-Sky.forIn=function(obj,fn){
-	for(var key in obj) {
-		if(Sky.dontEnumMembers.indexOf(key)<0 && key.indexOf("__")!=0){
-			if(fn.call(obj,obj[key],key)===false){
-				break;
-			}
-		}
-	}
-};
-Sky.forOwn=function(obj,fn){
-	for(var key in obj) {
-		if(Sky.dontEnumMembers.indexOf(key)<0 && key.indexOf("__")!=0){
-			if(Sky.hasOwn(obj,key)){
-				if(fn.call(obj,obj[key],key)===false){
-					break;
-				}
-			}
-		}
-	}
-};
-Sky.hasOwn=function(obj,key){
-	if(obj.hasOwnProperty){
-		return obj.hasOwnProperty(key);
-	}
-	return Object.prototype.hasOwnProperty.call(obj,key);
-};
 Sky.apply=function(obj,config){
 	for(var k in config) {
 		if(Sky.hasOwn(config,k)){

@@ -149,9 +149,58 @@ Sky.isEmpty=function(obj){
 	return false;
 };
 
+if(!{toString: null}.propertyIsEnumerable('toString')){
+	Sky.dontEnums = ["toString", "toLocaleString", "valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable","constructor"];
+	Sky.forIn=function(obj,fn){
+		for(var key in obj) {
+			if(key.startsWith("__")!=0 || typeof obj!=="unknown"){
+				if(fn.call(obj,obj[key],key)===false){
+					return false;
+				}
+			}
+		}
+		var nonEnumIdx=Sky.dontEnums.length;
+		var constructor=obj.constructor;
+		var proto=Sky.isFunction(constructor) && constructor.prototype || Object.prototype;
+		//遍历nonEnumerableProps数组
+		while (nonEnumIdx--) {
+			var prop = Sky.dontEnums[nonEnumIdx];
+			if(prop in obj && obj[prop]!==proto[prop]){
+				if(fn.call(obj,obj[prop],prop)===false){
+					return false;
+				}
+			}
+		}
+		return true;
+	};
+}else{
+	Sky.forIn=function(obj,fn){
+		for(var key in obj) {
+			if(fn.call(obj,obj[key],key)===false){
+				return false;
+			}
+		}
+		return true;
+	};
+}
+Sky.forOwn=function(obj,fn){
+	return Sky.forIn(obj,function(value,key){
+		if(Sky.hasOwn(obj,key)){
+			if(fn.call(obj,obj[key],key)===false){
+				return false;
+			}
+		}
+	});
+};
+Sky.hasOwn=function(obj,key){
+	if(obj.hasOwnProperty){
+		return obj.hasOwnProperty(key);
+	}
+	return Object.prototype.hasOwnProperty.call(obj,key);
+};
 Sky.getCookie=function(name){
-	var arr = document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
-	if (arr != null) return decodeURIComponent(arr[2]); return null;
+	var arr=document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
+	if(arr != null) return decodeURIComponent(arr[2]); return null;
 };
 Sky.setCookie=function(name,value){
 	var path="/";

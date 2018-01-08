@@ -1,13 +1,31 @@
 
 if(!Object.keys){
-	Object.keys = function(obj) {
-		var result = [], prop;
-		for(prop in obj) {
-			if(Sky.hasOwn(obj, prop)) {
-				result.push(prop);
+	Object.keys=function(obj){
+		var result=[];
+		Sky.forIn(obj,function(value,key){
+			if(Object.prototype.hasOwnProperty.call(this,key)){
+				result.push(key);
+			}
+		});
+		return result;
+	};
+}
+if(!Object.assign){
+	Object.assign=function(target, varArgs){
+		if(target==null){
+			throw 'Cannot convert undefined or null to object';
+		}
+		var to=Object(target);
+		for(var i=1;i<arguments.length;i++){
+			var obj=arguments[i];
+			if(obj!=null){
+				for(var k in obj){
+					if(Object.prototype.hasOwnProperty.call(obj, k)){
+						to[k] = obj[k];
+					}
+				}
 			}
 		}
-		return result;
 	};
 }
 Sky.support.defineProperty=!!Object.defineProperty && !!document.addEventListener;
@@ -289,6 +307,12 @@ String.prototype.replaceAll = function(reallyDo, replaceWith, ignoreCase) {
 	return this.replace(new RegExp(Sky.escapeRegExp(reallyDo), (ignoreCase ? "gi": "g")), replaceWith);
 };
 Math.log2 = Math.log2 || function(n){ return Math.log(n) / Math.log(2); };
+Number.isNaN=Number.isNaN || function(value){
+	return typeof value === "number" && isNaN(value);
+};
+Number.isInteger=Number.isInteger || function(value){
+	return typeof value === "number" &&	isFinite(value) &&	Math.floor(value) === value;
+};
 if (!Function.prototype.bind){
 	Function.prototype.bind=function(context){
 		var self =this,args=Array.from(arguments);

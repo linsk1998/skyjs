@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title></title>
+	<script src="sky.js"></script>
+</head>
+<body>
+asdasd
+<br>asd
+<input type="button" value="DOMParser application/xhtml+xml" onclick="parse1()">
+<input type="button" value="DOMParser text/html" onclick="parse2()">
+<input type="button" value="ActiveX" onclick="parse3()">
+<input type="button" value="innerHTML" onclick="parse4()">
+<script>
+	function parse1(){
+		$.get("?",function(data){
+			var doc = (new DOMParser()).parseFromString(data,"application/xhtml+xml");
+			console.log(doc);
+			console.log(doc.getElementsByTagName("br"));
+			console.log(doc.getElementsByTagName("br").length);
+		},"text");
+	}
+	function parse2(){
+		$.get("?",function(data){
+			var doc = (new DOMParser()).parseFromString(data,"text/html");
+			console.log(doc);
+		},"text");
+	}
+	function parse3(){
+		$.get("?",function(data){
+			var doc = new ActiveXObject("MSXML2.DOMDocument");
+			doc.loadXML(data);
+			console.log(doc);
+			console.log(doc.getElementsByTagName("br"));
+			console.log(doc.getElementsByTagName("br").length);
+		},"text");
+	}
+	function parse4(){
+		$.get("?",function(data){
+			var doc = document.implementation.createHTMLDocument("");
+			if (data.toLowerCase().indexOf('<!doctype') > -1) {
+				doc.documentElement.innerHTML = data;
+			}
+			else {
+				doc.body.innerHTML = data;
+			}
+			console.log(doc);
+			console.log(doc.getElementsByTagName("br"));
+			console.log(doc.getElementsByTagName("br").length);
+			console.log(doc.getElementsByTagName("br")[0].innerHTML);
+		},"text");
+	}
+</script>
+</body>
+</html>

@@ -149,9 +149,58 @@ Sky.isEmpty=function(obj){
 	return false;
 };
 
+if(!{toString: null}.propertyIsEnumerable('toString')){
+	Sky.dontEnums = ["toString", "toLocaleString", "valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable","constructor"];
+	Sky.forIn=function(obj,fn){
+		for(var key in obj) {
+			if(key.startsWith("__")!=0 || typeof obj!=="unknown"){
+				if(fn.call(obj,obj[key],key)===false){
+					return false;
+				}
+			}
+		}
+		var nonEnumIdx=Sky.dontEnums.length;
+		var constructor=obj.constructor;
+		var proto=Sky.isFunction(constructor) && constructor.prototype || Object.prototype;
+		//遍历nonEnumerableProps数组
+		while (nonEnumIdx--) {
+			var prop = Sky.dontEnums[nonEnumIdx];
+			if(prop in obj && obj[prop]!==proto[prop]){
+				if(fn.call(obj,obj[prop],prop)===false){
+					return false;
+				}
+			}
+		}
+		return true;
+	};
+}else{
+	Sky.forIn=function(obj,fn){
+		for(var key in obj) {
+			if(fn.call(obj,obj[key],key)===false){
+				return false;
+			}
+		}
+		return true;
+	};
+}
+Sky.forOwn=function(obj,fn){
+	return Sky.forIn(obj,function(value,key){
+		if(Sky.hasOwn(obj,key)){
+			if(fn.call(obj,obj[key],key)===false){
+				return false;
+			}
+		}
+	});
+};
+Sky.hasOwn=function(obj,key){
+	if(obj.hasOwnProperty){
+		return obj.hasOwnProperty(key);
+	}
+	return Object.prototype.hasOwnProperty.call(obj,key);
+};
 Sky.getCookie=function(name){
-	var arr = document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
-	if (arr != null) return decodeURIComponent(arr[2]); return null;
+	var arr=document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
+	if(arr != null) return decodeURIComponent(arr[2]); return null;
 };
 Sky.setCookie=function(name,value){
 	var path="/";
@@ -197,14 +246,32 @@ if(window.execScript){
 }
 Sky.noop=function(){};
 if(!Object.keys){
-	Object.keys = function(obj) {
-		var result = [], prop;
-		for(prop in obj) {
-			if(Sky.hasOwn(obj, prop)) {
-				result.push(prop);
+	Object.keys=function(obj){
+		var result=[];
+		Sky.forIn(obj,function(value,key){
+			if(Object.prototype.hasOwnProperty.call(this,key)){
+				result.push(key);
+			}
+		});
+		return result;
+	};
+}
+if(!Object.assign){
+	Object.assign=function(target, varArgs){
+		if(target==null){
+			throw 'Cannot convert undefined or null to object';
+		}
+		var to=Object(target);
+		for(var i=1;i<arguments.length;i++){
+			var obj=arguments[i];
+			if(obj!=null){
+				for(var k in obj){
+					if(Object.prototype.hasOwnProperty.call(obj, k)){
+						to[k] = obj[k];
+					}
+				}
 			}
 		}
-		return result;
 	};
 }
 Sky.support.defineProperty=!!Object.defineProperty && !!document.addEventListener;
@@ -486,6 +553,12 @@ String.prototype.replaceAll = function(reallyDo, replaceWith, ignoreCase) {
 	return this.replace(new RegExp(Sky.escapeRegExp(reallyDo), (ignoreCase ? "gi": "g")), replaceWith);
 };
 Math.log2 = Math.log2 || function(n){ return Math.log(n) / Math.log(2); };
+Number.isNaN=Number.isNaN || function(value){
+	return typeof value === "number" && isNaN(value);
+};
+Number.isInteger=Number.isInteger || function(value){
+	return typeof value === "number" &&	isFinite(value) &&	Math.floor(value) === value;
+};
 if (!Function.prototype.bind){
 	Function.prototype.bind=function(context){
 		var self =this,args=Array.from(arguments);
@@ -1437,33 +1510,6 @@ Sky.extend=function(){//扩展对象
 	}
 	return temp;
 };
-Sky.dontEnumMembers = ["toString", "toLocaleString", "valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable","constructor"];
-Sky.forIn=function(obj,fn){
-	for(var key in obj) {
-		if(Sky.dontEnumMembers.indexOf(key)<0 && key.indexOf("__")!=0){
-			if(fn.call(obj,obj[key],key)===false){
-				break;
-			}
-		}
-	}
-};
-Sky.forOwn=function(obj,fn){
-	for(var key in obj) {
-		if(Sky.dontEnumMembers.indexOf(key)<0 && key.indexOf("__")!=0){
-			if(Sky.hasOwn(obj,key)){
-				if(fn.call(obj,obj[key],key)===false){
-					break;
-				}
-			}
-		}
-	}
-};
-Sky.hasOwn=function(obj,key){
-	if(obj.hasOwnProperty){
-		return obj.hasOwnProperty(key);
-	}
-	return Object.prototype.hasOwnProperty.call(obj,key);
-};
 Sky.apply=function(obj,config){
 	for(var k in config) {
 		if(Sky.hasOwn(config,k)){
@@ -1729,7 +1775,41 @@ if(Sky.support.stack){
 		return null;
 	};
 }
-
+(function(){
+	Sky.isReady=false;
+	var p=new Promise(function(resolve, reject){
+		if(document.addEventListener){
+			document.addEventListener("DOMContentLoaded",function(){
+				Sky.isReady=true;
+				resolve();
+			},false);
+		}else if(window==window.top){
+			(function() {
+				try{
+					document.documentElement.doScroll('left');
+					Sky.isReady=true;
+					resolve();
+				}catch(e){
+					setTimeout(arguments.callee, 0);
+				}
+			})();
+		}else{
+			document.attachEvent("onreadystatechange",function(){
+				if(document.readyState === "complete") {
+					document.detachEvent("onreadystatechange", arguments.callee);
+					Sky.isReady=true;
+					resolve();
+				}
+			});
+		}
+	});
+	Sky.ready=function(callback){
+		if(callback && !Sky.isReady){
+			p.then(callback);
+		}
+		return p;
+	};
+})();
 
 Sky.ajax=function(options){
 	var targetUrl=options.url;
@@ -2157,41 +2237,6 @@ if(document.getElementsByClassName){
 		return result;
 	};
 }
-(function(){
-	Sky.isReady=false;
-	var p=new Promise(function(resolve, reject){
-		if(document.addEventListener){
-			document.addEventListener("DOMContentLoaded",function(){
-				resolve();
-			},false);
-		}else if(window==window.top){
-			(function() {
-				try{
-					document.documentElement.doScroll('left');
-					resolve();
-				}catch(e){
-					setTimeout(arguments.callee, 0);
-				}
-			})();
-		}else{
-			document.attachEvent("onreadystatechange",function(){
-				if(document.readyState === "complete") {
-					document.detachEvent("onreadystatechange", arguments.callee);
-					resolve();
-				}
-			});
-		}
-	});
-	Sky.ready=function(callback){
-		if(callback) p.then(function(){
-			if(!Sky.isReady){
-				callback.call(document);
-				Sky.isReady=true;
-			}
-		});
-		return p;
-	};
-})();
 (function(){
 	function parseNodeSelector(selector){
 		var result={};
