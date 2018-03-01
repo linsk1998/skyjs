@@ -204,7 +204,3 @@ if(!this.Promise){
 		});
 	};
 }
-Promise.prototype["catch"]=function(fail){
-	console.warn("catch is incompatible. Please use then(undefined,onRejected) instead.");
-	this.then(undefined,fail);
-};

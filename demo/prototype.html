@@ -84,6 +84,8 @@ console.log(o1);  // { a: 1, b: 2, c: 3 }, 注意目标对象自身也会改变�
 			<li>继承属性不拷贝，建议使用PlainObject</li>
 		</ul>
 	</div>
+	<h4>Object.getPrototypeOf</h4>
+	<p>返回其原型的对象。</p>
 	<h3 id="Date">Date</h3>
 	<h4>Date.prototype.toLocaleFormat</h4>
 	<p>按特定的格式将一个日期转换成一个字符串。</p>
@@ -172,7 +174,7 @@ console.log(o1);  // { a: 1, b: 2, c: 3 }, 注意目标对象自身也会改变�
 	<h4>String.prototype.padEnd</h4>
 	<p>会用第二个参数中指定的填充字符串，在当前字符串的尾部不断填充，直到它达到第一个参数中指定的目标长度。</p>
 	<h4>String.prototype.replaceAll</h4>
-	<p>替换此字符串匹配给定的第一个子字符串。</p>
+	<p>替换此字符串匹配给定的所有子字符串。</p>
 	<a class="btn btn-primary" href="javascript:alert('\\n\t\d\\n'.replaceAll('\\n','0').replaceAll('\t','1').replaceAll('\d','2'))">
 		'\\n\t\d\\n'.replaceAll('\\n','0').replaceAll('\t','1').replaceAll('\d','2')
 	</a>

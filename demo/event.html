@@ -21,15 +21,27 @@
 	</script>
 	<h3 id="attachEvent">Sky.attachEvent detachEvent fireEvent</h3>
 	<p>绑定事件 解除绑定 触发事件</p>
-	<a class="btn btn-primary" href='javascript:Sky.attachEvent(Sky.byId("attachBtn"),"click",testHandle);void 0'>绑定事件</a>
-	<a class="btn btn-primary" href='javascript:Sky.detachEvent(Sky.byId("attachBtn"),"click",testHandle);void 0'>解除绑定</a>
-	<a class="btn btn-default" href='javascript:void 0' id="attachBtn">测试按钮</a>
-	<h3 id="bind">Sky.fn.bind Sky.fn.unbind</h3>
-	<p>批量绑定事件 解除绑定 触发事件</p>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href='javascript:Sky.attachEvent(Sky.byId("attachBtn"),"click",testHandle);void 0'>绑定事件</a>
+		<a class="btn btn-primary" href='javascript:Sky.detachEvent(Sky.byId("attachBtn"),"click",testHandle);void 0'>解除绑定</a>
+		<a class="btn btn-default" href='javascript:void 0' id="attachBtn">测试按钮</a>
+	</div>
 	<div class="alert alert-info">
-		<p>同个函数同个事件只能绑定一次。</p>
-		<p>上面两组绑定事件是直接绑定的，没有对e.target等进行封装。</p>
-		<p>绑定时会将元素和函数记录到一个内部变量中，解除绑定是可以解除多个。</p>
+		<p>上面只是做了最基本的封装。没有修改this、e.target、没有判断多次绑定。</p>
+		<p>只推荐在各个浏览器差异十分了解的情况下使用。</p>
+	</div>
+	<h3 id="addEvent">Sky.addEvent Sky.removeEvent Sky.trigger</h3>
+	<p>批量绑定事件 解除绑定 触发事件</p>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href='javascript:Sky.addEvent(Sky.byId("bindBtn"),"click",testHandle2);void 0'>绑定事件</a>
+		<a class="btn btn-primary" href='javascript:Sky.removeEvent(Sky.byId("bindBtn"),"click",testHandle2);void 0'>解除绑定</a>
+		<a class="btn btn-default vertical-align" href='javascript:void 0' id="bindBtn"><span class="vertical-align-middle">测试按钮</span> <span class="badge">2</span></a>
+	</div>
+	<div class="alert alert-info">
+		<p>绑定后可以会记录到一个内部变量中，解除绑定时可以解除多个。</p>
+		<p>绑定是会检查是否绑定过，防止绑定多次。</p>
+		<p>修正了回调函数中的this为绑定的元素，还有里面的事件参数。</p>
+		<p>修正了mouseenter、input等事件的支持。</p>
 	</div>
 	<script>
 		function testHandle2(e){
@@ -38,12 +50,7 @@
 			alert(e.target.className);//btn btn-default OR badge
 		}
 	</script>
-	<h3 id="on">Sky.fn.on Sky.fn.off</h3>
-	<p>批量绑定事件 解除绑定 触发事件</p>
-	<a class="btn btn-primary" href='javascript:$("#onBtn").on("click",testHandle2);void 0'>绑定事件</a>
-	<a class="btn btn-primary" href='javascript:$("#onBtn").off("click",testHandle2);void 0'>解除绑定</a>
-	<a class="btn btn-default vertical-align" href='javascript:void 0' id="onBtn"><span class="vertical-align-middle">测试按钮</span> <span class="badge">2</span></a>
-	<h3 id="delegate">Sky.fn.delegate Sky.fn.undelegate</h3>
+	<h3 id="delegate">Sky.delegate Sky.undelegate</h3>
 	<p>父被选元素的子元素添加事件</p>
 	<div class="alert alert-info" id="delegateWrap">
 		<a class="btn btn-default vertical-align" href='javascript:void 0'><span class="vertical-align-middle">测试按钮</span> <span class="badge">2</span></a>

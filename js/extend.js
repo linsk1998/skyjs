@@ -1,11 +1,16 @@
 
+if(!Object.create){
+	Object.create=function(proto){
+		function F(){}
+		F.prototype = proto;
+		return new F();
+	};
+}
 if(!Object.keys){
 	Object.keys=function(obj){
 		var result=[];
-		Sky.forIn(obj,function(value,key){
-			if(Object.prototype.hasOwnProperty.call(this,key)){
-				result.push(key);
-			}
+		Sky.forOwn(obj,function(value,key){
+			result.push(key);
 		});
 		return result;
 	};
@@ -19,14 +24,32 @@ if(!Object.assign){
 		for(var i=1;i<arguments.length;i++){
 			var obj=arguments[i];
 			if(obj!=null){
-				for(var k in obj){
-					if(Object.prototype.hasOwnProperty.call(obj, k)){
-						to[k] = obj[k];
-					}
-				}
+				Sky.forOwn(obj,function(v,k){
+					to[k]=v;
+				});
 			}
 		}
 	};
+}
+if(!Object.getPrototypeOf){
+	if('__proto__' in Sky){
+		Object.getPrototypeOf=function(object){
+			return object.__proto__;
+		};
+	}else{
+		Object.getPrototypeOf=function(object){
+			var constructor=object.constructor;
+			if(Sky.isFunction(constructor)){
+				if(object!=constructor.prototype){
+					return constructor.prototype;
+				}else if('superclass' in constructor){
+					return constructor.superclass.prototype;
+				}
+			}
+			console.warn("cannot find Prototype");
+			return Object.prototype;
+		};
+	}
 }
 Sky.support.defineProperty=!!Object.defineProperty && !!document.addEventListener;
 if(Sky.support.__defineSetter__){
@@ -215,36 +238,6 @@ if(!Date.now){
 		return new Date().getTime();
 	};
 }
-document.head=document.getElementsByTagName("head")[0];
-/** 判断一个节点后代是否包含另一个节点 **/
-if(this.Node && Node.prototype && !Node.prototype.contains){
-	Node.prototype.contains=function(arg){
-		return !!(this.compareDocumentPosition(arg) & 16);
-	}
-}
-if(!document.contains){
-	document.contains=function(ele){
-		var i,arr=document.all;
-		for(i=0;i<arr.length;i++){
-			if(arr[i]===ele){
-				return true;
-			}
-		}
-		return false;
-	};
-}
-if(this.HTMLElement && !document.head.children) {
-	HTMLElement.prototype.__defineGetter__("children", function() {
-		var a=[];
-		for(var i=0; i<this.childNodes.length; i++){
-			var n=this.childNodes[i];
-			if(n.nodeType==1){
-				a.push(n);
-			}
-		}
-		return a;
-	});
-}
 //删除左右两端的空格
 if(!String.prototype.trim){
 	String.prototype.trim=function() {
@@ -303,7 +296,7 @@ if(!String.prototype.padEnd){
 		return this+padString.repeat(Math.ceil(x/padString.length)).substr(0,x);
 	};
 }
-String.prototype.replaceAll = function(reallyDo, replaceWith, ignoreCase) {
+String.prototype.replaceAll=function(reallyDo, replaceWith, ignoreCase) {
 	return this.replace(new RegExp(Sky.escapeRegExp(reallyDo), (ignoreCase ? "gi": "g")), replaceWith);
 };
 Math.log2 = Math.log2 || function(n){ return Math.log(n) / Math.log(2); };
@@ -313,16 +306,16 @@ Number.isNaN=Number.isNaN || function(value){
 Number.isInteger=Number.isInteger || function(value){
 	return typeof value === "number" &&	isFinite(value) &&	Math.floor(value) === value;
 };
-if (!Function.prototype.bind){
+if(!Function.prototype.bind){
 	Function.prototype.bind=function(context){
-		var self =this,args=Array.from(arguments);
+		var self=this,args=Array.prototype.slice.call(arguments,1);
 		return function(){
-			return self.apply(context,args.slice(1));
+			return self.apply(context,args.concat(Array.from(arguments)));
 		};
 	};
 }
 if(!this.Map){
-	Map=function() {
+	Map=function(){
 		this.items=[];
 		this.size=0;
 	};
@@ -377,19 +370,16 @@ if(!this.Map){
 if(!Map.prototype.remove){
 	Map.prototype.remove=Map.prototype['delete'];
 }
-if(!Map.prototype.put){
-	Map.prototype.put=Map.prototype.set;
-}
 if(!this.Set){
-	Set=function() {
+	Set=function(){
 		this.items=[];
 		this.size=0;
 	};
 	Set.prototype.has=function(value){
 		return this.items.indexOf(value)>=0;
 	};
-	Set.prototype.add=function(value) {
-		if(!this.has(value)) {
+	Set.prototype.add=function(value){
+		if(!this.has(value)){
 			this.items.push(value);
 			this.size=this.items.length;
 		}
@@ -509,16 +499,13 @@ if(!this.JSON){
 								return JSON.stringify(obj.toJSON());
 							}
 							var items=[];
-							for(var k in obj){
-								if(Sky.hasOwn(obj,k)){
-									var value=obj[k];
-									if(value!==undefined){
-										if(!Sky.isFunction(value)){
-											items.push('"'+Sky.escapeString(k)+'":'+JSON.stringify(value));
-										}
+							Sky.forOwn(function(value,key){
+								if(value!==void 0){
+									if(!Sky.isFunction(value)){
+										items.push('"'+Sky.escapeString(k)+'":'+JSON.stringify(value));
 									}
 								}
-							}
+							});
 							return "{"+items.join(",")+"}";
 					}
 			}
@@ -539,7 +526,51 @@ if(!this.DOMParser){
 		return xmlDoc;
 	};
 }
-
+Sky.support.XMLHttpRequest=true;
+if(!this.XMLHttpRequest){
+	Sky.support.XMLHttpRequest=false;
+	XMLHttpRequest=function(){
+		var versions=['Microsoft.XMLHTTP','MSXML.XMLHTTP','Microsoft.XMLHTTP','Msxml2.XMLHTTP.7.0','Msxml2.XMLHTTP.6.0','Msxml2.XMLHTTP.5.0','Msxml2.XMLHTTP.4.0','MSXML2.XMLHTTP.3.0','MSXML2.XMLHTTP'];
+		for(var i=0;i<versions.length;i++){
+			try{
+				var request=new ActiveXObject(versions[i]);
+				if(request){
+					return request;
+				}
+			}catch(e){}
+		}
+	};
+}
+document.head=document.getElementsByTagName("head")[0];
+/** 判断一个节点后代是否包含另一个节点 **/
+if(this.Node && Node.prototype && !Node.prototype.contains){
+	Node.prototype.contains=function(arg){
+		return !!(this.compareDocumentPosition(arg) & 16);
+	}
+}
+if(!document.contains){
+	document.contains=function(ele){
+		var i,arr=document.all;
+		for(i=0;i<arr.length;i++){
+			if(arr[i]===ele){
+				return true;
+			}
+		}
+		return false;
+	};
+}
+if(this.HTMLElement && !document.head.children) {
+	HTMLElement.prototype.__defineGetter__("children", function() {
+		var a=[];
+		for(var i=0; i<this.childNodes.length; i++){
+			var n=this.childNodes[i];
+			if(n.nodeType==1){
+				a.push(n);
+			}
+		}
+		return a;
+	});
+}
 Sky.support.localStorage=true;
 if(!this.localStorage){
 	Sky.support.localStorage=false;
@@ -547,8 +578,7 @@ if(!this.localStorage){
 		var ele=document.createElement("localStorage");
 		if(ele.addBehavior){
 			ele.addBehavior("#default#userData");
-			var head=document.documentElement.firstChild;
-			head.appendChild(ele);
+			document.head.appendChild(ele);
 			this.getItem=function(key){
 				ele.load("localStorage");
 				return ele.getAttribute(key);

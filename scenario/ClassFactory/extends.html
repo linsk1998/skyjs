@@ -2,9 +2,10 @@
 <html>
 <head>
 	<meta charset="utf-8" http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>ClassFactory</title>
+	<title>继承</title>
 	<script src="../../sky.js" type="text/javascript"></script>
 	<script src="ClassFactory.js" type="text/javascript"></script>
+	<script src="../event/event.js" type="text/javascript"></script>
 </head>
 <body>
 <button type="button" onclick="tom.say()">say</button>
@@ -12,9 +13,11 @@
 <button type="button" onclick="alert(tom.birthday.toISOString());">getBirthday</button>
 <button type="button" onclick="tom.age=parseInt(prompt('年龄','10'));alert(tom.birthday.toISOString());">setAge</button>
 <script type="text/javascript">
-	var Cat=Sky.declare({
+	var Animal=Sky.declare({
+		'extends':EventEmitter,
 		'constructor':function(){
 			this.birthday=new Date("2001/01/01 00:00:00");
+			EventEmitter.apply(this);
 		},
 		'member':{//需要声明
 			'birthday':null
@@ -30,31 +33,41 @@
 			}
 		},
 		'method':{
-			'say':function(){
-				alert("喵");
+			'say':function(word){
+				alert(word);
 			},
 			'sleep':function(){
 				alert("zｚＺ");
 			}
+		}
+	});
+	var Cat=Sky.declare({
+		'extends':Animal,
+		'constructor':function(){
+			Animal.apply(this,Array.from(arguments));//super();
 		},
-		'static':{
-			'save':function(cat){
-				alert("saved");
+		'method':{
+			'say':function(){
+				if(this.emit('say')){//触发发生前的事件,根据返回值判断是否取消
+					Animal.prototype.say.call(this,"喵");//super.say("喵")
+				}
 			}
 		}
 	});
 	var tom=new Cat();
-	alert(Object.keys(tom).join(","));
+	alert(Sky.is(tom,Cat));
+	alert(Sky.is(tom,Animal));
+	tom.on("say",function(){
+		if(confirm("是否允许说话")==false){
+			return false;
+		}
+	});
 </script>
 <dl>
-	<dt>好处</dt>
-	<dd>可以实现getter setter</dd>
 	<dt>限制</dt>
 	<dd>成员不可扩展，必须事先定义</dd>
 	<dd>不能使用for in，要使用Sky.forIn</dd>
 	<dd>不能使用instanceof，要使用Sky.is</dd>
-	<dd>constructor不能修改</dd>
 </dl>
-<p><a href="extends.html">继承</a></p>
 </body>
 </html>

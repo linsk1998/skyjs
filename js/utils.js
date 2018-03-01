@@ -54,6 +54,7 @@ Sky.copyToClipboard=function(txt){
 //document.getElementById("text").select();
 //document.execCommand("copy",false,null);
 //开头补零
+//Deprecated
 Sky.pad=function(value,width,chars){
 	if(!chars){chars=" ";}
 	if(Sky.isNumber(value)){
@@ -142,11 +143,10 @@ Sky.escapeRegExp=function(str){//from lodash
 	}
 	return "(?:)";
 };
-
 //获取字符串占位长度
 Sky.strlen=function(str){
 	var len=0;
-	for (var i = 0; i < str.length; i++){
+	for(var i = 0; i < str.length; i++){
 		if (str.charCodeAt(i) > 127 || str.charCodeAt(i) < 0){
 			len+=2;
 		}else{
@@ -260,7 +260,7 @@ Sky.parseURL=function(url) {
 		r.hostname=arr[1];
 		r.port=parseInt(arr[2]);
 	}else{
-		r.hostname= r.host;
+		r.hostname=r.host;
 		r.port="";
 	}
 	url=url.replace(r.prefix,"");
@@ -300,7 +300,7 @@ Sky.extend=function(){//扩展对象
 	if(args.length==0) return;
 	if(args.length==1) return args[0];
 	var temp=args[0]==true?args[1]:args[0]; //调用复制对象方法
-	for (var n=args[0]==true?2:1; n<args.length; n++){
+	for (var n=args[0]==true?2:1;n<args.length;n++){
 		for(var i in args[n]){
 			if(Sky.hasOwn(args[n],i)){
 				if(args[n][i]!=null && args[0]==true && Sky.isObject(args[n][i]) && Sky.isObject(temp[i])){
@@ -315,22 +315,21 @@ Sky.extend=function(){//扩展对象
 	return temp;
 };
 Sky.apply=function(obj,config){
-	for(var k in config) {
-		if(Sky.hasOwn(config,k)){
-			obj[k] = config[k];
-		}
-	}
+	console.warn("Deprecated. use Object.assign");
+	Sky.forIn(config,function(v,k){
+		obj[k]=v;
+	});
 	return obj;
 };
 Sky.applyIf=function(obj,config){
-	for(var k in config) {
-		if(Sky.hasOwn(config,k) && !(k in obj)){
-			obj[k] = config[k];
+	Sky.forIn(config,function(v,k){
+		if(!(k in obj)){
+			obj[k]=v;
 		}
-	}
+	});
 	return obj;
 };
-Sky.times=function(n, iteratee, thisArg){
+Sky.times=function(n,iteratee,thisArg){
 	if(n<1){
 		return [];
 	}
@@ -441,7 +440,6 @@ Sky.sortedLastIndex=function(arr,value){
 		}
 	};
 })();
-
 /* ceil floor round */
 (function(){
 	function createRound(methodName) {
@@ -459,55 +457,20 @@ Sky.sortedLastIndex=function(arr,value){
 	Sky.floor=createRound('floor');
 	Sky.ceil=createRound('ceil');
 })();
-Sky.random=function(a, b){
+Sky.random=function(a,b){
 	var length=b-a+1;
 	return Math.floor(Math.random()*length)+a;
 };
 Sky.UUID=function() {
 	return new Promise(function(resolve, reject){
-		var d = new Date().getTime();
-		var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-			var r = (d + Math.random()*16)%16 | 0;
-			d = Math.floor(d/16);
-			return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+		var d=new Date().getTime();
+		var uuid='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){
+			var r=(d+Math.random()*16)%16|0;
+			d=Math.floor(d/16);
+			return (c=='x'?r:(r&0x3|0x8)).toString(16);
 		});
 		resolve(uuid);
 	});
-};
-
-Sky.getScript=function(src, func, charset) {
-	var script = document.createElement('script');
-	script.async = "async";
-	if(!charset){charset="UTF-8"};
-	script.charset=charset;
-	script.src = src;
-	var currentPath;
-	if(!Sky.support.stack){
-		currentPath=Sky.getCurrentPath();
-	}
-	if(func){
-		if('onreadystatechange' in script){
-			script.onreadystatechange = function(){
-				if(this.readyState == 'loaded'){
-					document.head.appendChild(script);
-				}else if(this.readyState == "complete"){
-					this.onreadystatechange = null;
-					if(!Sky.support.stack){
-						Sky.currentPath=currentPath;
-					}
-					func();
-					if(!Sky.support.stack){
-						Sky.currentPath=null;
-					}
-				}
-			};
-		}else{
-			script.onload = func;
-			document.head.appendChild(script);
-		}
-	}else{
-		document.head.appendChild(script);
-	}
 };
 if(!Sky.support.stack){
 	Sky.setTimeout=this.setTimeout;
@@ -527,9 +490,9 @@ if("currentScript" in document){
 }else{
 	Sky.getCurrentScript=function(){
 		var nodes=document.getElementsByTagName('SCRIPT');
-		for(var i = nodes.length - 1; i >= 0; i--) {
+		for(var i=nodes.length-1;i>=0;i--){
 			var node=nodes[i];
-			if( node.readyState === "interactive") {
+			if(node.readyState==="interactive") {
 				return node;
 			}
 		}

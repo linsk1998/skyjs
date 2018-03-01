@@ -5,7 +5,7 @@ Sky.ajax=function(options){
 	var error=options.error;
 	var dataType=options.dataType?options.dataType:'auto';
 	var complete=options.complete;
-	var xhr=Sky.ajax.createXMLHttpRequest();
+	var xhr=new XMLHttpRequest();
 	if(options.timeout) xhr.timeout=options.timeout;
 	var currentPath;
 	if(!Sky.support.stack){
@@ -72,27 +72,10 @@ Sky.ajax=function(options){
 			xhr.send(null);
 		}
 	}else{
-		xhr.open('GET', targetUrl,options.async!==false);
+		xhr.open('GET',targetUrl,options.async!==false);
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 		xhr.send(null);
 	}
-};
-Sky.ajax.createXMLHttpRequest=function(){
-	var request=false;
-	if(window.XMLHttpRequest){
-		request = new XMLHttpRequest();
-	}else if(window.ActiveXObject){
-		var versions = ['Microsoft.XMLHTTP', 'MSXML.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.7.0', 'Msxml2.XMLHTTP.6.0', 'Msxml2.XMLHTTP.5.0', 'Msxml2.XMLHTTP.4.0', 'MSXML2.XMLHTTP.3.0', 'MSXML2.XMLHTTP'];
-		for(var i=0; i<versions.length; i++){
-			try{
-				request=new ActiveXObject(versions[i]);
-				if(request){
-					return request;
-				}
-			}catch(e){}
-		}
-	}
-	return request;
 };
 Sky.get=function(targetUrl,success,datatype,error){
 	Sky.ajax({
@@ -178,4 +161,38 @@ Sky.getJSONP=function(url, callback){
 	}
 	script.src=url;
 	document.body.appendChild(script);
+};
+Sky.getScript=function(src,func,charset){
+	var script=document.createElement('script');
+	script.async="async";
+	if(!charset){charset="UTF-8"};
+	script.charset=charset;
+	script.src=src;
+	var currentPath;
+	if(!Sky.support.stack){
+		currentPath=Sky.getCurrentPath();
+	}
+	if(func){
+		if('onreadystatechange' in script){
+			script.onreadystatechange=function(){
+				if(this.readyState=='loaded'){
+					document.head.appendChild(script);
+				}else if(this.readyState == "complete"){
+					this.onreadystatechange = null;
+					if(!Sky.support.stack){
+						Sky.currentPath=currentPath;
+					}
+					func();
+					if(!Sky.support.stack){
+						Sky.currentPath=null;
+					}
+				}
+			};
+		}else{
+			script.onload=func;
+			document.head.appendChild(script);
+		}
+	}else{
+		document.head.appendChild(script);
+	}
 };

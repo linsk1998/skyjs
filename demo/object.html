@@ -15,17 +15,17 @@
 <body>
 <div class="container-fluid">
 	<h2>对象操作</h2>
-	<h3 id="apply">Sky.apply applyIf</h3>
-	<p>属性拷贝，apply会覆盖，applyIf不会覆盖</p>
+	<h3 id="applyIf">Sky.applyIf</h3>
+	<p>属性拷贝不会覆盖</p>
 	<h3 id="extend">Sky.extend</h3>
-	<p>扩展对象，一般推荐使用Sky.apply。</p>
+	<p>扩展对象，一般推荐使用Object.assign。</p>
 <pre><code>var result=$.extend({},{name:"Tom",age:21},{name:"Jerry",sex:"Boy"});
 //{name: "Jerry", age: 21, sex: "Boy"}</code></pre>
 	<p>第一个参数boolean代表是否进行深度拷贝</p>
 <pre><code>var result=$.extend( true, {}, { name: "John", location: {city: "Boston",county:"USA"} }, { last: "Resig", location: {state: "MA",county:"China"} } );
 //{"name":"John","location":{"city":"Boston","county":"China","state":"MA"},"last":"Resig"}</code></pre>
 	<h3 id="forIn">Sky.forIn forOwn</h3>
-	<p>遍历对象的元素，会过滤toString等特殊元素。</p>
+	<p>遍历对象的元素。</p>
 <pre><code>Sky.forIn( {"key":"value"}, function( value, key){
 	alert(this[key]);
 });</code></pre>
@@ -63,6 +63,9 @@ alert(Sky.buildQuery(param));   //a=1&b=2&c=3
 		<tr><td>isEmpty</td><td>是否是空 包括Set Array ArrayLike</td></tr>
 		</tbody>
 	</table>
+	<h3>Sky.is</h3>
+	<p>判断对象类型。</p>
+	<pre><code>Sky.is([],Array)//true</code></pre>
 	<h3>JSON.stringify</h3>
 	<pre><code>JSON.stringify({a:"s\"tr",b:[1,2,NaN],c:false,d:{a:new Date(),b:/reg/,c:function(){}}})</code></pre>
 	<a class="btn btn-primary" href='javascript:alert(JSON.stringify({a:"s\"tr",b:[1,2,NaN],c:false,d:{a:new Date(),b:/reg/,c:function(){}}}))'>测试</a>

@@ -71,6 +71,10 @@ Sky.isFunction=function(obj){
 Sky.isNumber=function(obj){
 	return Object.prototype.toString.call(obj)==='[object Number]';
 };
+Sky.is=function(obj,Clazz){
+	obj=Object(obj);
+	return obj instanceof Clazz;
+};
 Sky.isObject=function(obj){
 	var type=typeof obj;
 	if(type!=="object"){
@@ -87,7 +91,7 @@ Sky.isObject=function(obj){
 	return true;
 };
 Sky.isDefined=function(obj){
-	return obj!==undefined;
+	return obj!==void 0;
 };
 Sky.isPlainObject=function(obj){
 	var key;
@@ -149,22 +153,24 @@ Sky.isEmpty=function(obj){
 	return false;
 };
 
-if(!{toString: null}.propertyIsEnumerable('toString')){
-	Sky.dontEnums = ["toString", "toLocaleString", "valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable","constructor"];
+if(!({toString:null}).propertyIsEnumerable('toString')){
+	Sky.dontEnums=["toString","toLocaleString","valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable"];
 	Sky.forIn=function(obj,fn){
 		for(var key in obj) {
-			if(key.startsWith("__")!=0 || typeof obj!=="unknown"){
-				if(fn.call(obj,obj[key],key)===false){
-					return false;
+			if(!(obj instanceof Object)){
+				if(key.startsWith("__") || key=="constructor"){
+					continue ;
 				}
+			}
+			if(fn.call(obj,obj[key],key)===false){
+				return false;
 			}
 		}
 		var nonEnumIdx=Sky.dontEnums.length;
-		var constructor=obj.constructor;
-		var proto=Sky.isFunction(constructor) && constructor.prototype || Object.prototype;
+		var proto=Object.getPrototypeOf(obj);
 		//遍历nonEnumerableProps数组
-		while (nonEnumIdx--) {
-			var prop = Sky.dontEnums[nonEnumIdx];
+		while(nonEnumIdx--){
+			var prop=Sky.dontEnums[nonEnumIdx];
 			if(prop in obj && obj[prop]!==proto[prop]){
 				if(fn.call(obj,obj[prop],prop)===false){
 					return false;
@@ -172,6 +178,49 @@ if(!{toString: null}.propertyIsEnumerable('toString')){
 			}
 		}
 		return true;
+	};
+	Sky.forOwn=function(obj,fn){
+		var type=typeof obj;
+		if(type=="unknow"){
+			return true;
+		}
+		if(type!="object"){
+			obj=Object(obj);
+		}
+		for(var key in obj) {
+			if(!(obj instanceof Object)){
+				if(key.startsWith("__") || key=="constructor"){
+					continue ;
+				}
+			}
+			if(Sky.hasOwn(obj,key)){
+				if(fn.call(obj,obj[key],key)===false){
+					return false;
+				}
+			}
+		}
+		for(var i=0;i<Sky.dontEnums.length;i++){
+			var prop=Sky.dontEnums[i];
+			if(Sky.hasOwn(obj,prop)){
+				if(fn.call(obj,obj[prop],prop)===false){
+					return false;
+				}
+			}
+		}
+		return true;
+	};
+	Sky.hasOwn=function(obj,key){
+		if(!(key in obj)){
+			return false;
+		}
+		var value=obj[key];
+		if(typeof obj=="object" && !(obj instanceof Object)){
+			if(Sky.isFunction(value)){
+				return true;
+			}
+			return false;
+		}
+		return Object.prototype.hasOwnProperty.call(obj,key);
 	};
 }else{
 	Sky.forIn=function(obj,fn){
@@ -182,22 +231,20 @@ if(!{toString: null}.propertyIsEnumerable('toString')){
 		}
 		return true;
 	};
-}
-Sky.forOwn=function(obj,fn){
-	return Sky.forIn(obj,function(value,key){
-		if(Sky.hasOwn(obj,key)){
-			if(fn.call(obj,obj[key],key)===false){
-				return false;
+	Sky.forOwn=function(obj,fn){
+		for(var key in obj) {
+			if(Object.prototype.hasOwnProperty.call(obj,key)){
+				if(fn.call(obj,obj[key],key)===false){
+					return false;
+				}
 			}
 		}
-	});
-};
-Sky.hasOwn=function(obj,key){
-	if(obj.hasOwnProperty){
-		return obj.hasOwnProperty(key);
-	}
-	return Object.prototype.hasOwnProperty.call(obj,key);
-};
+		return true;
+	};
+	Sky.hasOwn=function(obj,key){
+		return Object.prototype.hasOwnProperty.call(obj,key);
+	};
+}
 Sky.getCookie=function(name){
 	var arr=document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
 	if(arr != null) return decodeURIComponent(arr[2]); return null;
@@ -220,18 +267,18 @@ Sky.setCookie=function(name,value){
 			}
 		}
 	}
-	if(value == null || seconds <= 0) {
-		value = '';
-		seconds = -2592000;
+	if(value==null || seconds<=0) {
+		value='';
+		seconds=-2592000;
 	}
 	if(!isNaN(seconds)){
 		expires=new Date();
 		expires.setTime(expires.getTime() + seconds * 1000);
 	}
-	document.cookie = name + '=' + encodeURIComponent(value)
-		+ (expires ? '; expires=' + expires.toGMTString() : '')
-		+ '; path=' + path
-		+ (domain ? '; domain=' + domain : '')
+	document.cookie=name+'='+encodeURIComponent(value)
+		+(expires?'; expires='+expires.toGMTString():'')
+		+'; path='+path
+		+(domain?'; domain='+domain:'');
 };
 Sky.support.VBScript=false;
 if(window.execScript){
