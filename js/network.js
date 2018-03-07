@@ -7,15 +7,8 @@ Sky.ajax=function(options){
 	var complete=options.complete;
 	var xhr=new XMLHttpRequest();
 	if(options.timeout) xhr.timeout=options.timeout;
-	var currentPath;
-	if(!Sky.support.stack){
-		currentPath=Sky.getCurrentPath();
-	}
 	xhr.onreadystatechange = function(){
 		if(xhr.readyState == 4 ) {
-			if(!Sky.support.stack){
-				Sky.currentPath=currentPath;
-			}
 			if(xhr.status == 200 || xhr.status==0){//本地访问为0
 				var returnType=xhr.getResponseHeader("Content-Type");
 				if(dataType=="auto" && returnType){
@@ -46,9 +39,6 @@ Sky.ajax=function(options){
 				error.call(xhr,xhr.responseText);
 			}
 			if(complete) complete.call(xhr,xhr.responseText);
-			if(!Sky.support.stack){
-				Sky.currentPath=null;
-			}
 		}
 	};
 	if(options.type && options.type.toUpperCase()=="POST"){
@@ -136,16 +126,12 @@ Sky.getJSONP=function(url, callback){
 		url+=cbname;
 	}
 	var script=document.createElement("script");
-	var currentPath;
-	if(!Sky.support.stack){
-		currentPath=Sky.getCurrentPath();
+	if(document.addEventListener()){
 		window[cbname]=function(response){
 			try{
-				Sky.currentPath=currentPath;
 				callback(response);
-				Sky.currentPath=null;
 			}finally{
-				window[cbname]=undefined;
+				delete window[cbname];
 				script.parentNode.removeChild(script);
 			}
 		};
@@ -154,7 +140,7 @@ Sky.getJSONP=function(url, callback){
 			try{
 				callback(response);
 			}finally{
-				delete window[cbname];
+				window[cbname]=undefined;
 				script.parentNode.removeChild(script);
 			}
 		};
@@ -168,10 +154,6 @@ Sky.getScript=function(src,func,charset){
 	if(!charset){charset="UTF-8"};
 	script.charset=charset;
 	script.src=src;
-	var currentPath;
-	if(!Sky.support.stack){
-		currentPath=Sky.getCurrentPath();
-	}
 	if(func){
 		if('onreadystatechange' in script){
 			script.onreadystatechange=function(){
@@ -179,13 +161,7 @@ Sky.getScript=function(src,func,charset){
 					document.head.appendChild(script);
 				}else if(this.readyState == "complete"){
 					this.onreadystatechange = null;
-					if(!Sky.support.stack){
-						Sky.currentPath=currentPath;
-					}
 					func();
-					if(!Sky.support.stack){
-						Sky.currentPath=null;
-					}
 				}
 			};
 		}else{

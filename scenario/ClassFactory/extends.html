@@ -1,22 +1,99 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8" http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
 	<title>继承</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<link href="/linsk1998/ting/master/theme/bootstrap/indigo.css" rel="stylesheet"/>
+	<style>
+		.reserved{ color:#00B; font-weight:bold;}
+		.string{ color:green; font-weight:bold;}
+		.comment{ color:gray; font-style:italic;}
+		.variable{ color:#607; font-weight:bold; font-style:italic;}
+		.member{ color:#909;}
+		.number{ color:red; font-weight:bold;}
+		.call{ color:#a70}
+		.method{ color:#860; font-weight:bold;}
+		.property{ color:#607; font-weight:bold;}
+		.argument{ text-decoration:underline;}
+	</style>
 	<script src="../../sky.js" type="text/javascript"></script>
 	<script src="ClassFactory.js" type="text/javascript"></script>
 	<script src="../event/event.js" type="text/javascript"></script>
 </head>
 <body>
-<button type="button" onclick="tom.say()">say</button>
-<button type="button" onclick="alert(tom.age);">getAge</button>
-<button type="button" onclick="alert(tom.birthday.toISOString());">getBirthday</button>
-<button type="button" onclick="tom.age=parseInt(prompt('年龄','10'));alert(tom.birthday.toISOString());">setAge</button>
+<div class="container-fluid">
+	<h2>类工厂</h2>
+	<div class="btn-toolbar">
+		<button class="btn btn-primary" type="button" onClick="tom.say()">say</button>
+		<button class="btn btn-primary" type="button" onClick="alert(tom.age);">getAge</button>
+		<button class="btn btn-primary" type="button" onClick="alert(tom.birthday.toISOString());">getBirthday</button>
+		<button class="btn btn-primary" type="button" onClick="tom.age=parseInt(prompt('年龄','10'));alert(tom.birthday.toISOString());">setAge</button>
+		<button class="btn btn-primary" type="button" onClick="tom.sleep()">sleep</button>
+	</div>
+	<pre><span class="reserved"><code>var</code></span><code> <span class="variable">Animal</span>=<span class="variable">Sky</span>.<span class="call">declare</span>({
+	<span class="property">'extends'</span>:<span class="variable">EventEmitter</span>,<span class="comment">//事件分发类</span>
+	<span class="property">'constructor'</span>:<span class="reserved">function</span>(){
+		<span class="reserved">this</span>.<span class="member">birthday</span>=<span class="reserved">new</span> Date(<span class="string">"2001/02/01 00:00:00"</span>);
+		<span class="variable">EventEmitter</span>.<span class="call">apply</span>(<span class="reserved">this</span>);
+	},
+	<span class="property">'member'</span>:{<span class="comment">//需要声明</span>
+		<span class="member">'birthday'</span>:<span class="reserved">null</span>
+	},
+	<span class="property">'property'</span>:{
+		<span class="method">'age'</span>:{
+			<span class="method">'get'</span>:<span class="reserved">function</span>(){
+				<span class="reserved">return</span> <span class="reserved">new</span> Date().<span class="call">getFullYear</span>()-<span class="reserved">this</span>.<span class="member">birthday</span>.<span class="call">getFullYear</span>()+<span class="number">1</span>;
+			},
+			<span class="method">'set'</span>:<span class="reserved">function</span>(<span class="argument">age</span>){
+				<span class="reserved">this</span>.<span class="member">birthday</span>.<span class="call">setFullYear</span>(<span class="reserved">new</span> Date().<span class="call">getFullYear</span>()-<span class="argument">age</span>+<span class="number">1</span>);
+			}
+		}
+	},
+	<span class="property">'method'</span>:{
+		<span class="method">'say'</span>:function(<span class="argument">word</span>){
+			<span class="call">alert</span>(<span class="argument">word</span>);
+		},
+		<span class="method">'sleep'</span>:<span class="reserved">function</span>(){
+			<span class="call">alert</span>(<span class="string">"zｚＺ"</span>);
+		}
+	}
+});
+<span class="reserved">var</span> <span class="variable">Cat</span>=<span class="variable">Sky</span>.<span class="call">declare</span>({
+	<span class="property">'extends'</span>:<span class="variable">Animal</span>,
+	<span class="property">'constructor'</span>:<span class="reserved">function</span>(){
+		<span class="variable">Animal</span>.<span class="call">apply</span>(<span class="reserved">this</span>,Array.<span class="call">from</span>(arguments));<span class="comment">//super();</span>
+	},
+	<span class="property">'method'</span>:{
+		<span class="method">'say'</span>:<span class="reserved">function</span>(){
+			<span class="reserved">if</span>(<span class="reserved">this</span>.<span class="call">emit</span>(<span class="string">'say'</span>)){<span class="comment">//触发发生前的事件,根据返回值判断是否取消</span>
+				<span class="variable">Animal</span>.<span class="member">prototype</span>.<span class="member">say</span>.<span class="call">call</span>(<span class="reserved">this</span>,<span class="string">"喵"</span>);<span class="comment">//super.say("喵")</span>
+			}
+		}
+	}
+});
+<span class="reserved">var</span> <span class="variable">tom</span>=<span class="reserved">new</span> <span class="variable">Cat</span>();
+<span class="variable">tom</span>.<span class="call">on</span>(<span class="string">"say"</span>,<span class="reserved">function</span>(){
+	<span class="reserved">if</span>(<span class="call">confirm</span>(<span class="string">"是否允许说话"</span>)==<span class="reserved">false</span>){
+		<span class="reserved">return</span> <span class="reserved">false</span>;
+	}
+});</code></pre>
+	<dl>
+		<dt>限制</dt>
+		<dd>成员不可扩展，必须事先定义</dd>
+		<dd>不能使用for in，要使用Sky.forIn</dd>
+		<dd>不能使用instanceof，要使用Sky.is</dd>
+	</dl>
+</div>
 <script type="text/javascript">
 	var Animal=Sky.declare({
 		'extends':EventEmitter,
 		'constructor':function(){
-			this.birthday=new Date("2001/01/01 00:00:00");
+			this.birthday=new Date("2001/02/01 00:00:00");
 			EventEmitter.apply(this);
 		},
 		'member':{//需要声明
@@ -25,10 +102,10 @@
 		'property':{
 			'age':{
 				'get':function(){
-					return new Date().getFullYear()-this.birthday.getFullYear()+1
+					return new Date().getFullYear()-this.birthday.getFullYear()+1;
 				},
 				'set':function(age){
-					this.birthday.setFullYear(new Date().getFullYear()-age+1)
+					this.birthday.setFullYear(new Date().getFullYear()-age+1);
 				}
 			}
 		},
@@ -55,19 +132,13 @@
 		}
 	});
 	var tom=new Cat();
-	alert(Sky.is(tom,Cat));
-	alert(Sky.is(tom,Animal));
 	tom.on("say",function(){
 		if(confirm("是否允许说话")==false){
 			return false;
 		}
 	});
+	//alert(Sky.is(tom,Cat));
+	//alert(Sky.is(tom,Animal));
 </script>
-<dl>
-	<dt>限制</dt>
-	<dd>成员不可扩展，必须事先定义</dd>
-	<dd>不能使用for in，要使用Sky.forIn</dd>
-	<dd>不能使用instanceof，要使用Sky.is</dd>
-</dl>
 </body>
 </html>

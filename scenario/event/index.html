@@ -17,7 +17,7 @@
 			}
 		};
 	}
-	Cat.prototype=Object.create(Emitter.prototype);//继承Emitter
+	Cat.prototype=Object.create(EventEmitter.prototype);//继承Emitter
 	Cat.prototype.constructor=Cat;
 	function btnClickHandle(){
 		var cat=new Cat();

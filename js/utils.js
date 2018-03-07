@@ -472,17 +472,6 @@ Sky.UUID=function() {
 		resolve(uuid);
 	});
 };
-if(!Sky.support.stack){
-	Sky.setTimeout=this.setTimeout;
-	this.setTimeout=function(func,delay){
-		var currentPath=Sky.getCurrentPath();
-		Sky.setTimeout(function(){
-			Sky.currentPath=currentPath;
-			func.call(this);
-			Sky.currentPath=null;
-		},delay);
-	};
-}
 if("currentScript" in document){
 	Sky.getCurrentScript=function(){
 		return document.currentScript;
@@ -502,21 +491,36 @@ if("currentScript" in document){
 		return nodes[nodes.length-1];
 	};
 }
-if(Sky.support.stack){
+(function(){
+	var currentScript=Sky.getCurrentScript();
+	Sky.currentPath=Sky.getAbsPath(currentScript.src,location.href);
 	Sky.getCurrentPath=function(){
-		var e = new Error('err');
-		var stack = e.stack || e.sourceURL || e.stacktrace || '';
-		if(!stack){ try{a.b.c();}catch(e){
-			stack=e.stack || e.sourceURL || e.stacktrace || '';
-		}}
-		var stacks=stack.split("\n");
-		for(var i = stacks.length - 1; i >= 0; i--) {
-			if(stacks[i]) {
-				stack=stacks[i];
-				break ;
+		var path;
+		var e=new Error('err');
+		if(e.fileName){
+			path=e.fileName;
+		}else if(e.sourceURL){
+			path=e.fileName;
+		}
+		if(path==location.href){
+			return null;
+		}
+		return path;
+	};
+	if(Sky.currentPath==Sky.getCurrentPath()){
+		return ;
+	}
+	Sky.getCurrentPath=function(){
+		var path;
+		var e=new Error('err');
+		var stack = e.stack || e.stacktrace || '';
+		if(!stack){
+			try{ throw e; }catch(e){
+				stack=e.stack || e.stacktrace || '';
 			}
 		}
-		var path;
+		var stacks=stack.trim().split("\n");
+		stack=stacks[stacks.length-1];
 		var arr=stack.match(/^@(.*):\d+$/);
 		if(arr){
 			path=arr[1];
@@ -532,16 +536,19 @@ if(Sky.support.stack){
 		}
 		return path;
 	};
-}else{
+	if(Sky.currentPath==Sky.getCurrentPath()){
+		return ;
+	}
 	Sky.getCurrentPath=function(){
-		if(Sky.currentPath) return Sky.currentPath;
-		var currentScript=Sky.getCurrentScript();
-		if(currentScript && currentScript.src){
-			return Sky.getAbsPath(currentScript.src,location.href);
+		var nodes=document.getElementsByTagName('SCRIPT');
+		for(var i=nodes.length-1;i>=0;i--){
+			var node=nodes[i];
+			if(node.readyState==="interactive") {
+				return Sky.getAbsPath(node.src,location.href);
+			}
 		}
-		return null;
 	};
-}
+})();
 (function(){
 	Sky.isReady=false;
 	var p=new Promise(function(resolve, reject){

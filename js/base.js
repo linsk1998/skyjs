@@ -18,12 +18,6 @@ if(typeof $=="undefined"){
 }
 Sky.support={};
 (function(){
-	try{
-		Sky.a.b.c();
-	}catch(e){
-		var stack=e.stack || e.sourceURL || e.stacktrace || '';
-		Sky.support.stack=!!stack;
-	}
 	var userAgent = navigator.userAgent.toLowerCase();
 	Sky.browser={
 		version:(userAgent.match( /.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/ ) || [])[1],

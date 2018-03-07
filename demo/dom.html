@@ -34,16 +34,6 @@
 	<a class="btn btn-primary" href='javascript:void 0' onclick="alert(Sky.getElementStyle(this,prompt('样式名称','color')))">
 		alert(Sky.getElementStyle(this),'color')
 	</a>
-	<h3 id="attachEvent">Sky.attachEvent detachEvent fireEvent</h3>
-	<p>绑定事件 解除绑定 触发事件</p>
-	<script>
-		function clickHandle(){
-			alert("点击事件");
-		}
-	</script>
-	<a class="btn btn-primary" href='javascript:Sky.attachEvent(Sky.byId("bindEgBtn"),"click",clickHandle);void 0'>绑定事件</a>
-	<a class="btn btn-primary" href='javascript:Sky.detachEvent(Sky.byId("bindEgBtn"),"click",clickHandle);void 0'>解除绑定</a>
-	<a class="btn btn-default" href='javascript:void 0' id="bindEgBtn">测试按钮</a>
 	<h3 id="hasClass">Sky.hasClass addClass removeClass toggleClass</h3>
 	<p>判断是否有一个类样式 添加类样式 移除类样式 切换类样式</p>
 	<h3 id="getPrevElement">Sky.getPrevElement getNextElement</h3>

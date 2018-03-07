@@ -166,12 +166,14 @@ if(!this.Promise){
 			throw new TypeError('You must pass an array to all.');
 		}
 		return new Promise(function(resolve,reject){
+			var result=new Array(promises.length);
 			var c=0;
-			promises.forEach(function(one){
-				one.then(function(){
+			promises.forEach(function(one,index){
+				one.then(function(data){
 					c++;
+					result[index]=data;
 					if(c>=promises.length){
-						resolve();
+						resolve(result);
 					}
 				},function(){
 					reject();

@@ -147,12 +147,20 @@ Sky.fn.hasClass=function(className){
 	}
 	return false;
 };
+if(document.addEventListener){
+	Sky.support.cssFloat="cssFloat";
+}else{
+	Sky.support.cssFloat="styleFloat";
+}
 Sky.fn.css=function(name,value){
 	if(Sky.isString(name)){
 		name=name.replace(/\-\w/g,function(str){
 			return str.toUpperCase();
 		});
 		if(value){
+			if(name=="float"){
+				name=Sky.support.cssFloat;
+			}
 			this.forEach(function(ele){
 				ele.style[name]=value;
 			});
@@ -164,6 +172,9 @@ Sky.fn.css=function(name,value){
 	}else{
 		this.forEach(function(ele){
 			Sky.forOwn(name,function(value,key){
+				if(key=="float"){
+					key=Sky.support.cssFloat;
+				}
 				ele.style[key]=value;
 			});
 		});

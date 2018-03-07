@@ -55,9 +55,11 @@ Sky.declare=function(conf){
 		}else if('extends' in conf){
 			conf['extends'].apply(me,Array.from(arguments));
 		}
-		if(hasProperty){
-			//阻止自己添加属性，必须在配置里member加属性
-			if(Object.preventExtensions) Object.preventExtensions(me);
+		if(me.constructor==arguments.callee){
+			if(hasProperty){
+				//阻止自己添加属性，必须在配置里member加属性
+				if(Object.preventExtensions) Object.preventExtensions(me);
+			}
 		}
 		return me;
 	};
@@ -80,11 +82,9 @@ Sky.declare=function(conf){
 		value=conf.property[member];
 		if(value && (Sky.isFunction(value.get) || Sky.isFunction(value.set))){
 			hasProperty=true;
-		}else{
-			conf.member[member]=value;
-			delete conf.property[member];
 		}
 	}
+	Object.assign(constructor.prototype,conf.member);
 	Object.assign(constructor.prototype,conf.method);
 	conf.prototype=constructor.prototype;
 	if(conf.static){
@@ -120,12 +120,6 @@ if(Sky.support.VBScript){
 			buffer.push('Public [__propertys__]');
 			buffer.push('Public [constructor]');
 			for(key in conf.prototype){
-				if(!uniq[key]){
-					buffer.push('Public ['+key+']');
-					uniq[key]=true;
-				}
-			}
-			for(key in conf.member){
 				if(!uniq[key]){
 					buffer.push('Public ['+key+']');
 					uniq[key]=true;
