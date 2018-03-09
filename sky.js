@@ -1020,24 +1020,10 @@ if(!-[1,]){//ie6-8
 		return this._source;
 	}
 }
-function DateFormat(){}
-DateFormat.format=function(date){
-	return date.toLocaleFormat("%Y/%m/%d %H:%M:%S");
-};
-DateFormat.parse=function(str){
-	var d=new Date(str);
-	if(isNaN(d)){
-		d=new Date(str.replace(/\-/g,"/"));
-		if(isNaN(d)){
-			throw "ParseException";
-		}
-	}
-	return d;
-};
-function SimpleDateFormat(pattern){
+function DateFormat(pattern){
 	this.pattern=pattern;
 }
-SimpleDateFormat.prototype.format=function(date){
+DateFormat.prototype.format=function(date){
 	return this.pattern.replace(/yyyy/g,date.getFullYear())
 		.replace(/yy/g,Sky.pad(date.getYear()%100,2))
 		.replace(/MM/g,Sky.pad(date.getMonth()+1,2))
@@ -1055,7 +1041,7 @@ SimpleDateFormat.prototype.format=function(date){
 		.replace(/a{1,3}/g,date.getHours()%12>1?"PM":"AM")
 		.replace(/S{3}/g,Sky.pad(date.getMilliseconds(),3));
 };
-SimpleDateFormat.prototype.parse=function(dateString){
+DateFormat.prototype.parse=function(dateString){
 	var reg1=/(yyyy|yy|MM|M|dd|d|HH|H|hh|h|mm|m|ss|s|aaa|a|SSS)/g;
 	var keys=this.pattern.match(reg1);
 	if(!keys){
@@ -1074,7 +1060,7 @@ SimpleDateFormat.prototype.parse=function(dateString){
 	var date=new Date();
 	var a12=false;
 	var h12=false;
-	for(var i=0;i<values.length;i++){
+	for(var i=0;i<keys.length;i++){
 		var key=keys[i];
 		var value;
 		if(!key.startsWith("a")){
@@ -1135,6 +1121,19 @@ SimpleDateFormat.prototype.parse=function(dateString){
 		}
 	}
 	return date;
+};
+DateFormat.format=function(date){
+	return date.toLocaleFormat("%Y/%m/%d %H:%M:%S");
+};
+DateFormat.parse=function(str){
+	var d=new Date(str);
+	if(isNaN(d)){
+		d=new Date(str.replace(/\-/g,"/"));
+		if(isNaN(d)){
+			throw "ParseException";
+		}
+	}
+	return d;
 };
 if(!this.Promise){
 	(function(global){
@@ -1586,16 +1585,17 @@ Sky.buildQuery=function(obj){
 	}
 	return s.substring(0,s.length-1);
 };
+//不推荐使用，推荐用URL类
 Sky.parseURL=function(url) {
 	var r={},arr,pattern;
-	r.source=url;
+	r.href=url;
 	pattern=/^[^#]*/;
 	r.hash=url.replace(pattern,"");
 	arr=url.match(pattern);
 	url=arr[0];
 	pattern=/^([^:]+):[\/]*([^\/]+)/;
 	arr=url.match(pattern);
-	r.prefix=arr[0];
+	r.origin=arr[0];
 	r.protocol=arr[1];
 	r.host=arr[2];
 	pattern=/^([^:]+):(\d*)$/;
@@ -1607,7 +1607,7 @@ Sky.parseURL=function(url) {
 		r.hostname=r.host;
 		r.port="";
 	}
-	url=url.replace(r.prefix,"");
+	url=url.replace(r.origin,"");
 	pattern=/^[^\?]*/;
 	arr=url.match(pattern);
 	r.pathname=arr[0];
@@ -1615,20 +1615,21 @@ Sky.parseURL=function(url) {
 	r.folder=r.pathname.replace(/\/[^\/]*$/,"");
 	return r;
 };
-Sky.getAbsPath=function(relativePath, absolutePath) {
+//不推荐使用，推荐用URL类
+Sky.getAbsPath=function(relativePath, absolutePath){
 	if(relativePath.match(/^[a-zA-Z]+:/)){
 		return relativePath;
 	}
 	var url=Sky.parseURL(absolutePath || location.href);
 	var arr=relativePath.match(/^\.\//);
 	if(arr){
-		return url.prefix+url.folder+relativePath.substring(1,relativePath.length);
+		return url.origin+url.folder+relativePath.substring(1,relativePath.length);
 	}
 	arr=relativePath.match(/^\//);
 	if(arr){
-		return url.prefix+relativePath;
+		return url.origin+relativePath;
 	}
-	return url.prefix+fixURI(url.folder + "/" + relativePath).replace(/^\/(\.\.\/)+/,"/");
+	return url.origin+fixURI(url.folder + "/" + relativePath).replace(/^\/(\.\.\/)+/,"/");
 	function fixURI(uri){
 		var pattern=/[^\/]*\/\.\.\//;
 		if(uri.match(pattern)){

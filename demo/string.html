@@ -46,26 +46,11 @@
 	<a class="btn btn-primary" href='javascript:alert(Sky.trunc("中文为2",5,"..."))'>
 		alert(Sky.trunc("中文为2",5,"..."))
 	</a>
-	<h3 id="parseQuery">Sky.parseQuery</h3>
-	<p>解析url参数</p>
-<pre><code>var param=Sky.parseQuery(location.search);
-var param2=Sky.parseQuery("a=1&b=2&c=3");   //{"a":"1","b":"2","c":"3"}
-</code></pre>
 	<h3 id="buildQuery">Sky.buildQuery</h3>
 	<p>转变为url数据(utf-8)</p>
 <pre><code>var param={"a":"1","b":"2","c":"3"};
 alert(Sky.buildQuery(param));   //a=1&b=2&c=3
 </code></pre>
-	<h3 id="parseURL">Sky.parseURL</h3>
-	<p>解析URL</p>
-	<a class="btn btn-primary" href='javascript:alert(JSON.stringify(Sky.parseURL(prompt("请输入URL地址","http://www.sss.ss:8080/asd/asd.asp?s=aa&ss=1#asd"))))'>
-		alert(JSON.stringify(Sky.parseURL(prompt("请输入URL地址","http://www.sss.ss:8080/asd/asd.asp?s=aa&ss=1#asd"))))
-	</a>
-	<h3 id="getAbsPath">Sky.getAbsPath</h3>
-	<p>获取绝对路径</p>
-	<a class="btn btn-primary" href='javascript:alert(Sky.getAbsPath("../tet.html","http://www.sss.ss:8080/asd/asd.asp?s=aa&ss=1#asd"))'>
-		alert(Sky.getAbsPath("../tet.html","http://www.sss.ss:8080/asd/asd.asp?s=aa&ss=1#asd"))
-	</a>
 </div>
 </body>
 </html>

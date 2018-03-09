@@ -34,6 +34,11 @@ Sky.declare=function(conf){
 							}
 						}
 					}
+					for(member in conf.member){
+						if(member in me){
+							me[member]=conf.member[member];
+						}
+					}
 				}
 				if(Sky.support.defineProperty){
 					for(member in conf.property){

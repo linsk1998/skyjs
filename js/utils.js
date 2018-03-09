@@ -242,16 +242,17 @@ Sky.buildQuery=function(obj){
 	}
 	return s.substring(0,s.length-1);
 };
+//不推荐使用，推荐用URL类
 Sky.parseURL=function(url) {
 	var r={},arr,pattern;
-	r.source=url;
+	r.href=url;
 	pattern=/^[^#]*/;
 	r.hash=url.replace(pattern,"");
 	arr=url.match(pattern);
 	url=arr[0];
 	pattern=/^([^:]+):[\/]*([^\/]+)/;
 	arr=url.match(pattern);
-	r.prefix=arr[0];
+	r.origin=arr[0];
 	r.protocol=arr[1];
 	r.host=arr[2];
 	pattern=/^([^:]+):(\d*)$/;
@@ -263,7 +264,7 @@ Sky.parseURL=function(url) {
 		r.hostname=r.host;
 		r.port="";
 	}
-	url=url.replace(r.prefix,"");
+	url=url.replace(r.origin,"");
 	pattern=/^[^\?]*/;
 	arr=url.match(pattern);
 	r.pathname=arr[0];
@@ -271,20 +272,21 @@ Sky.parseURL=function(url) {
 	r.folder=r.pathname.replace(/\/[^\/]*$/,"");
 	return r;
 };
-Sky.getAbsPath=function(relativePath, absolutePath) {
+//不推荐使用，推荐用URL类
+Sky.getAbsPath=function(relativePath, absolutePath){
 	if(relativePath.match(/^[a-zA-Z]+:/)){
 		return relativePath;
 	}
 	var url=Sky.parseURL(absolutePath || location.href);
 	var arr=relativePath.match(/^\.\//);
 	if(arr){
-		return url.prefix+url.folder+relativePath.substring(1,relativePath.length);
+		return url.origin+url.folder+relativePath.substring(1,relativePath.length);
 	}
 	arr=relativePath.match(/^\//);
 	if(arr){
-		return url.prefix+relativePath;
+		return url.origin+relativePath;
 	}
-	return url.prefix+fixURI(url.folder + "/" + relativePath).replace(/^\/(\.\.\/)+/,"/");
+	return url.origin+fixURI(url.folder + "/" + relativePath).replace(/^\/(\.\.\/)+/,"/");
 	function fixURI(uri){
 		var pattern=/[^\/]*\/\.\.\//;
 		if(uri.match(pattern)){

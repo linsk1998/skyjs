@@ -733,24 +733,10 @@ if(!-[1,]){//ie6-8
 		return this._source;
 	}
 }
-function DateFormat(){}
-DateFormat.format=function(date){
-	return date.toLocaleFormat("%Y/%m/%d %H:%M:%S");
-};
-DateFormat.parse=function(str){
-	var d=new Date(str);
-	if(isNaN(d)){
-		d=new Date(str.replace(/\-/g,"/"));
-		if(isNaN(d)){
-			throw "ParseException";
-		}
-	}
-	return d;
-};
-function SimpleDateFormat(pattern){
+function DateFormat(pattern){
 	this.pattern=pattern;
 }
-SimpleDateFormat.prototype.format=function(date){
+DateFormat.prototype.format=function(date){
 	return this.pattern.replace(/yyyy/g,date.getFullYear())
 		.replace(/yy/g,Sky.pad(date.getYear()%100,2))
 		.replace(/MM/g,Sky.pad(date.getMonth()+1,2))
@@ -768,7 +754,7 @@ SimpleDateFormat.prototype.format=function(date){
 		.replace(/a{1,3}/g,date.getHours()%12>1?"PM":"AM")
 		.replace(/S{3}/g,Sky.pad(date.getMilliseconds(),3));
 };
-SimpleDateFormat.prototype.parse=function(dateString){
+DateFormat.prototype.parse=function(dateString){
 	var reg1=/(yyyy|yy|MM|M|dd|d|HH|H|hh|h|mm|m|ss|s|aaa|a|SSS)/g;
 	var keys=this.pattern.match(reg1);
 	if(!keys){
@@ -787,7 +773,7 @@ SimpleDateFormat.prototype.parse=function(dateString){
 	var date=new Date();
 	var a12=false;
 	var h12=false;
-	for(var i=0;i<values.length;i++){
+	for(var i=0;i<keys.length;i++){
 		var key=keys[i];
 		var value;
 		if(!key.startsWith("a")){
@@ -848,4 +834,17 @@ SimpleDateFormat.prototype.parse=function(dateString){
 		}
 	}
 	return date;
+};
+DateFormat.format=function(date){
+	return date.toLocaleFormat("%Y/%m/%d %H:%M:%S");
+};
+DateFormat.parse=function(str){
+	var d=new Date(str);
+	if(isNaN(d)){
+		d=new Date(str.replace(/\-/g,"/"));
+		if(isNaN(d)){
+			throw "ParseException";
+		}
+	}
+	return d;
 };
