@@ -117,7 +117,14 @@ if(!Sky.support.URL){
 			},
 			href:{
 				get:function(){
-					return this.origin+this.pathname+this.search+this.hash;
+					var user=this.username;
+					if(user){
+						if(this.password){
+							user+=":"+this.password;
+						}
+						user+="@";
+					}
+					return this.protocol+"//"+user+this.host+this.pathname+this.search+this.hash;
 				},
 				set:function(value){
 					var url=new URL(value);

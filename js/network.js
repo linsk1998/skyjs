@@ -154,6 +154,7 @@ Sky.getScript=function(src,func,charset){
 	if(!charset){charset="UTF-8"};
 	script.charset=charset;
 	script.src=src;
+	script.async=true;
 	if(func){
 		if('onreadystatechange' in script){
 			script.onreadystatechange=function(){
