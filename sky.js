@@ -146,7 +146,7 @@ Sky.isEmpty=function(obj){
 	}
 	return false;
 };
-
+Sky.noop=function(){};
 if(!({toString:null}).propertyIsEnumerable('toString')){
 	Sky.dontEnums=["toString","toLocaleString","valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable"];
 	Sky.forIn=function(obj,fn){
@@ -285,7 +285,95 @@ if(window.execScript){
 		Sky.support.VBScript=true;
 	}
 }
-Sky.noop=function(){};
+//开头补零
+Sky.pad=function(value,width,chars){
+	if(!chars){chars=" ";}
+	if(Sky.isNumber(value)){
+		chars="0";
+	}
+	value+='';
+	return value.padStart(width,chars);
+};
+//清除HTML代码
+Sky.escapeHtml=function(str) {
+	return str.replace(/&/g,'&amp;')
+		.replace(/</g,'&lt;')
+		.replace(/>/g,'&gt;');
+};
+Sky.escapeAttribute=function(str,quot){
+	var esc=Sky.escapeHtml(str);
+	if(!quot || quot=='"'){
+		return esc.replace(/"/g,'&quot;');
+	}else{
+		return esc.replaceAll(quot.charAt(0),'&#'+quot.charCodeAt(0)+";");
+	}
+};
+(function(){
+	var div=document.createElement('div');
+	var htmlEscapes={
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#39;',
+		'`': '&#96;'
+	};
+	Sky.escape=function(text){
+		return text.replace(/[&<>"'`]/g,function(i){
+			return htmlEscapes[i];
+		});
+	};
+	Sky.unescape=function(html){
+		div.innerHTML=html;
+		return div.innerText || div.textContent ;
+	};
+})();
+Sky.escapeString=function(str) {//from lodash
+	var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+	rx_escapable.lastIndex = 0;
+	return rx_escapable.test(str)
+		? str.replace(rx_escapable, function(a) {
+		var meta = {
+			"\b":"\\b","\t":"\\t","\n":"\\n","\f":"\\f","\r": "\\r",	"\"": "\\\"","\\": "\\\\"
+		};
+		var c = meta[a];
+		return typeof c === "string"
+			? c
+			: "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+	}): str;
+};
+Sky.escapeRegExp=function(str){//from lodash
+	if(str){
+		var reRegExpChars = /^[:!,]|[\\^$.*+?()[\]{}|\/]|(^[0-9a-fA-Fnrtuvx])|([\n\r\u2028\u2029])/g;
+		reRegExpChars.lastIndex = 0;
+		return (reRegExpChars.test(str))
+			? str.replace(reRegExpChars, function(chr, leadingChar, whitespaceChar) {
+			if (leadingChar) {
+				var regexpEscapes = {
+					'0': 'x30', '1': 'x31', '2': 'x32', '3': 'x33', '4': 'x34',
+					'5': 'x35', '6': 'x36', '7': 'x37', '8': 'x38', '9': 'x39',
+					'A': 'x41', 'B': 'x42', 'C': 'x43', 'D': 'x44', 'E': 'x45', 'F': 'x46',
+					'a': 'x61', 'b': 'x62', 'c': 'x63', 'd': 'x64', 'e': 'x65', 'f': 'x66',
+					'n': 'x6e', 'r': 'x72', 't': 'x74', 'u': 'x75', 'v': 'x76', 'x': 'x78'
+				};
+				chr = regexpEscapes[chr];
+			} else if (whitespaceChar) {
+				var stringEscapes = {
+					'\\': '\\',
+					"'": "'",
+					'\n': 'n',
+					'\r': 'r',
+					'\u2028': 'u2028',
+					'\u2029': 'u2029'
+				};
+				chr = stringEscapes[chr];
+			}
+			return '\\' + chr;
+		})
+			: str;
+	}
+	return "(?:)";
+};
 if(!Object.create){
 	Object.create=function(proto){
 		function F(){}
@@ -937,58 +1025,6 @@ if(this.HTMLElement && !document.head.children) {
 		return a;
 	});
 }
-Sky.support.localStorage=true;
-if(!this.localStorage){
-	Sky.support.localStorage=false;
-	localStorage=new function(){
-		var ele=document.createElement("localStorage");
-		if(ele.addBehavior){
-			ele.addBehavior("#default#userData");
-			document.head.appendChild(ele);
-			this.getItem=function(key){
-				ele.load("localStorage");
-				return ele.getAttribute(key);
-			};
-			this.setItem=function(key,value){
-				ele.setAttribute(key,value+"");
-				ele.save("localStorage");
-			};
-			this.removeItem=function(key){
-				ele.removeAttribute(key);
-				ele.save("localStorage");
-			};
-		}
-	}();
-}
-Sky.support.sessionStorage=true;
-if(!this.sessionStorage){
-	Sky.support.sessionStorage=false;
-	sessionStorage=new function(){
-		var ele=document.createElement("sessionStorage");
-		var sessionId=Sky.getCookie("JSESSIONID");
-		if(!sessionId){
-			sessionId=Math.random()+"";
-			Sky.setCookie("JSESSIONID",sessionId);
-		}
-		if(ele.addBehavior){
-			ele.addBehavior("#default#userData");
-			var head=document.documentElement.firstChild;
-			head.appendChild(ele);
-			this.getItem=function(key){
-				ele.load(sessionId);
-				return ele.getAttribute(key);
-			};
-			this.setItem=function(key,value){
-				ele.setAttribute(key,value+"");
-				ele.save(sessionId);
-			};
-			this.removeItem=function(key){
-				ele.removeAttribute(key);
-				ele.save(sessionId);
-			};
-		}
-	}();
-}
 if(!window.execScript){
 	window.execScript=function(script,lang) {
 		if(lang && lang.toUpperCase().indexOf("VB")>=0){
@@ -1302,18 +1338,27 @@ if(!this.Promise){
 			throw new TypeError('You must pass an array to all.');
 		}
 		return new Promise(function(resolve,reject){
+			if(promises.length==0) return resolve(new Array());
 			var result=new Array(promises.length);
 			var c=0;
 			promises.forEach(function(one,index){
-				one.then(function(data){
+				if(one instanceof Promise){
+					one.then(function(data){
+						c++;
+						result[index]=data;
+						if(c>=promises.length){
+							resolve(result);
+						}
+					},function(data){
+						reject(data);
+					});
+				}else{
 					c++;
-					result[index]=data;
+					result[index]=one;
 					if(c>=promises.length){
 						resolve(result);
 					}
-				},function(){
-					reject();
-				});
+				}
 			});
 		});
 	};
@@ -1442,6 +1487,340 @@ if(!Sky.support.URL){
 		this.href=this.protocol+"//"+user+this.host+this.pathname+this.search+this.hash;
 	};
 }
+Sky.support.localStorage=true;
+if(!this.localStorage){
+	Sky.support.localStorage=false;
+	localStorage=new function(){
+		var ele=document.createElement("localStorage");
+		if(ele.addBehavior){
+			ele.addBehavior("#default#userData");
+			document.head.appendChild(ele);
+			this.getItem=function(key){
+				ele.load("localStorage");
+				return ele.getAttribute(key);
+			};
+			this.setItem=function(key,value){
+				ele.setAttribute(key,value+"");
+				ele.save("localStorage");
+			};
+			this.removeItem=function(key){
+				ele.removeAttribute(key);
+				ele.save("localStorage");
+			};
+		}
+	}();
+}
+Sky.support.sessionStorage=true;
+if(!this.sessionStorage){
+	Sky.support.sessionStorage=false;
+	sessionStorage=new function(){
+		var ele=document.createElement("sessionStorage");
+		var sessionId=Sky.getCookie("JSESSIONID");
+		if(!sessionId){
+			sessionId=Math.random()+"";
+			Sky.setCookie("JSESSIONID",sessionId);
+		}
+		if(ele.addBehavior){
+			ele.addBehavior("#default#userData");
+			var head=document.documentElement.firstChild;
+			head.appendChild(ele);
+			this.getItem=function(key){
+				ele.load(sessionId);
+				return ele.getAttribute(key);
+			};
+			this.setItem=function(key,value){
+				ele.setAttribute(key,value+"");
+				ele.save(sessionId);
+			};
+			this.removeItem=function(key){
+				ele.removeAttribute(key);
+				ele.save(sessionId);
+			};
+		}
+	}();
+}
+Sky.ajax=function(options){
+	var targetUrl=options.url;
+	var success=options.success;
+	var error=options.error;
+	var dataType=options.dataType?options.dataType:'auto';
+	var complete=options.complete;
+	var xhr=new XMLHttpRequest();
+	if(options.timeout) xhr.timeout=options.timeout;
+	xhr.onreadystatechange = function(){
+		if(xhr.readyState == 4 ) {
+			if(xhr.status == 200 || xhr.status==0){//本地访问为0
+				var returnType=xhr.getResponseHeader("Content-Type");
+				if(dataType=="auto" && returnType){
+					if(returnType.match(/\/json/i)){
+						dataType="JSON";
+					}else if(returnType.match(/\/xml/i)){
+						dataType="XML";
+					}
+				}
+				if(dataType.toUpperCase() == 'XML') {
+					if(!xhr.responseXML || !xhr.responseXML.lastChild || xhr.responseXML.lastChild.localName == 'parsererror') {
+						if(error) error.call(xhr,xhr.responseText);
+					} else {
+						success.call(xhr,xhr.responseXML.lastChild);
+					}
+				}else if(dataType.toUpperCase() == 'JSON') {
+					var data;
+					try {
+						data=JSON.parse(xhr.responseText);
+					}catch(err) {
+						if(error) error.call(xhr,xhr.responseText);
+					}
+					if(data) success.call(xhr,data);
+				}else{
+					success.call(xhr,xhr.responseText);
+				}
+			}else if(error){
+				error.call(xhr,xhr.responseText);
+			}
+			if(complete) complete.call(xhr,xhr.responseText);
+		}
+	};
+	if(options.type && options.type.toUpperCase()=="POST"){
+		var contentType=options.contentType;
+		var data=options.data;
+		xhr.open('POST', targetUrl,options.async!==false);
+		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+		if(data){
+			if(Sky.isPlainObject(data) || data instanceof Map){
+				xhr.setRequestHeader('Content-Type',contentType || 'application/x-www-form-urlencoded');
+				xhr.send(Sky.buildQuery(data));
+			}else{//字符串 ， 二进制流 ， 文件等
+				if(contentType){
+					contentType && xhr.setRequestHeader('Content-Type',contentType);
+				}else if(Sky.isString(data)){
+					xhr.setRequestHeader('Content-Type','text/plain');
+				}
+				xhr.send(data);
+			}
+		}else{
+			xhr.send(null);
+		}
+	}else{
+		xhr.open('GET',targetUrl,options.async!==false);
+		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+		xhr.send(null);
+	}
+};
+Sky.get=function(targetUrl,success,datatype,error){
+	Sky.ajax({
+		'url' : targetUrl,
+		'type' : "GET",
+		'dataType' : datatype,
+		'success' : success,
+		'error' : error
+	});
+};
+Sky.ajax.get=function(targetUrl,datatype){
+	return new Promise(function(resolve, reject){
+		Sky.ajax({
+			'url' : targetUrl,
+			'type' : "GET",
+			'dataType' : datatype,
+			'success' : function(){
+				resolve();
+			},
+			'error' : function(){
+				reject();
+			}
+		});
+	});
+};
+Sky.post=function(targetUrl,data,success,datatype,error){
+	Sky.ajax({
+		'url' : targetUrl,
+		'type' : "POST",
+		'data' : data,
+		'dataType' : datatype,
+		'success' : success,
+		'error' : error
+	});
+};
+Sky.ajax.post=function(targetUrl,data,dataType,contentType){
+	return new Promise(function(resolve, reject){
+		Sky.ajax({
+			'url' : targetUrl,
+			'type' : "POST",
+			'data' : data,
+			'dataType' : dataType,
+			'contentType':contentType,
+			'success' : function(){
+				resolve();
+			},
+			'error' : function(){
+				reject();
+			}
+		});
+	});
+};
+Sky.getJSONP=function(url, callback){
+	var cbname="cb"+Sky.id();
+	if(url.indexOf("=?")!=-1){
+		url=url.replace("=?","="+cbname);
+	}else{
+		url+=cbname;
+	}
+	var script=document.createElement("script");
+	if(document.addEventListener()){
+		window[cbname]=function(response){
+			try{
+				callback(response);
+			}finally{
+				delete window[cbname];
+				script.parentNode.removeChild(script);
+			}
+		};
+	}else{
+		window[cbname]=function(response){
+			try{
+				callback(response);
+			}finally{
+				window[cbname]=undefined;
+				script.parentNode.removeChild(script);
+			}
+		};
+	}
+	script.src=url;
+	document.body.appendChild(script);
+};
+Sky.getScript=function(src,func,charset){
+	var script=document.createElement('script');
+	if(!charset){charset="UTF-8"};
+	script.charset=charset;
+	script.src=src;
+	script.async=true;
+	if(func){
+		var event='onreadystatechange';
+		if(event in script){
+			script.attachEvent(event,function(){
+				if(script.readyState=='loaded'){
+					document.head.appendChild(script);
+				}else if(script.readyState=='complete'){
+					script.detachEvent(event,arguments.callee);
+					var evt=window.event;
+					//evt.target=evt.currentTarget=evt.srcElement;
+					func.call(script,evt);
+				}
+			});
+		}else{
+			if('onafterscriptexecute' in script){
+				script.onafterscriptexecute=func;
+			}else{
+				script.onload=func;
+			}
+			document.head.appendChild(script);
+		}
+	}else{
+		document.head.appendChild(script);
+	}
+	return script;
+};
+(function(){
+	Sky.support.getCurrentPath=true;
+	Sky.support.getCurrentScript=true;
+	if("currentScript" in document){//最新浏览器
+		Sky.getCurrentScript=function(){
+			return document.currentScript;
+		};
+	}else{
+		var currentScript;
+		Sky.getCurrentScript=function(){//IE
+			var nodes=document.getElementsByTagName('SCRIPT');
+			var i=nodes.length;
+			while(i--){
+				var node=nodes[i];
+				if(node.readyState==="interactive") {
+					return node;
+				}
+			}
+		};
+		currentScript=Sky.getCurrentScript();
+		if(!currentScript){//非IE的低版本
+			try{
+				throw new Error('get stack');
+			}catch(e){
+				var stackHandler={
+					'stack':[
+						/^@(.*):\d+$/,// Firefox
+						/^\s+at (.*):\d+:\d+$/,//Chrome
+						/^\s+at [^\(]*\((.*):\d+:\d+\)$/ //IE11
+					],
+					'stacktrace':[
+						/\(\) in\s+(.*?\:\/\/\S+)/m//opera
+					]
+				};
+				var stackResult=handleStack(e,stackHandler);
+				if(stackResult){
+					Sky.getCurrentPath=function(){
+						try{
+							throw new Error('get stack');
+						}catch(e){
+							var arr=getLastStack(e[stackResult.name]).match(stackResult.pattern);
+							if(arr && arr[1]!=location.href){
+								return arr[1];
+							}
+						}
+					};
+					//同时加载多个相同的js会有问题
+					Sky.support.getCurrentScript=false;
+					Sky.getCurrentScript=function(){
+						var nodes=(Sky.isReady?document.head:document).getElementsByTagName('SCRIPT');
+						var i=nodes.length;
+						var currentPath=Sky.getCurrentPath();
+						if(currentPath){
+							while(i--){
+								var node=nodes[i];
+								if(new URL(node.src,location).href==currentPath) {
+									return node;
+								}
+							}
+						}else{
+							return nodes[nodes.length-1];
+						}
+					};
+				}else{//同时加载多个js会有问题
+					Sky.support.getCurrentScript=false;
+					Sky.support.getCurrentPath=false;
+					Sky.getCurrentScript=function(){
+						var nodes=(Sky.isReady?document.head:document).getElementsByTagName('SCRIPT');
+						return nodes[nodes.length-1];
+					};
+				}
+			}
+		}
+	}
+	if(!Sky.getCurrentPath){
+		Sky.getCurrentPath=function(){
+			var currentScript=Sky.getCurrentScript();
+			return new URL(currentScript.src,location).href;
+		};
+	}
+	function getLastStack(stack){
+		var stacks=stack.trim().split("\n");;
+		return stacks[stacks.length-1];
+	}
+	function handleStack(e,stackHandler){
+		for(var name in stackHandler){
+			var stacks=e[name];
+			if(stacks){
+				var patterns=stackHandler[name];
+				var stack=getLastStack(stacks);
+				var i=patterns.length;
+				while(i--){
+					var pattern=patterns[i];
+					if(pattern.test(stack)){
+						return {'name':name,'pattern':pattern};
+					}
+				}
+			}
+		}
+	}
+})();
 Sky.later=function(fn){
 	setTimeout(fn,0);
 };
@@ -1496,96 +1875,6 @@ Sky.copyToClipboard=function(txt){
 };
 //document.getElementById("text").select();
 //document.execCommand("copy",false,null);
-//开头补零
-//Deprecated
-Sky.pad=function(value,width,chars){
-	if(!chars){chars=" ";}
-	if(Sky.isNumber(value)){
-		chars="0";
-	}
-	value+='';
-	return value.padStart(width,chars);
-};
-//清除HTML代码
-Sky.escapeHtml=function(str) {
-	return str.replace(/&/g,'&amp;')
-		.replace(/</g,'&lt;')
-		.replace(/>/g,'&gt;');
-};
-Sky.escapeAttribute=function(str,quot){
-	var esc=Sky.escapeHtml(str);
-	if(!quot || quot=='"'){
-		return esc.replace(/"/g,'&quot;');
-	}else{
-		return esc.replaceAll(quot.charAt(0),'&#'+quot.charCodeAt(0)+";");
-	}
-};
-(function(){
-	var div=document.createElement('div');
-	var htmlEscapes={
-		'&': '&amp;',
-		'<': '&lt;',
-		'>': '&gt;',
-		'"': '&quot;',
-		"'": '&#39;',
-		'`': '&#96;'
-	};
-	Sky.escape=function(text){
-		return text.replace(/[&<>"'`]/g,function(i){
-			return htmlEscapes[i];
-		});
-	};
-	Sky.unescape=function(html){
-		div.innerHTML=html;
-		return div.innerText || div.textContent ;
-	};
-})();
-Sky.escapeString=function(str) {//from lodash
-	var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-	rx_escapable.lastIndex = 0;
-	return rx_escapable.test(str)
-		? str.replace(rx_escapable, function(a) {
-		var meta = {
-			"\b":"\\b","\t":"\\t","\n":"\\n","\f":"\\f","\r": "\\r",	"\"": "\\\"","\\": "\\\\"
-		};
-		var c = meta[a];
-		return typeof c === "string"
-			? c
-			: "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
-	}): str;
-};
-Sky.escapeRegExp=function(str){//from lodash
-	if(str){
-		var reRegExpChars = /^[:!,]|[\\^$.*+?()[\]{}|\/]|(^[0-9a-fA-Fnrtuvx])|([\n\r\u2028\u2029])/g;
-		reRegExpChars.lastIndex = 0;
-		return (reRegExpChars.test(str))
-			? str.replace(reRegExpChars, function(chr, leadingChar, whitespaceChar) {
-			if (leadingChar) {
-				var regexpEscapes = {
-					'0': 'x30', '1': 'x31', '2': 'x32', '3': 'x33', '4': 'x34',
-					'5': 'x35', '6': 'x36', '7': 'x37', '8': 'x38', '9': 'x39',
-					'A': 'x41', 'B': 'x42', 'C': 'x43', 'D': 'x44', 'E': 'x45', 'F': 'x46',
-					'a': 'x61', 'b': 'x62', 'c': 'x63', 'd': 'x64', 'e': 'x65', 'f': 'x66',
-					'n': 'x6e', 'r': 'x72', 't': 'x74', 'u': 'x75', 'v': 'x76', 'x': 'x78'
-				};
-				chr = regexpEscapes[chr];
-			} else if (whitespaceChar) {
-				var stringEscapes = {
-					'\\': '\\',
-					"'": "'",
-					'\n': 'n',
-					'\r': 'r',
-					'\u2028': 'u2028',
-					'\u2029': 'u2029'
-				};
-				chr = stringEscapes[chr];
-			}
-			return '\\' + chr;
-		})
-			: str;
-	}
-	return "(?:)";
-};
 //获取字符串占位长度
 Sky.strlen=function(str){
 	var len=0;
@@ -1863,107 +2152,6 @@ Sky.UUID=function() {
 	});
 };
 (function(){
-	Sky.support.getCurrentPath=true;
-	Sky.support.getCurrentScript=true;
-	if("currentScript" in document){//最新浏览器
-		Sky.getCurrentScript=function(){
-			return document.currentScript;
-		};
-	}else{
-		var currentScript;
-		Sky.getCurrentScript=function(){//IE
-			var nodes=document.getElementsByTagName('SCRIPT');
-			var i=nodes.length;
-			while(i--){
-				var node=nodes[i];
-				if(node.readyState==="interactive") {
-					return node;
-				}
-			}
-		};
-		currentScript=Sky.getCurrentScript();
-		if(!currentScript){//非IE的低版本
-			try{
-				throw new Error('get stack');
-			}catch(e){
-				var stackHandler={
-					'stack':[
-						/^@(.*):\d+$/,// Firefox
-						/^\s+at (.*):\d+:\d+$/,//Chrome
-						/^\s+at [^\(]*\((.*):\d+:\d+\)$/ //IE11
-					],
-					'stacktrace':[
-						/\(\) in\s+(.*?\:\/\/\S+)/m//opera
-					]
-				};
-				var stackResult=handleStack(e,stackHandler);
-				if(stackResult){
-					Sky.getCurrentPath=function(){
-						try{
-							throw new Error('get stack');
-						}catch(e){
-							var arr=getLastStack(e[stackResult.name]).match(stackResult.pattern);
-							if(arr && arr[1]!=location.href){
-								return arr[1];
-							}
-						}
-					};
-					//同时加载多个相同的js会有问题
-					Sky.support.getCurrentScript=false;
-					Sky.getCurrentScript=function(){
-						var nodes=(Sky.isReady?document.head:document).getElementsByTagName('SCRIPT');
-						var i=nodes.length;
-						var currentPath=Sky.getCurrentPath();
-						if(currentPath){
-							while(i--){
-								var node=nodes[i];
-								if(new URL(node.src,location).href==currentPath) {
-									return node;
-								}
-							}
-						}else{
-							return nodes[nodes.length-1];
-						}
-					};
-				}else{//同时加载多个js会有问题
-					Sky.support.getCurrentScript=false;
-					Sky.support.getCurrentPath=false;
-					Sky.getCurrentScript=function(){
-						var nodes=(Sky.isReady?document.head:document).getElementsByTagName('SCRIPT');
-						return nodes[nodes.length-1];
-					};
-				}
-			}
-		}
-	}
-	if(!Sky.getCurrentPath){
-		Sky.getCurrentPath=function(){
-			var currentScript=Sky.getCurrentScript();
-			return new URL(currentScript.src,location).href;
-		};
-	}
-	function getLastStack(stack){
-		var stacks=stack.trim().split("\n");;
-		return stacks[stacks.length-1];
-	}
-	function handleStack(e,stackHandler){
-		for(var name in stackHandler){
-			var stacks=e[name];
-			if(stacks){
-				var patterns=stackHandler[name];
-				var stack=getLastStack(stacks);
-				var i=patterns.length;
-				while(i--){
-					var pattern=patterns[i];
-					if(pattern.test(stack)){
-						return {'name':name,'pattern':pattern};
-					}
-				}
-			}
-		}
-	}
-})();
-(function(){
 	Sky.isReady=false;
 	var p=new Promise(function(resolve, reject){
 		if(document.addEventListener){
@@ -1999,180 +2187,6 @@ Sky.UUID=function() {
 	};
 })();
 
-Sky.ajax=function(options){
-	var targetUrl=options.url;
-	var success=options.success;
-	var error=options.error;
-	var dataType=options.dataType?options.dataType:'auto';
-	var complete=options.complete;
-	var xhr=new XMLHttpRequest();
-	if(options.timeout) xhr.timeout=options.timeout;
-	xhr.onreadystatechange = function(){
-		if(xhr.readyState == 4 ) {
-			if(xhr.status == 200 || xhr.status==0){//本地访问为0
-				var returnType=xhr.getResponseHeader("Content-Type");
-				if(dataType=="auto" && returnType){
-					if(returnType.match(/\/json/i)){
-						dataType="JSON";
-					}else if(returnType.match(/\/xml/i)){
-						dataType="XML";
-					}
-				}
-				if(dataType.toUpperCase() == 'XML') {
-					if(!xhr.responseXML || !xhr.responseXML.lastChild || xhr.responseXML.lastChild.localName == 'parsererror') {
-						if(error) error.call(xhr,xhr.responseText);
-					} else {
-						success.call(xhr,xhr.responseXML.lastChild);
-					}
-				}else if(dataType.toUpperCase() == 'JSON') {
-					var data;
-					try {
-						data=JSON.parse(xhr.responseText);
-					}catch(err) {
-						if(error) error.call(xhr,xhr.responseText);
-					}
-					if(data) success.call(xhr,data);
-				}else{
-					success.call(xhr,xhr.responseText);
-				}
-			}else if(error){
-				error.call(xhr,xhr.responseText);
-			}
-			if(complete) complete.call(xhr,xhr.responseText);
-		}
-	};
-	if(options.type && options.type.toUpperCase()=="POST"){
-		var contentType=options.contentType;
-		var data=options.data;
-		xhr.open('POST', targetUrl,options.async!==false);
-		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-		if(data){
-			if(Sky.isPlainObject(data) || data instanceof Map){
-				xhr.setRequestHeader('Content-Type',contentType || 'application/x-www-form-urlencoded');
-				xhr.send(Sky.buildQuery(data));
-			}else{//字符串 ， 二进制流 ， 文件等
-				if(contentType){
-					contentType && xhr.setRequestHeader('Content-Type',contentType);
-				}else if(Sky.isString(data)){
-					xhr.setRequestHeader('Content-Type','text/plain');
-				}
-				xhr.send(data);
-			}
-		}else{
-			xhr.send(null);
-		}
-	}else{
-		xhr.open('GET',targetUrl,options.async!==false);
-		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-		xhr.send(null);
-	}
-};
-Sky.get=function(targetUrl,success,datatype,error){
-	Sky.ajax({
-		'url' : targetUrl,
-		'type' : "GET",
-		'dataType' : datatype,
-		'success' : success,
-		'error' : error
-	});
-};
-Sky.ajax.get=function(targetUrl,datatype){
-	return new Promise(function(resolve, reject){
-		Sky.ajax({
-			'url' : targetUrl,
-			'type' : "GET",
-			'dataType' : datatype,
-			'success' : function(){
-				resolve();
-			},
-			'error' : function(){
-				reject();
-			}
-		});
-	});
-};
-Sky.post=function(targetUrl,data,success,datatype,error){
-	Sky.ajax({
-		'url' : targetUrl,
-		'type' : "POST",
-		'data' : data,
-		'dataType' : datatype,
-		'success' : success,
-		'error' : error
-	});
-};
-Sky.ajax.post=function(targetUrl,data,dataType,contentType){
-	return new Promise(function(resolve, reject){
-		Sky.ajax({
-			'url' : targetUrl,
-			'type' : "POST",
-			'data' : data,
-			'dataType' : dataType,
-			'contentType':contentType,
-			'success' : function(){
-				resolve();
-			},
-			'error' : function(){
-				reject();
-			}
-		});
-	});
-};
-Sky.getJSONP=function(url, callback){
-	var cbname="cb"+Sky.id();
-	if(url.indexOf("=?")!=-1){
-		url=url.replace("=?","="+cbname);
-	}else{
-		url+=cbname;
-	}
-	var script=document.createElement("script");
-	if(document.addEventListener()){
-		window[cbname]=function(response){
-			try{
-				callback(response);
-			}finally{
-				delete window[cbname];
-				script.parentNode.removeChild(script);
-			}
-		};
-	}else{
-		window[cbname]=function(response){
-			try{
-				callback(response);
-			}finally{
-				window[cbname]=undefined;
-				script.parentNode.removeChild(script);
-			}
-		};
-	}
-	script.src=url;
-	document.body.appendChild(script);
-};
-Sky.getScript=function(src,func,charset){
-	var script=document.createElement('script');
-	script.async="async";
-	if(!charset){charset="UTF-8"};
-	script.charset=charset;
-	script.src=src;
-	script.async=true;
-	if(func){
-		if('onreadystatechange' in script){
-			script.onreadystatechange=function(){
-				if(this.readyState=='loaded'){
-					document.head.appendChild(script);
-				}else if(this.readyState == "complete"){
-					this.onreadystatechange = null;
-					func();
-				}
-			};
-		}else{
-			script.onload=func;
-			document.head.appendChild(script);
-		}
-	}else{
-		document.head.appendChild(script);
-	}
-};
 Sky.byId=function(id){
 	return document.getElementById(id);
 };

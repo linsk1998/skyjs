@@ -148,28 +148,3 @@ Sky.getJSONP=function(url, callback){
 	script.src=url;
 	document.body.appendChild(script);
 };
-Sky.getScript=function(src,func,charset){
-	var script=document.createElement('script');
-	script.async="async";
-	if(!charset){charset="UTF-8"};
-	script.charset=charset;
-	script.src=src;
-	script.async=true;
-	if(func){
-		if('onreadystatechange' in script){
-			script.onreadystatechange=function(){
-				if(this.readyState=='loaded'){
-					document.head.appendChild(script);
-				}else if(this.readyState == "complete"){
-					this.onreadystatechange = null;
-					func();
-				}
-			};
-		}else{
-			script.onload=func;
-			document.head.appendChild(script);
-		}
-	}else{
-		document.head.appendChild(script);
-	}
-};

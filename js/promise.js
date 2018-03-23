@@ -166,18 +166,27 @@ if(!this.Promise){
 			throw new TypeError('You must pass an array to all.');
 		}
 		return new Promise(function(resolve,reject){
+			if(promises.length==0) return resolve(new Array());
 			var result=new Array(promises.length);
 			var c=0;
 			promises.forEach(function(one,index){
-				one.then(function(data){
+				if(one instanceof Promise){
+					one.then(function(data){
+						c++;
+						result[index]=data;
+						if(c>=promises.length){
+							resolve(result);
+						}
+					},function(data){
+						reject(data);
+					});
+				}else{
 					c++;
-					result[index]=data;
+					result[index]=one;
 					if(c>=promises.length){
 						resolve(result);
 					}
-				},function(){
-					reject();
-				});
+				}
 			});
 		});
 	};

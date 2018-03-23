@@ -92,7 +92,26 @@
 	<p>getScript() 方法通过 HTTP GET 请求载入并执行 JavaScript 文件。</p>
 	<pre><code>Sky.getScript("http://pv.sohu.com/cityjson?ie=utf-8",function(){alert(returnCitySN.cname)});</code></pre>
 	<a class="btn btn-primary" href='javascript:Sky.getScript("http://pv.sohu.com/cityjson?ie=utf-8",function(){alert(returnCitySN.cname)});void 0'>试一试</a>
-	<a class="btn btn-primary" href='javascript:Sky.getScript("getCurrentPath.js")'>内部获取路径</a>
+	<a class="btn btn-primary" href='javascript:Sky.getScript("getCurrentPath.js");void 0'>内部获取路径</a>
+	<a class="btn btn-primary" href='javascript:check();void 0'>检测回调间隙</a>
+	<script>
+		var lastIndex=0;
+		function checkIndex(){
+			if(lastIndex==1){
+				alert("检测到回调间隙");
+				lastIndex=-1;
+			}
+		}
+		function check(){
+			Sky.getScript("getNext.js",function(){
+				lastIndex=0;
+			});
+		}
+		setTimeout(function(){
+			checkIndex();
+			setTimeout(arguments.callee,0);
+		},0);
+	</script>
 </div>
 </body>
 </html>
