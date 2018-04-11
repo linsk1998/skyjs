@@ -2590,7 +2590,7 @@ if(document.getElementsByClassName){
 	};
 	Sky.ele=function(ele){
 		var nodes=new Batch();
-		if(Sky.isElement(ele)){
+		if(ele){
 			nodes.push(ele);
 		}
 		return nodes;

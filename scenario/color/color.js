@@ -202,9 +202,9 @@
 		l=clamp(l);
 		return Color.hsla(hsl[0],hsl[1],l,this.alpha);
 	};
-	Color.prototype.darken=function( amount, method){
+	Color.prototype.darken=function( amount, relative){
 		amount=parsePercent(amount);
-		return this.lighten( -amount, method);
+		return this.lighten( -amount, relative);
 	};
 	Color.prototype.spin=function(amount){
 		amount=parsePercent(amount);
@@ -212,7 +212,23 @@
 		var hue=(hsl[0]+amount)%360;
 		var h=hue<0?360+hue:hue;
 		return Color.hsla(h,hsl[1],hsl[2]);
-	}
+	};
+	Color.prototype.saturate=function(amount,relative){
+		amount=parsePercent(amount);
+		var hsl=this.toHSL();
+		var s=hsl[1];
+		if(relative){
+			s+=s*amount/100;
+		}else{
+			s+=amount;
+		}
+		s=clamp(s);
+		return Color.hsla(hsl[0],s,hsl[2],this.alpha);
+	};
+	Color.prototype.desaturate=function(amount,relative){
+		amount=parsePercent(amount);
+		return this.saturate( -amount, relative);
+	};
 	Color.prototype.mix=function( color2, weight) {
 		if(!weight){
 			weight=.5;
