@@ -1,21 +1,128 @@
-var Sky=function(arg1,arg2){
-	if(Sky.isString(arg1)){
-		if(arg2 && ('getElementsByTagName' in arg2)){
-			return Sky.query(arg1,arg2);
-		}
-		if(arg1.match(/[\s>,#]+/)){
-			return Sky.query(arg1);
-		}
-		return Sky.create(arg1);
-	}
-	if(Sky.isFunction(arg1)){
-		Sky.ready().then(arg1);
-	}
-	return Sky.ele(arg1);
+
+var $=function(){
+	return $.overload(arguments,this);
 };
-if(typeof $=="undefined"){
-	$=Sky;
+(function(){
+	var rules=[];
+	function ckeck(ckeckFunc,index){
+		return ckeckFunc(this[index]);
+	}
+	function compare(x, y){//比较函数
+		return x.checks.length-y.checks.length;
+	}
+	$.overload=function(checks,func,target){
+		if(target){
+			rules.push({
+				'checks':checks,
+				'func':func,
+				'target':target
+			});
+			rules.sort(compare);
+		}else{
+			var args=checks;
+			var thisVal=func;
+			var i=rules.length;
+			while(i--){
+				var rule=rules[i];
+				if(args.callee===rule.func){
+					if(rule.checks.length>=args.length){
+						if(rule.checks.every(ckeck,args)){
+							return rule.target.apply(thisVal,args);
+						}
+					}
+				}
+			}
+			return $;
+		}
+	};
+})();
+$.isArray=function(a){
+	return Array.isArray(a);
+};
+$.isDate=function(obj){
+	return Object.prototype.toString.call(obj)==='[object Date]';
+};
+$.isRegExp=function(obj){
+	return Object.prototype.toString.call(obj)==='[object RegExp]';
+};
+$.isString=function(obj){
+	return Object.prototype.toString.call(obj)==='[object String]';
+};
+$.isFunction=function(obj){
+	return Object.prototype.toString.call(obj)==='[object Function]';
+};
+$.isNumber=function(obj){
+	return Object.prototype.toString.call(obj)==='[object Number]';
+};
+$.is=function(obj,Clazz){
+	obj=Object(obj);
+	return obj instanceof Clazz;
+};
+$.isObject=function(obj){
+	var type=typeof obj;
+	if(type!=="object"){
+		return false;
+	}
+	type=Object.prototype.toString.call(obj);
+	switch(type){
+		case '[object String]':
+		case '[object Number]':
+		case '[object Function]':
+		case '[object Boolean]':
+			return false;
+	}
+	return true;
+};
+$.isDefined=function(obj){
+	return obj!==void 0;
+};
+$.isPlainObject=function(obj){
+	var key;
+	if(typeof obj !=="object"){
+		return false;
+	}
+	if(obj.toString()!=='[object Object]'){
+		return false;
+	}
+	var hasOwn=Object.prototype.hasOwnProperty;
+	try{
+		if(obj.constructor && obj.constructor!=Object){
+			return false;
+		}
+	}catch(e){
+		return false;
+	}
+	for( key in obj ){
+		if(!hasOwn.call(obj,key)){
+			return false;
+		}
+	}
+	return true;
+};
+$.isArrayLike=function(obj){
+	var length=obj.length;
+	if(typeof length !="number" || length<0 || isNaN(length) || Math.ceil(length)!=length){
+		return false;
+	}
+	return true;
+};
+$.isNumeric=function(obj){
+	var n=parseFloat(obj);
+	return !isNaN(n);
+};
+if(this.HTMLElement){
+	$.isElement=function(obj){
+		return obj instanceof HTMLElement;
+	};
+}else{
+	$.isElement=function(obj){
+		return obj?obj.nodeType===1:false;
+	};
 }
+$.isDocument=function(obj){
+	return obj===document;
+};
+var Sky=$;
 Sky.support={};
 (function(){
 	var userAgent = navigator.userAgent.toLowerCase();
@@ -46,107 +153,8 @@ Sky.support={};
 		Sky.browser.ie=parseInt(Sky.browser.version);
 	}
 })();
-
-Sky.isArray=function(a){
-	return Array.isArray(a);
-};
-Sky.isDate=function(obj){
-	return Object.prototype.toString.call(obj)==='[object Date]';
-};
-Sky.isRegExp=function(obj){
-	return Object.prototype.toString.call(obj)==='[object RegExp]';
-};
-Sky.isString=function(obj){
-	return Object.prototype.toString.call(obj)==='[object String]';
-};
-Sky.isFunction=function(obj){
-	return Object.prototype.toString.call(obj)==='[object Function]';
-};
-Sky.isNumber=function(obj){
-	return Object.prototype.toString.call(obj)==='[object Number]';
-};
-Sky.is=function(obj,Clazz){
-	obj=Object(obj);
-	return obj instanceof Clazz;
-};
-Sky.isObject=function(obj){
-	var type=typeof obj;
-	if(type!=="object"){
-		return false;
-	}
-	type=Object.prototype.toString.call(obj);
-	switch(type){
-		case '[object String]':
-		case '[object Number]':
-		case '[object Function]':
-		case '[object Boolean]':
-			return false;
-	}
-	return true;
-};
-Sky.isDefined=function(obj){
-	return obj!==void 0;
-};
-Sky.isPlainObject=function(obj){
-	var key;
-	if(typeof obj !=="object"){
-		return false;
-	}
-	if(obj.toString()!=='[object Object]'){
-		return false;
-	}
-	var hasOwn=Object.prototype.hasOwnProperty;
-	try{
-		if(obj.constructor && obj.constructor!=Object){
-			return false;
-		}
-	}catch(e){
-		return false;
-	}
-	for( key in obj ){
-		if(!hasOwn.call(obj,key)){
-			return false;
-		}
-	}
-	return true;
-};
-Sky.isArrayLike=function(obj){
-	var length=obj.length;
-	if(typeof length !="number" || length<0 || isNaN(length) || Math.ceil(length)!=length){
-		return false;
-	}
-	return true;
-};
-Sky.isNumeric=function(obj){
-	var n=parseFloat(obj);
-	return !isNaN(n);
-};
-if(this.HTMLElement){
-	Sky.isElement=function(obj){
-		return obj instanceof HTMLElement;
-	};
-}else{
-	Sky.isElement=function(obj){
-		return obj?obj.nodeType===1:false;
-	};
-}
-Sky.isEmpty=function(obj){
-	if(obj==null) return true;
-	if(Sky.isNumber(obj.length)){
-		return !obj.length;
-	}
-	if(Sky.isNumber(obj.size)){
-		return !obj.size;
-	}
-	if(Sky.isFunction(obj.size)){
-		return !obj.size();
-	}
-	if(Sky.isFunction(obj.toArray)){
-		return !obj.toArray().length;
-	}
-	return false;
-};
 Sky.noop=function(){};
+
 if(!({toString:null}).propertyIsEnumerable('toString')){
 	Sky.dontEnums=["toString","toLocaleString","valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable"];
 	Sky.forIn=function(obj,fn){
@@ -1386,7 +1394,10 @@ if(!this.Promise){
 			reject(arg)
 		});
 	};
-}
+}/* 这个polyfill只适合解析URL，
+ * URL对象创建后，属性修改，其他属性不会变化
+ * 如果需要的话，用scenario文件夹的那个polyfill
+  * */
 try{
 	if(new URL(location.href).href){
 		Sky.support.URL=true;
@@ -2479,23 +2490,167 @@ if(document.getElementsByClassName){
 		}
 		return true;
 	}
-	if(document.getElementsByClassName){
-		Sky.getElementsByClassName=function(e,className){
-			return Array.from(e.getElementsByClassName(className));
+	if(document.querySelectorAll){
+		Sky.querySelector=function(selector,e){
+			if(!e || e===document){
+				return Array.from(document.querySelectorAll(selector));
+			}else{
+				var noId=false;
+				if(!e.id){
+					e.id="SKY"+Sky.nextSequence();
+					noId=true;
+				}
+				var r=Array.from(document.querySelectorAll("#"+e.id+" "+selector));
+				if(noId){
+					e.removeAttribute('id');
+				}
+				return r;
+			}
 		};
 	}else{
-		Sky.getElementsByClassName=function(e,className){
-			var result=[];
-			var nodes= e.getElementsByTagName("*");
-			for(var i=0;i<nodes.length;i++){
-				if(Sky.hasClass(nodes[i],className)){
-					result.push(nodes[i]);
+		Sky.querySelector=function(selector,ancestor){
+			ancestor=ancestor || document;
+			var arr,node,result;
+			arr=selector.match(/^#([a-zA-Z0-9_\-]+)$/);
+			if(arr){
+				result=new Array();
+				node=document.getElementById(arr[1]);
+				if(node && (ancestor==document || ancestor.contains(node))){
+					result.push(node);
 				}
+				return result;
 			}
-			return result;
+			arr=selector.match(/^\.([a-zA-Z0-9_\-]+)$/);
+			if(arr){
+				return Sky.getElementsByClassName(ancestor,arr[1]);
+			}
+			selector=formatSelector(selector.replace(/\s+,\s+/g,","));
+			return queryAndConcat(ancestor,selector);
 		};
 	}
-	Sky.matches=function(ele, selector, ancestor, canmid){
+	function formatSelector(selector){
+		return selector.replace(/\s+>\s+/g,">").replace(/\s+/g," ").trim();
+	}
+	function queryAndConcat(ancestor,selector){
+		var arr=selector.split(",");
+		if(arr.length==1){
+			return querySelector(ancestor,arr[0]);
+		}
+		var nodes=[];
+		var i=arr.length;
+		while(i--){
+			selector=arr[i];
+			arr=arr.concat(querySelector(ancestor,selector));
+		}
+		return nodes;
+	}
+	function parseSeriesSelector(selector){
+		return selector.split(">").map(parseNodeSelector);
+	}
+	function queryById(ancestor,nodeInfo){
+		var node=document.getElementById(nodeInfo.id);
+		if(node && ancestor.contains(node)){
+			if(matchesInfo(node,nodeInfo)){
+				return node;
+			}
+		}
+		return null;
+	}
+	function parseSelector(selector){
+		var arr=selector.split(" ");
+		return arr.map(parseSeriesSelector);
+	}
+	function querySelector(ancestor,selector){
+		var rels=parseSelector(selector);
+		if(rels[0].length==1){
+			var first=rels[0][0];
+			if(first.id){
+				first=queryById(ancestor,first);
+				if(first){
+					rels.shift();
+					return queryByRel(first,rels);
+				}
+			}
+		}
+		return queryByRel(ancestor,rels);
+	}
+	function queryByRel(ancestor,rels){
+		var lastGroup=rels[rels.length-1];
+		var lastInfo=lastGroup[lastGroup.length-1];
+		var lasts;
+		if(lastInfo.tagName){
+			lasts=ancestor.getElementsByTagName(lastInfo.tagName);
+		}else{
+			lasts=ancestor.getElementsByTagName("*");
+		}
+		var result=[];
+		for(var i=0;i<lasts.length;i++){
+			var ele=lasts[i];
+			if(checkRels(ancestor,rels,ele)){
+				result.push(ele);
+			}
+		}
+		return result;
+	}
+	function checkRels(ancestor,rels,ele){
+		var i=rels.length-1;
+		var series=rels[i];
+		var next=checkSeries(ancestor,ele,series);
+		if(!next){
+			return false;
+		}
+		if(i<=0){
+			return true;
+		}
+		return !!matches(next,rels,ancestor,i-1);
+	}
+	function checkSeries(ancestor,ele,series){
+		var j=series.length;
+		while(j--){
+			var nodeInfo=series[j];
+			if(matchesInfo(ele,nodeInfo)){
+				ele=ele.parentNode;
+				if(j>0 && ele===ancestor){
+					return null;
+				}
+			}else{
+				return null;
+			}
+		}
+		return ele;
+	}
+	function matches(ele, rels, ancestor,i){
+		var next,first=null;
+		while(i>=0){
+			var series=rels[i];
+			next=checkSeries(ancestor,ele,series);
+			if(next){
+				if(!first){
+					first=ele;
+				}
+				ele=next;
+				i--;
+				continue ;
+			}
+			if(ele===document.body){
+				return false;
+			}
+			ele=ele.parentNode;
+			if(ele===ancestor){
+				return false;
+			}
+		}
+		return first;
+	}
+	/**
+	 * 向上匹配，匹配成功返回匹配到的元素，没有比配到返回null
+	 * **/
+	Sky.matches=function(ele, selector, ancestor){
+		ancestor=ancestor || document;
+		var rels=parseSelector(formatSelector(selector));
+		return matches(ele, rels, ancestor,rels.length-1);
+	};
+	Sky.matchesSelector=function(ele, selector, ancestor){
 		ancestor=ancestor || document;
 		if(ancestor==document){
 			if(ele.matches){
@@ -2508,747 +2663,25 @@ if(document.getElementsByClassName){
 				return ele.mozMatchesSelector(selector);
 			}
 		}
-		if(!ancestor.contains(ele)){
-			return false;
-		}
-		var selectors=parseSelector(selector);
-		if(!canmid){
-			var last=selectors[selectors.length-1];
-			last=last[last.length-1];
-			if(selectors.length==0 && selectors[0].length==0){
-				return matchesInfo(ele,parseNodeSelector(last));
-			}
-		}
-		var parents=[];
-		var parent=ele;
-		while(parent!=ancestor){
-			if(parent){
-				parents.push(parent);
-			}else{
-				break ;
-			}
-			parent=parent.parentNode;
-		}
-		var first;
-		var checkIndex=0;
-		for(var i=0;i<selectors.length;i++){
-			while(true){
-				var several=selectors[selectors.length-1-i];
-				if(several.length+checkIndex>parents.length){
-					return false;
-				}
-				if(!checkSeveral(parents,checkIndex,several)){
-					if(checkIndex==0 && !canmid){
-						return false;
-					}
-					checkIndex++;
-				}else{
-					first=parents[checkIndex];
-					checkIndex+=selectors.length;
-					break ;
-				}
-			}
-		}
-		return first;
+		var rels=parseSelector(formatSelector(selector));
+		return checkRels(ancestor,rels,ele);
 	};
-	function checkSeveral(parents,checkIndex,several){
-		for(var i=0;i<several.length;i++){
-			if(!matchesInfo(parents[checkIndex+i],parseNodeSelector(several[several.length-1-i]))){
-				return false;
-			}
-		}
-		return true;
-	}
-	function parseSelector(selector){
-		selector=selector.replace(/\s+>\s+/g,">").trim();
-		var arr=selector.split(/\s/);
-		return arr.map(function(p){
-			return p.split(">");
-		});
-	}
-	var matches=function(element, selector){
+	Sky.createSelector=function(selector){
 		var nodeInfo=parseNodeSelector(selector);
-		return matchesInfo(element,nodeInfo);
-	};
-	if(document.querySelectorAll){
-		Sky.querySelector=function(e,selector){
-			return Array.from(e.querySelectorAll(selector));
-		};
-	}else{
-		Sky.querySelector=function(e,selector){
-			return Array.from(Sky.query(selector,e));
-		};
-	}
-	var Batch=function(){ Array.call(this);};
-	Batch.prototype=Sky.fn={
-		constructor: Batch,
-		length: 0,
-		indexOf:Array.prototype.indexOf,
-		push:Array.prototype.push,
-		splice:Array.prototype.splice,
-		forEach:Array.prototype.forEach
-	};
-	Sky.ele=function(ele){
-		var nodes=new Batch();
-		if(ele){
-			nodes.push(ele);
+		var tagName=nodeInfo.tagName || "div";
+		var node=document.createElement(tagName);
+		if(nodeInfo.classNames.length) node.className=nodeInfo.classNames.join(" ");
+		nodeInfo.id && (node.id=nodeInfo.id);
+		for(var key in nodeInfo.attribute){
+			node.setAttribute(key,nodeInfo.attribute[key]);
 		}
-		return nodes;
-	};
-	Sky.create=function(selector){
-		var nodes=new Batch();
-		var arr=selector.split(",");
-		for(var i=0;i<arr.length;i++){
-			nodes.push(createNode(arr[i]));
-		}
-		return nodes;
-		function createNode(selector){
-			var nodeInfo=parseNodeSelector(selector);
-			var tagName=nodeInfo.tagName || "div";
-			var node=document.createElement(tagName);
-			if(nodeInfo.classNames.length) node.className=nodeInfo.classNames.join(" ");
-			nodeInfo.id && (node.id=nodeInfo.id);
-			for(var key in nodeInfo.attribute){
-				node.setAttribute(key,nodeInfo.attribute[key]);
-			}
-			var arr=selector.match(/:content\((.*)\)$/);
-			if(arr){
-				node.appendChild(document.createTextNode(arr[1]));
-			}
-			return node;
-		}
-	};
-	Sky.query=function(selector,parent){
-		parent=parent || document;
-		var arr,node;
-		arr=selector.match(/^#([a-zA-Z0-9_\-]+)$/);
-		var nodes=new Batch();
+		var arr=selector.match(/:content\((.*)\)$/);
 		if(arr){
-			node=document.getElementById(arr[1]);
-			if(node && (parent==document || parent.contains(node))){
-				return Sky.ele(node);
-			}
-			return nodes;
+			node.appendChild(document.createTextNode(arr[1]));
 		}
-		arr=selector.match(/^\.([a-zA-Z0-9_\-]+)$/);
-		if(arr){
-			arr=Sky.getElementsByClassName(parent,arr[1]);
-			if(arr.length) nodes.push.apply(nodes,arr);
-			return nodes;
-		}
-		selector=selector.replace(/\s+,\s+/g,",").replace(/\s+>\s+/g,">").replace(/\s+/g," ").trim();
-		return query1(parent,selector);
-	};
-	function query1(ancestor,selector){
-		var arr=selector.split(",");
-		if(arr.length==1){
-			return query2(ancestor,arr[0]);
-		}
-		var nodes=new Batch();
-		arr.forEach(function(selector){
-			query2(ancestor,selector).forEach(function(ele){
-				nodes.push(ele);
-			});
-		});
-		return nodes;
-	}
-	function query2(ancestor,selector){
-		var arr=selector.split(" ");
-		var arr2=[];
-		arr.forEach(function(sub){
-			arr2.push(sub.split(">"));
-		});
-		var nodes=query4(ancestor,arr2[0][0]);
-		for(var i=0;i<arr2.length;i++){
-			for(var j=0;i<arr2.length;i++){
-				if(j==0){
-					if(i!=0){
-						nodes=query3(nodes,arr2[i][0]);
-					}
-				}else{
-					nodes=nodes.children(arr2[i][0]);
-				}
-				if(nodes.length==0){
-					return nodes;
-				}
-			}
-		}
-		return nodes;
-	}
-	function query3(ancestors,selector){
-		var nodes=new Batch();
-		ancestors.forEach(function(ele){
-			var children=query4(ele,selector);
-			for(var i=0; i<children.length; i++){
-				var child=children[i];
-				if(nodes.indexOf(child)<0){
-					nodes.push(child);
-				}
-			}
-		});
-		return nodes;
-	}
-	function query4(e,selector){
-		var r=new Batch();
-		var nodeInfo=parseNodeSelector(selector);
-		if(nodeInfo.id){
-			var node=document.getElementById(nodeInfo.id);
-			if(node){
-				if(e.contains(node)){
-					if(matchesInfo(e,nodeInfo)){
-						r.push(node);
-					}
-				}
-			}
-			return r;
-		}
-		var nodes,i;
-		if(nodeInfo.tagName){
-			nodes= e.getElementsByTagName(nodeInfo.tagName);
-		}else if(nodeInfo.classNames.length>0){
-			nodes=Sky.getElementsByClassName(e,nodeInfo.classNames[0]);
-		}else{
-			nodes=e.getElementsByTagName("*");
-		}
-		for(i=0;i<nodes.length;i++){
-			if(matchesInfo(nodes[i],nodeInfo)){
-				r.push(nodes[i]);
-			}
-		}
-		return r;
-	}
-	Sky.fn.children=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var children=ele.children;
-			for(var i=0; i<children.length; i++){
-				var child=children[i];
-				if(nodes.indexOf(child)<0){
-					if(selector && !matches(child,selector)){
-						continue ;
-					}
-					nodes.push(child);
-				}
-			}
-		});
-		return nodes;
-	};
-	Sky.fn.find=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var children=query1(ele,selector);
-			for(var i=0; i<children.length; i++){
-				var child=children[i];
-				if(nodes.indexOf(child)<0){
-					nodes.push(child);
-				}
-			}
-		});
-		return nodes;
-	};
-	Sky.fn.parent=function(){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var parent=ele.parentNode;
-			if(parent && nodes.indexOf(parent)<0){
-				nodes.push(parent);
-			}
-		});
-		return nodes;
-	};
-	Sky.fn.parents=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var parent=ele;
-			while((parent=parent.parentNode) && parent!=document){
-				if(nodes.indexOf(parent)<0){
-					if(selector && !matches(parent,selector)){
-						continue ;
-					}
-					nodes.push(parent);
-				}
-			};
-		});
-		return nodes;
-	};
-	Sky.fn.parentsUntil=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var parent=ele;
-			while(parent=parent.parentNode){
-				if(nodes.indexOf(parent)<0){
-					nodes.push(parent);
-					if(matches(parent,selector)) break ;
-				}
-			};
-		});
-		return nodes;
-	};
-
-	Sky.fn.siblings=function(selector){
-		return this.parent().children(selector);
-	};
-	Sky.fn.nextAll=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var brother=ele;
-			while(brother=Sky.getNextElement(brother)){
-				if(nodes.indexOf(brother)<0){
-					if(selector && !Sky.matches(brother,selector)){
-						continue ;
-					}
-					nodes.push(parent);
-				}
-			}
-		});
-		return nodes;
-	};
-	Sky.fn.prevAll=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var brother=ele;
-			while(brother=Sky.getPrevElement(brother)){
-				if(nodes.indexOf(brother)<0){
-					if(selector && !Sky.matches(brother,selector)){
-						continue ;
-					}
-					nodes.push(parent);
-				}
-			}
-		});
-		return nodes;
-	};
-	Sky.fn.prev=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var brother=Sky.getPrevElement(ele);
-			if(brother){
-				if(nodes.indexOf(brother)<0){
-					if(selector && !Sky.matches(brother,selector)){
-						return ;
-					}
-					nodes.push(parent);
-				}
-			}
-		});
-		return nodes;
-	};
-	Sky.fn.next=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var brother=Sky.getNextElement(ele);
-			if(brother){
-				if(nodes.indexOf(brother)<0){
-					if(selector && !Sky.matches(brother,selector)){
-						return ;
-					}
-					nodes.push(parent);
-				}
-			}
-		});
-		return nodes;
-	};
-	Sky.fn.nextUntil=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var brother=ele;
-			while(brother=Sky.getNextElement(brother)){
-				if(nodes.indexOf(brother)<0){
-					nodes.push(brother);
-					if(Sky.matches(brother,selector)) break ;
-				}
-			};
-		});
-		return nodes;
-	};
-	Sky.fn.prevUntil=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			var brother=ele;
-			while(brother=Sky.getPrevElement(brother)){
-				if(nodes.indexOf(brother)<0){
-					nodes.push(brother);
-					if(Sky.matches(brother,selector)) break ;
-				}
-			};
-		});
-		return nodes;
-	};
-	Sky.fn.first=function(){
-		if(this.length){
-			var nodes=new Batch();
-			nodes.push(this[0]);
-			return nodes;
-		}
-		return this;
-	};
-	Sky.fn.last=function(){
-		if(this.length){
-			var nodes=new Batch();
-			nodes.push(this[this.length-1]);
-			return nodes;
-		}
-		return this;
-	};
-	Sky.fn.eq=function(index){
-		var nodes=new Batch();
-		nodes.push(this[index]);
-		return nodes;
-	};
-	Sky.fn.filter=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			if(Sky.matches(ele,selector)){
-				nodes.push(ele );
-			}
-		});
-		return nodes;
-	};
-	Sky.fn.not=function(selector){
-		var nodes=new Batch();
-		this.forEach(function(ele){
-			if(!Sky.matches(ele,selector)){
-				nodes.push(ele );
-			}
-		});
-		return nodes;
+		return node;
 	};
 })();
-Sky.fn.each=function(callback){
-	this.forEach(function(item,index){
-		callback.call(item,index);
-	});
-	return this;
-};
-Sky.fn.appendTo=function(parent){
-	if(!parent) return this;
-	if('append' in parent && parent.length>0){
-		parent=parent[0];
-	}
-	if("appendChild" in parent){
-		this.forEach(function(ele){
-			parent.appendChild(ele);
-		});
-	}
-	return this;
-};
-Sky.fn.append=function(){
-	var args=Array.from(arguments,0);
-	args.forEach(function(sub){
-		if(!sub) return ;
-		if(Sky.isString(sub) || Sky.isNumber(sub)){
-			return this.each(function(){
-				var tn=document.createTextNode(sub);
-				this.appendChild(tn);
-			});
-		}else if(sub.appendTo){
-			sub.appendTo(this);
-			return this;
-		}else if(this.length){
-			this[0].appendChild(sub);
-		}
-	},this);
-	return this;
-};
-Sky.fn.prepend=function(sub){
-	if(Sky.isString(sub)){
-		this.forEach(function(parent){
-			var tn=document.createTextNode(sub);
-			if(parent.childNodes.length){
-				parent.insertBefore(tn,parent.firstChild);
-			}else{
-				parent.appendChild(tn);
-			}
-		});
-	}else if(this.length){
-		var parent=this[0];
-		if(sub.each){
-			sub.each(function(){
-				if(parent.childNodes.length){
-					parent.insertBefore(this,parent.firstChild);
-				}else{
-					parent.appendChild(this);
-				}
-			});
-		}else{
-			parent.appendChild(sub);
-		}
-	}
-	return this;
-};
-Sky.fn.before=function(sub){
-	var me=this;
-	if(Sky.isString(sub)){
-		this.forEach(function(dom){
-			var tn=document.createTextNode(sub);
-			var parent=dom.parentNode;
-			if(parent){
-				parent.insertBefore(tn,dom);
-			}
-		});
-	}else if(this.length){
-		var parent=this[0].parentNode;
-		if(parent){
-			if(sub.each){
-				sub.each(function(dom){
-					parent.insertBefore(this,me[0]);
-				});
-			}else{
-				parent.insertBefore(sub);
-			}
-		}
-	}
-	return this;
-};
-Sky.fn.after=function(sub){
-	if(Sky.isString(sub)){
-		this.forEach(function(dom){
-			var tn=document.createTextNode(sub);
-			var parent=dom.parentNode;
-			if(parent){
-				if(dom.nextSibling){
-					parent.insertBefore(tn,dom.nextSibling);
-				}else{
-					parent.appendChild(tn);
-				}
-			}
-		});
-	}else if(this.length){
-		var dom=this[0];
-		var parent=dom.parentNode;
-		if(parent){
-			if(sub.each){
-				sub.each(function(){
-					if(dom.nextSibling){
-						parent.insertBefore(this,dom.nextSibling);
-					}else{
-						parent.appendChild(this);
-					}
-				});
-			}else{
-				if(dom.nextSibling){
-					parent.insertBefore(sub,dom.nextSibling);
-				}else{
-					parent.appendChild(sub);
-				}
-			}
-		}
-	}
-	return this;
-};
-Sky.fn.addClass=function(className){
-	this.forEach(function(dom){
-		Sky.addClass(dom,className);
-	});
-	return this;
-};
-Sky.fn.removeClass=function(className){
-	this.forEach(function(dom){
-		Sky.removeClass(dom,className);
-	});
-	return this;
-};
-Sky.fn.toggleClass=function(className){
-	this.forEach(function(dom){
-		Sky.toggleClass(dom,className);
-	});
-	return this;
-};
-Sky.fn.hasClass=function(className){
-	for(var i=0;i<this.length;i++){
-		if(Sky.hasClass(this[i],className)){
-			return true;
-		}
-	}
-	return false;
-};
-if(document.addEventListener){
-	Sky.support.cssFloat="cssFloat";
-}else{
-	Sky.support.cssFloat="styleFloat";
-}
-Sky.fn.css=function(name,value){
-	if(Sky.isString(name)){
-		name=name.replace(/\-\w/g,function(str){
-			return str.toUpperCase();
-		});
-		if(value){
-			if(name=="float"){
-				name=Sky.support.cssFloat;
-			}
-			this.forEach(function(ele){
-				ele.style[name]=value;
-			});
-		}else if(Sky.isString(name)){
-			this.forEach(function(ele){
-				ele.style.cssText=name;
-			});
-		}
-	}else{
-		this.forEach(function(ele){
-			Sky.forOwn(name,function(value,key){
-				if(key=="float"){
-					key=Sky.support.cssFloat;
-				}
-				ele.style[key]=value;
-			});
-		});
-	}
-	return this;
-};
-Sky.fn.prop=function(key,value){
-	if(value!==undefined){
-		for(var i=0;i<this.length;i++){
-			this[i][key]=value;
-		}
-		return this;
-	}else{
-		if(this.length>0){
-			return this[0][key];
-		}
-	}
-};
-Sky.fn.attr=function(key,value){
-	switch(key.toLowerCase()){
-		case "class":
-			console.error("'XXX.prop(\"className\")' XXX.addClass(\""+Sky.escapeString(value)+"\") is recommended");
-			return this.prop("className",value);
-		case "style":
-			console.error("'XXX.css(\""+Sky.escapeString(value)+"\")' is recommended");
-			return this.css(value);
-	}
-	if(value!==undefined){
-		for(var i=0;i<this.length;i++){
-			this[i].setAttribute(key,value);
-		}
-		return this;
-	}else{
-		if(this.length>0){
-			return this[0].getAttribute(key);
-		}
-	}
-};
-Sky.fn.removeAttr=function(key){
-	switch(key.toLowerCase()){
-		case "class":
-			console.error("'XXX.prop(\"className\",\"\")' is recommended");
-			return this.prop("className","");
-		case "style":
-			console.error("'XXX.css(\"\")' is recommended");
-			return this.css("");
-	}
-	for(var i=0;i<this.length;i++){
-		this[i].removeAttribute(key);
-	}
-	return this;
-};
-Sky.fn.html=function(value){
-	if(value){
-		this.empty();
-	}
-	return this.prop("innerHTML",value);
-};
-Sky.fn.text=function(value){
-	var node,tag;
-	if(value!=undefined){
-		for(var i=0;i<this.length;i++){
-			node=this[i];
-			tag=node.tagName.toUpperCase();
-			switch(tag){
-				case "TEXTAREA":
-				case "INPUT":
-				case "SELECT":
-					break;
-				default:
-					node.innerHTML=Sky.escapeHtml(value);
-			}
-		}
-		return this;
-	}else{
-		if(this.length>0){
-			node=this[0];
-			if('textContent' in node){
-				return node.textContent;
-			}
-			return node.innerText;
-		}
-	}
-};
-Sky.fn.val=function(value){
-	return this.prop("value",value);
-};
-
-Sky.domData=new Map();
-Sky.fn.data=function(key,value){
-	var node;
-	if(value!==undefined){//set
-		for(var i=0;i<this.length;i++){
-			node=this[i];
-			var data=Sky.domData.get(node);
-			if(!Sky.isDefined(data)) data={};
-			data[key]=value;
-			Sky.domData.set(node,data);
-		}
-		return this;
-	}else{//get
-		if(this.length>0){
-			node=this[0];
-			var data=Sky.domData.get(node);
-			value=data[key];
-			if(value!==undefined){
-				return value;
-			}
-			var attr="data-"+key;
-			if(node.hasAttribute(attr)){
-				value=node.getAttribute(attr);
-				return value;
-			}
-		}
-	}
-};
-Sky.fn.removeData=function(key,value){
-	this.forEach(function(node){
-		Sky.domData["delete"](node);
-	});
-	return this;
-};
-Sky.fn.hide=function(){
-	return this.css("display","none");
-};
-Sky.fn.show=function(){
-	return this.css("display","");
-};
-Sky.fn.remove=function(selector){
-	var r=this;
-	if(selector){
-		r=this.filter(selector);
-	}
-	r.forEach(function(item){
-		var parent=item.parentNode;
-		if(parent) parent.removeChild(item);
-	});
-	return this;
-};
-Sky.fn.destroy=function(){
-	var $children=this.children();
-	if($children.length) $children.destroy();
-	this.forEach(function(dom){
-		var parent=dom.parentNode;
-		var data=Sky.domData.get(dom);
-		Sky.domData["delete"](dom);
-		Sky.detachEvent(dom);
-		for(var prop in dom){
-			if(prop.startsWith("on")) dom[prop]=null;
-		}
-		if(parent) parent.removeChild(dom);
-	});
-	this.splice(0,this.length);
-	return this;
-};
-Sky.fn.empty=function(){
-	this.children().destroy();
-	return this.prop("innerHTML",'');
-};
 (function(window){
 	if(document.addEventListener){
 		Sky.attachEvent=function(obj, evt, func){
@@ -3273,12 +2706,12 @@ Sky.fn.empty=function(){
 			e.fireEvent("on"+eventName);
 		};
 	}
-	var stopPropagation=function(){
+	function stopPropagation(){
 		this.cancelBubble=true;
-	};
-	var preventDefault=function(){
+	}
+	function preventDefault(){
 		this.returnValue=false;
-	};
+	}
 	var eventMap=new Map();
 	var proxyMap=new Map();
 	proxyMap.addEvent=function(ele,evt,proxyHandle){
@@ -3309,7 +2742,7 @@ Sky.fn.empty=function(){
 					return true;
 				}
 			}
-			Sky.detachEvent(ele,evt,handle.target);
+			Sky.detachEvent(ele,evt,handle);
 			return false;
 		});
 		this.set(ele,arr);
@@ -3483,135 +2916,41 @@ Sky.fn.empty=function(){
 			e.target || (e.target=e.srcElement);
 			e.stopPropagation || (e.stopPropagation=stopPropagation);
 			e.preventDefault || (e.preventDefault=preventDefault);
-			var me=Sky.matches(e.target, selector, ele, true);
+			e.currentTarget || (e.currentTarget=ele);
+			var me=Sky.matches(e.target, selector, ele);
 			if(me){
-				return func.call(me,e);
+				var related;
+				switch(evt){
+					case 'mouseleave':
+						related=e.relatedTarget || e.toElement;
+						break;
+					case 'mouseenter':
+						related=e.relatedTarget || e.fromElement;
+						break;
+					default:
+						return func.call(me,e);
+				}
+				if(!related || (related!==me && !me.contains(related)) ){
+					return func.call(me, e);
+				}
 			}
 		};
 		proxyHandle.target=func;
 		proxyHandle.element=ele;
 		proxyHandle.selector=selector;
 		proxyHandle.event=evt;
-		proxyMap.addEvent(ele,evt,proxyHandle);
+		switch(evt){
+			case 'mouseleave':
+				proxyMap.addEvent(ele,'mouseout',proxyHandle);
+				break;
+			case 'mouseenter':
+				proxyMap.addEvent(ele,'mouseover',proxyHandle);
+				break;
+			default:
+				proxyMap.addEvent(ele,evt,proxyHandle);
+		}
 	};
 	Sky.undelegate=function(ele,evt,selector,func){
 		proxyMap.removeEvent(ele, evt, func, selector);
 	};
-
-
-	Sky.fn.bind=function(evt,func){
-		this.forEach(function(ele){
-			Sky.attachEvent(ele,evt,func);
-		});
-		return this;
-	};
-	Sky.fn.unbind=function(evt,func){
-		this.forEach(function(ele){
-			Sky.detachEvent(ele,evt,func);
-		});
-		return this;
-	};
-	Sky.fn.on=function(evt,selector,func){
-		if(func){
-			return this.delegate(evt,selector,func);
-		}
-		func=selector;
-		this.forEach(function(ele){
-			Sky.addEvent(ele,evt,func);
-		});
-		return this;
-	};
-	Sky.fn.delegate=function(evt,selector,func){
-		this.forEach(function(ele){
-			Sky.delegate(ele,evt,selector,func);
-		});
-		return this;
-	};
-	Sky.fn.undelegate=function(ele,evt,selector,func){
-		return this.forEach(function(ele){
-			Sky.undelegate(ele,evt,selector,func);
-		});
-		return this;
-	};
-	Sky.fn.off=function(evt,arg2,arg3){
-		var selector,func;
-		if(Sky.isString(arg2)){
-			selector=arg2;
-			if(Sky.isFunction(arg3)){
-				func=arg3;
-			}
-		}else if(Sky.isFunction(arg2)){
-			func=arg2;
-		}
-		this.forEach(function(ele){
-			var proxyList=proxyMap.get(ele);
-			if(!proxyList) return ;
-			var arr=proxyList.filter(function(handle){
-				if(evt){
-					if(handle.event!=evt){
-						return false;
-					}
-				}
-				if(selector){
-					if(handle.selector!=selector){
-						return false;
-					}
-				}
-				if(func){
-					if(handle.target!=func){
-						return false;
-					}
-				}
-				Sky.detachEvent(ele,evt,handle);
-				return true;
-			});
-			for(var i=arr.length-1;i>=0;i--){
-				proxyList.splice(i,1);
-			}
-		});
-		return this
-	};
 })(this);
-Sky.fn.trigger=function(event){
-	this.forEach(function(dom){
-		Sky.trigger(dom,event);
-	});
-	return this;
-};
-Sky.fn.mouseenter=function(func){
-	return this.each(function(){
-		Sky.addEvent(this,"mouseenter",func);
-	});
-};
-Sky.fn.mouseleave=function(func){
-	return this.each(function(){
-		Sky.addEvent(this,"mouseleave",func);
-	});
-};
-Sky.fn.click=function(callback){
-	if(callback){
-		return this.on('click',callback);
-	}
-	return this.each(function(){
-		this.click();
-	});
-};
-if("ontouchstart" in document){
-	Sky.fn.tap=function(callback){
-		var lastTouchTime;
-		return this.on("touchstart",function(e){
-			lastTouchTime=Date.now();
-		}).on("touchend",function(e){
-			if(Date.now()-lastTouchTime<200){
-				callback.call(this,e);
-			}
-		});
-	};
-}else{
-	Sky.fn.tap=Sky.fn.click;
-}
-Sky.fn.input=function(func){
-	return this.each(function(){
-		Sky.addEvent(this,"input",func);
-	});
-};

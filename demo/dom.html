@@ -45,21 +45,24 @@
 	<pre><code>Sky.getElementsByClassName(document,"btn")</code></pre>
 	<p>
 		<a class="btn btn-primary" href='javascript:void 0' onclick='Sky.getElementsByClassName(this.parentNode, "btn")[1].innerHTML="button"'>Sky.getElementsByClassName(this.parentNode, "btn")[1].innerHTML="button"</a>
-		<a class="btn btn-primary" href='http://www.linsk.us/'>btn</a>
+		<a class="btn btn-primary" href='http://shengdiyage.us/'>btn</a>
 	</p>
-	<h3 id="matches">Sky.matches(element, selector)</h3>
-	<p>判断一个元素是否满足id css attribute，匹配成功返回匹配到的元素，不匹配返回false。</p>
-	<p>
-		<a class="btn btn-primary" href='javascript:void 0' onclick='alert(!!Sky.matches(this, ".btn",null,true))'>alert(Sky.matches(this, ".btn"))</a>
-		<a class="btn btn-primary" href='javascript:void 0' onclick='alert(Sky.matches(this, ".button"))'>alert(Sky.matches(this, ".button"))</a>
-	</p>
-	<h3 id="querySelector">Sky.querySelector(element, selector)</h3>
+	<h3 id="matches">Sky.matchesSelector(element, selector, ancestor)</h3>
+	<p>判断一个元素是否满足id css attribute。</p>
+	<div class="btn-toolbar" id="matches-eg">
+		<button class="btn btn-default" type="button" onclick='alert(Sky.matchesSelector(this, ".btn"))'>alert(Sky.matchesSelector(this, ".btn"))</button>
+		<button class="btn btn-default" type="button" onclick='alert(Sky.matchesSelector(this, ".button"))'>alert(Sky.matchesSelector(this, ".button"))</button>
+	</div>
+	<h3 id="querySelector">Sky.querySelector(selector, element)</h3>
 	<p>多个元素是否满足id css attribute，返回一个Array不是HTMLCollection。</p>
-	<p class="query-eg">
-		<a class="btn btn-primary" href='javascript:void 0' onclick='Sky.querySelector(document, ".container-fluid .query-eg .btn")[0].innerHTML="button"'>
-			Sky.querySelector(document, ".container-fluid .query-eg .btn,.query-eg")[0].innerHTML="button"
-		</a>
-	</p>
+	<div class="btn-toolbar" id="query-eg">
+		<button type="button" class="btn btn-default" href='javascript:void 0' onclick='Sky.querySelector( ".container-fluid .btn-toolbar button")[2].disabled=true'>
+			Sky.querySelector( ".container-fluid .btn-toolbar button")[2].disabled=true
+		</button>
+		<button type="button" class="btn btn-default" href='javascript:void 0' onclick='Sky.querySelector(".btn",Sky.byId("query-eg"))[1].disabled=true'>
+			Sky.querySelector(".btn",Sky.byId("query-eg"))[1].disabled=true
+		</button>
+	</div>
 	<h3 id="getFormData">Sky.getFormData setFormData</h3>
 	<form method="post" name="form1">
 		<label>text<input name="text" type="text" value="text"/></label><br/>

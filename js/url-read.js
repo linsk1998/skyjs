@@ -1,4 +1,7 @@
-
+/* 这个polyfill只适合解析URL，
+ * URL对象创建后，属性修改，其他属性不会变化
+ * 如果需要的话，用scenario文件夹的那个polyfill
+  * */
 try{
 	if(new URL(location.href).href){
 		Sky.support.URL=true;

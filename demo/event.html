@@ -31,11 +31,11 @@
 		<p>只推荐在各个浏览器差异十分了解的情况下使用。</p>
 	</div>
 	<h3 id="addEvent">Sky.addEvent Sky.removeEvent Sky.trigger</h3>
-	<p>批量绑定事件 解除绑定 触发事件</p>
+	<p>绑定事件 解除绑定 触发事件</p>
 	<div class="btn-toolbar">
 		<a class="btn btn-primary" href='javascript:Sky.addEvent(Sky.byId("bindBtn"),"click",testHandle2);void 0'>绑定事件</a>
 		<a class="btn btn-primary" href='javascript:Sky.removeEvent(Sky.byId("bindBtn"),"click",testHandle2);void 0'>解除绑定</a>
-		<a class="btn btn-default vertical-align" href='javascript:void 0' id="bindBtn"><span class="vertical-align-middle">测试按钮</span> <span class="badge">2</span></a>
+		<a class="btn btn-default" href='javascript:void 0' id="bindBtn"><span class="align-middle">测试按钮</span> <span class="badge">2</span></a>
 	</div>
 	<div class="alert alert-info">
 		<p>绑定后可以会记录到一个内部变量中，解除绑定时可以解除多个。</p>
@@ -53,30 +53,19 @@
 	<h3 id="delegate">Sky.delegate Sky.undelegate</h3>
 	<p>父被选元素的子元素添加事件</p>
 	<div class="alert alert-info" id="delegateWrap">
-		<a class="btn btn-default vertical-align" href='javascript:void 0'><span class="vertical-align-middle">测试按钮</span> <span class="badge">2</span></a>
-		<a class="btn btn-default vertical-align" href='javascript:void 0'><span class="vertical-align-middle">测试按钮</span> <span class="badge">2</span></a>
+		<a class="btn btn-default" href='javascript:void 0'><span class="align-middle">测试按钮</span> <span class="badge">2</span></a>
+		<a class="btn btn-default" href='javascript:void 0'><span class="align-middle">测试按钮</span> <span class="badge">2</span></a>
 	</div>
-	<a class="btn btn-primary" href='javascript:void 0'>添加元素</a>
 	<script>
-		Sky.getPrevElement(Sky.getCurrentScript()).onclick=function(){
-			$("#delegateWrap").append(
-				" ",
-				$("a.btn.btn-default.vertical-align").attr("href","javascript:void 0").append(
-					$("span.vertical-align-middle").append("新测试按钮"),
-					" ",
-					$("span.badge").append("2")
-				)
-			);
-		};
 		function testHandle3(e){
 			alert("事件测试");
 			alert(e.currentTarget.className);//alert alert-info
 			alert(this.className);//btn btn-default
-			alert(e.target.className);//btn btn-default OR badge
+			alert(e.target.className);//btn btn-default OR align-middle OR badge
 		}
 	</script>
-	<a class="btn btn-primary" href='javascript:$("#delegateWrap").delegate("click",".btn",testHandle3);void 0'>绑定事件</a>
-	<a class="btn btn-primary" href='javascript:$("#delegateWrap").undelegate("click",testHandle3);void 0'>解除绑定</a>
+	<a class="btn btn-primary" href='javascript:Sky.delegate(Sky.byId("delegateWrap"),"click",".btn",testHandle3);void 0'>绑定事件</a>
+	<a class="btn btn-primary" href='javascript:Sky.undelegate(Sky.byId("delegateWrap"),"click",".btn",testHandle3);void 0'>解除绑定</a>
 	<h3 id="mouseenter">Sky.fn.mouseenter Sky.fn.mouseleave</h3>
 	<div id="mouseenter1" style="background:#999; padding:10px 0; position:relative;">
 		aa
@@ -88,24 +77,13 @@
 	<script>
 		var mouseenter=0;
 		var mouseleave=0;
-		$("#mouseenter1").mouseenter(function(){
+		Sky.addEvent(Sky.byId("mouseenter1"),'mouseenter',function(){
 			mouseenter=Sky.nextSequence("mouseenter");
-			$("#mouseenter2").text("mouseenter:"+mouseenter+"，mouseleave:"+mouseleave);
+			Sky.byId("mouseenter2").innerHTML=("mouseenter:"+mouseenter+"，mouseleave:"+mouseleave);
 		});
-		$("#mouseenter1").mouseleave(function(){
+		Sky.addEvent(Sky.byId("mouseenter1"),'mouseleave',function(){
 			mouseleave=Sky.nextSequence("mouseleave");
-			$("#mouseenter2").text("mouseenter:"+mouseenter+"，mouseleave:"+mouseleave);
-		});
-	</script>
-	<h3 id="tap">Sky.fn.tap</h3>
-	<p>轻按事件绑定</p>
-	<div id="tapWrap" class="alert alert-info">鼠标轻按</div>
-	<script>
-		Sky.query("#tapWrap").tap(function(){
-			alert("tap");
-		});
-		$("#tapWrap2").bind("touchstart",function(){
-			alert("tap");
+			Sky.byId("mouseenter2").innerHTML=("mouseenter:"+mouseenter+"，mouseleave:"+mouseleave);
 		});
 	</script>
 	<h3 id="input">Sky.fn.input</h3>
@@ -116,7 +94,7 @@
 	<script>
 		var textNode=document.createTextNode("");
 		Sky.getPrevElement(document.inputForm).appendChild(textNode);
-		$(document.inputForm.eg).input(function(){
+		Sky.addEvent(document.inputForm.eg,'input',function(){
 			textNode.data=this.value;
 		});
 	</script>
