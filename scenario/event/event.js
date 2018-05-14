@@ -3,11 +3,15 @@ function EventEmitter(){
 	this._events=new Array();
 }
 EventEmitter.prototype._events=null;
-EventEmitter.prototype.on=function(ev,fn){
-	this._events.push({'ev':ev,'fn':fn,'after':false});
+EventEmitter.prototype.on=function(ev,fn,after){
+	after=!!after;
+	this._events.push({'ev':ev,'fn':fn,'after':after});
+};
+EventEmitter.prototype.before=function(ev,fn){
+	EventEmitter.prototype.on.call(ev,fn);
 };
 EventEmitter.prototype.after=function(ev,fn){
-	this._events.push({'ev':ev,'fn':fn,'after':true});
+	EventEmitter.prototype.on.call(ev,fn,true);
 };
 EventEmitter.prototype.off=function(ev,fn){
 	var events=this._events;

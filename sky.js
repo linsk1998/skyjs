@@ -122,7 +122,7 @@ if(this.HTMLElement){
 $.isDocument=function(obj){
 	return obj===document;
 };
-var Sky=$;
+Sky=this.Sky || this.$ || new Object();
 Sky.support={};
 (function(){
 	var userAgent = navigator.userAgent.toLowerCase();

@@ -163,7 +163,24 @@ if(!Array.prototype.every){
 		return passed;
 	};
 }
-
+(function(){
+	function Iterator(arr){
+		this.array=arr;
+		this.i=0;
+	}
+	Iterator.prototype.next=function(){
+		var result={};
+		result.done=this.array.length>this.i;
+		result.value=this.array[this.i];
+		if(!result.done){
+			this.i++;
+		}
+		return result;
+	};
+	Array.prototype.entries=function(){
+		return new Iterator(this);
+	};
+})();
 (function(){
 	/** 时间对象的格式化; **/
 	/* eg:format="%Y-%m-%d %H:%M:%S"; */
@@ -318,6 +335,9 @@ if(!this.Map){
 	Map=function(){
 		this.items=[];
 		this.size=0;
+	};
+	Map.prototype.entries=function(){
+		return this.items.entries();
 	};
 	Map.prototype.clear=function(){
 		this.items.splice(0,this.items.length);
