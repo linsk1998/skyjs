@@ -546,7 +546,24 @@ if(!Array.prototype.every){
 		return passed;
 	};
 }
-
+(function(){
+	function Iterator(arr){
+		this.array=arr;
+		this.i=0;
+	}
+	Iterator.prototype.next=function(){
+		var result={};
+		result.done=this.array.length>this.i;
+		result.value=this.array[this.i];
+		if(!result.done){
+			this.i++;
+		}
+		return result;
+	};
+	Array.prototype.entries=function(){
+		return new Iterator(this);
+	};
+})();
 (function(){
 	/** 时间对象的格式化; **/
 	/* eg:format="%Y-%m-%d %H:%M:%S"; */
@@ -702,6 +719,9 @@ if(!this.Map){
 		this.items=[];
 		this.size=0;
 	};
+	Map.prototype.entries=function(){
+		return this.items.entries();
+	};
 	Map.prototype.clear=function(){
 		this.items.splice(0,this.items.length);
 		this.size=0;
@@ -721,7 +741,7 @@ if(!this.Map){
 	Map.prototype.forEach=function(callbackfn,thisArg){
 		for(var i=0,j;i<this.size; i++){
 			j=this.items[i];
-			callbackfn.call(thisArg,j[0],j[1],i,this);
+			callbackfn.call(thisArg,j[1],j[0],i,this);
 		}
 	};
 	Map.prototype.get=function(key){

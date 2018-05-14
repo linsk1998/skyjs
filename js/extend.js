@@ -358,7 +358,7 @@ if(!this.Map){
 	Map.prototype.forEach=function(callbackfn,thisArg){
 		for(var i=0,j;i<this.size; i++){
 			j=this.items[i];
-			callbackfn.call(thisArg,j[0],j[1],i,this);
+			callbackfn.call(thisArg,j[1],j[0],i,this);
 		}
 	};
 	Map.prototype.get=function(key){
