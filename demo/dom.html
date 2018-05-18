@@ -40,9 +40,9 @@
 	<p>获取前一个元素节点 获取后一个元素节点。排除文本节点之类的。</p>
 	<h3 id="getPageTop">Sky.getPageTop getPageLeft</h3>
 	<p>获取元素的位置。</p>
-	<h3 id="getElementsByClassName">Sky.getElementsByClassName</h3>
+	<h3 id="getElementsByClassName">Sky.getElementsByClassName(selector, ancestor)</h3>
 	<p>根据一个类样式查找元素，返回一个Array不是HTMLCollection。</p>
-	<pre><code>Sky.getElementsByClassName(document,"btn")</code></pre>
+	<pre><code>Sky.getElementsByClassName("btn")</code></pre>
 	<p>
 		<a class="btn btn-primary" href='javascript:void 0' onclick='Sky.getElementsByClassName(this.parentNode, "btn")[1].innerHTML="button"'>Sky.getElementsByClassName(this.parentNode, "btn")[1].innerHTML="button"</a>
 		<a class="btn btn-primary" href='http://shengdiyage.us/'>btn</a>
@@ -53,7 +53,7 @@
 		<button class="btn btn-default" type="button" onclick='alert(Sky.matchesSelector(this, ".btn"))'>alert(Sky.matchesSelector(this, ".btn"))</button>
 		<button class="btn btn-default" type="button" onclick='alert(Sky.matchesSelector(this, ".button"))'>alert(Sky.matchesSelector(this, ".button"))</button>
 	</div>
-	<h3 id="querySelector">Sky.querySelector(selector, element)</h3>
+	<h3 id="querySelector">Sky.querySelector(selector, ancestor)</h3>
 	<p>多个元素是否满足id css attribute，返回一个Array不是HTMLCollection。</p>
 	<div class="btn-toolbar" id="query-eg">
 		<button type="button" class="btn btn-default" href='javascript:void 0' onclick='Sky.querySelector( ".container-fluid .btn-toolbar button")[2].disabled=true'>

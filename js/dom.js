@@ -230,11 +230,13 @@ Sky.clearFormData=function(form){
 	}
 };
 if(document.getElementsByClassName){
-	Sky.getElementsByClassName=function(e,className){
+	Sky.getElementsByClassName=function(className,e){
+		e=e||document;
 		return Array.from(e.getElementsByClassName(className));
 	};
 }else{
-	Sky.getElementsByClassName=function(e,className){
+	Sky.getElementsByClassName=function(className,e){
+		e=e||document;
 		var result=[];
 		var nodes= e.getElementsByTagName("*");
 		for(var i=0;i<nodes.length;i++){
@@ -245,3 +247,20 @@ if(document.getElementsByClassName){
 		return result;
 	};
 }
+Sky.destroy=function(ele){
+	for(var key in ele){
+		if(key.startsWith('on')){
+			ele[key]=null;
+		}
+	}
+	Sky.removeEvent(ele);
+	var i=ele.childNodes.length;
+	while(i--){
+		var child=ele.childNodes[i];
+		Sky.removeEvent(child);
+	}
+	var parent=ele.parentNode;
+	if(parent){
+		parent.removeChild(ele);
+	}
+};

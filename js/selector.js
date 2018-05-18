@@ -77,7 +77,7 @@
 			}
 			arr=selector.match(/^\.([a-zA-Z0-9_\-]+)$/);
 			if(arr){
-				return Sky.getElementsByClassName(ancestor,arr[1]);
+				return Sky.getElementsByClassName(arr[1],ancestor);
 			}
 			selector=formatSelector(selector.replace(/\s+,\s+/g,","));
 			return queryAndConcat(ancestor,selector);

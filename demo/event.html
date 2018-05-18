@@ -66,7 +66,7 @@
 	</script>
 	<a class="btn btn-primary" href='javascript:Sky.delegate(Sky.byId("delegateWrap"),"click",".btn",testHandle3);void 0'>绑定事件</a>
 	<a class="btn btn-primary" href='javascript:Sky.undelegate(Sky.byId("delegateWrap"),"click",".btn",testHandle3);void 0'>解除绑定</a>
-	<h3 id="mouseenter">Sky.fn.mouseenter Sky.fn.mouseleave</h3>
+	<h3 id="mouseenter">mouseenter mouseleave事件</h3>
 	<div id="mouseenter1" style="background:#999; padding:10px 0; position:relative;">
 		aa
 		<div id="mouseenter2" style="background:#333; color:#FFF; padding:10px 0;">
@@ -78,15 +78,15 @@
 		var mouseenter=0;
 		var mouseleave=0;
 		Sky.addEvent(Sky.byId("mouseenter1"),'mouseenter',function(){
-			mouseenter=Sky.nextSequence("mouseenter");
+			mouseenter++;
 			Sky.byId("mouseenter2").innerHTML=("mouseenter:"+mouseenter+"，mouseleave:"+mouseleave);
 		});
 		Sky.addEvent(Sky.byId("mouseenter1"),'mouseleave',function(){
-			mouseleave=Sky.nextSequence("mouseleave");
+			mouseleave++;
 			Sky.byId("mouseenter2").innerHTML=("mouseenter:"+mouseenter+"，mouseleave:"+mouseleave);
 		});
 	</script>
-	<h3 id="input">Sky.fn.input</h3>
+	<h3 id="input">input事件</h3>
 	<p>监视输入:</p>
 	<form name="inputForm">
 		<input type="text" value="" name="eg">
