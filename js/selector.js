@@ -38,7 +38,7 @@
 		for(var key in nodeInfo.attribute){
 			var value=nodeInfo.attribute[key];
 			if(value===null){
-				if(!element.hasAttribute(key)) return false;
+				if(!element.getAttribute(key)) return false;
 			}else{
 				if(element.getAttribute(key)!=value) return false;
 			}

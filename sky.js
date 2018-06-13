@@ -389,6 +389,15 @@ if(!Object.create){
 		return new F();
 	};
 }
+if(!Object.values){
+	Object.values=function(obj){
+		var result=[];
+		Sky.forOwn(obj,function(value,key){
+			result.push(obj[key]);
+		});
+		return result;
+	};
+}
 if(!Object.keys){
 	Object.keys=function(obj){
 		var result=[];
@@ -446,7 +455,15 @@ if(Sky.support.__defineSetter__){
 }
 if(!Array.from){
 	Array.from=function(arrayLike, mapFn, thisArg){
-		var arr=Array.prototype.slice.call(arrayLike);
+		var arr;
+		try{
+			arr=Array.prototype.slice.call(arrayLike);
+		}catch(e){
+			arr=new Array();
+			for(var i=0;i<arrayLike.length;i++){
+				arr.push(arrayLike[i]);
+			}
+		}
 		if(mapFn){
 			arr=arr.map( mapFn, thisArg);
 		}
@@ -2218,490 +2235,6 @@ Sky.UUID=function() {
 	};
 })();
 
-Sky.byId=function(id){
-	return document.getElementById(id);
-};
-Sky.hasClass=function(obj,cls){
-	if(!obj) return false;
-	return obj.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
-};
-Sky.addClass=function(obj,cls){
-	if(!Sky.hasClass(obj,cls)) obj.className=obj.className.trim()+" "+cls;
-};
-Sky.removeClass=function(obj,cls){
-	if(Sky.hasClass(obj,cls)){
-		var reg = new RegExp('(\\s+|^)'+cls+'(\\s+|$)');
-		obj.className=obj.className.replace(reg,' ');
-	}
-};
-Sky.toggleClass=function(obj,cls){
-	if(Sky.hasClass(obj,cls)){
-		var reg = new RegExp('(\\s+|^)'+cls+'(\\s+|$)');
-		obj.className=obj.className.replace(reg,' ');
-	}else{
-		obj.className=obj.className.trim()+" "+cls;
-	}
-};
-Sky.getElementStyle=function(el, prop){
-	if(el.currentStyle){//IE
-		return el.currentStyle[prop] || el.style[prop];
-	}else if(window.getComputedStyle){//非IE
-		var propprop = prop.replace (/([A-Z])/g, "-$1");
-		propprop = propprop.toLowerCase();
-		var style=window.getComputedStyle(el,null);
-		return style[prop] || style.getPropertyValue(propprop) || el.style[prop];
-	}
-	return '';
-};
-//获取元素位置
-Sky.getPageTop=function(e){
-	var offset;
-	if(e.getBoundingClientRect){
-		offset=e.getBoundingClientRect().top;
-		offset+=Math.max(document.documentElement.scrollTop,document.body.scrollTop);
-		if(Sky.browser.ie7 && !Sky.browser.quirks){
-			//ie7会比正常多两个像素，因为ie7有个边框，我不知道怎么去掉，其他ie浏览器可以使用html{border:0 none;},知道怎么处理的朋友和我说下吧
-			offset-=2;
-		}
-	}else{
-		offset=e.offsetTop;
-		if(e.offsetParent!=null) offset+=Sky.getPageTop(e.offsetParent);
-	}
-	return offset;
-};
-Sky.getPageLeft=function(e){
-	var offset;
-	if(e.getBoundingClientRect){
-		offset=e.getBoundingClientRect().left;
-		offset+=Math.max(document.documentElement.scrollLeft,document.body.scrollLeft);
-		if(Sky.browser.ie7 && !Sky.browser.quirks){
-			offset-=2;
-		}
-	}else{
-		offset=e.offsetLeft;
-		if(e.offsetParent!=null) offset+=Sky.getPageLeft(e.offsetParent);
-	}
-	return offset;
-};
-Sky.getNextElement=function(element){
-	var e = element.nextSibling;
-	if(e == null){ return null;}
-	if(e.nodeType==1){
-		return e;
-	}else{
-		return Sky.getNextElement(e);
-	}
-};
-Sky.getPrevElement=function(element){
-	var e = element.previousSibling;
-	if(e == null){ return null;}
-	if(e.nodeType==1){
-		return e;
-	}else{
-		return Sky.getPrevElement(e);
-	}
-};
-Sky.getFormData=function(form){
-	if(Sky.isString(form)){
-		form=document.forms[form];
-	}
-	if(form.tagName.toUpperCase()!="FORM"){
-		throw "form is not exit";
-	}
-	var o={};
-	for(var i=0; i<form.length; i++){
-		var input=form[i];
-		if(input.name){
-			var arr,name,value;
-			switch (input.type) {
-				case "checkbox":
-					if(input.checked){
-						if(arr=input.name.match(/(.*)\[\]$/)){
-							name=arr[1];
-							value=o[name];
-							if(!value){
-								o[name]=value=[];
-							}
-							if(input.value){
-								value.push(input.value);
-							}else{
-								value.push("on");
-							}
-						}else if(arr=input.name.match(/(.*)\[([^\]]+)\]$/)){
-							name=arr[1];
-							var key=arr[2];
-							value=o[name];
-							if(!value){
-								o[name]=value={};
-							}
-							if(input.value){
-								value[key]=input.value;
-							}else{
-								value[key]="on";
-							}
-						}else{
-							o[input.name]=input.value;
-						}
-					}
-					break;
-				case "radio":
-					if(input.checked){
-						o[input.name]=input.value;
-					}
-					break;
-				default:
-					o[input.name]=input.value;
-			}
-		}
-	}
-	return o;
-};
-Sky.setFormData=function(form,data){
-	if(Sky.isString(form)){
-		form=document.forms[form];
-	}
-	if(form.tagName.toUpperCase()!="FORM"){
-		throw "form is not exit";
-	}
-	for(var i=0; i<form.length; i++){
-		var input=form[i];
-		if(input.name){
-			var arr,name,value;
-			switch (input.type) {
-				case "checkbox":
-					if(data){
-						if(arr=input.name.match(/(.*)\[\]$/)){
-							name=arr[1];
-							if(name in data){
-								value=data[name];
-								if(value.split) value=value.split(",");
-								if(value.indexOf && value.indexOf(input.value)>=0){
-									input.checked=true;
-								}else{
-									input.checked=false;
-								}
-							}
-						}else if(arr=input.name.match(/(.*)\[([^\]]+)\]$/)){
-							name=arr[1];
-							if(name in data){
-								var key=arr[2];
-								value=data[name];
-								if(value && value[key]){
-									input.value=value[key];
-									input.checked=true;
-								}else{
-									input.checked=false;
-								}
-							}
-						}else{
-							if(input.name in data){
-								value=data[input.name];
-								if(value){
-									input.value=value;
-									input.checked=true;
-								}else{
-									input.checked=false;
-								}
-							}
-						}
-					}else{
-						input.checked=false
-					}
-					break;
-				case "radio":
-					if(data){
-						if(input.name in data){
-							input.checked=data[input.name]==input.value;
-						}
-					}else{
-						input.checked=false
-					}
-					break;
-				default:
-					if(data){
-						if(input.name in data){
-							input.value=data[input.name];
-						}
-					}else{
-						input.value="";
-					}
-			}
-		}
-	}
-};
-Sky.clearFormData=function(form){
-	if(Sky.isString(form)){
-		form=document.forms[form];
-	}
-	if(form.tagName.toUpperCase()!="FORM"){
-		throw "form is not exit";
-	}
-	for(var i=0; i<form.length; i++){
-		var input=form[i];
-		switch (input.type) {
-			case "checkbox":
-			case "radio":
-				input.checked=false;
-				break;
-			default:
-				input.value="";
-		}
-	}
-};
-if(document.getElementsByClassName){
-	Sky.getElementsByClassName=function(e,className){
-		return Array.from(e.getElementsByClassName(className));
-	};
-}else{
-	Sky.getElementsByClassName=function(e,className){
-		var result=[];
-		var nodes= e.getElementsByTagName("*");
-		for(var i=0;i<nodes.length;i++){
-			if(Sky.hasClass(nodes[i],className)){
-				result.push(nodes[i]);
-			}
-		}
-		return result;
-	};
-}
-(function(){
-	function parseNodeSelector(selector){
-		var result={};
-		var reg=/^([a-zA-Z0-9_\-]+)/;
-		var arr=selector.match(reg);
-		if(arr){
-			result.tagName=arr[1];
-		}
-		result.classNames=[];
-		reg=/\.([a-zA-Z0-9_\-]+)/g;
-		while(arr=reg.exec(selector)){
-			result.classNames.push(arr[1]);
-		}
-		arr=selector.match(/#([a-zA-Z0-9_\-]+)/);
-		if(arr){
-			result.id=arr[1];
-		}
-		result.attribute={};
-		reg=/\[([a-zA-Z0-9_\-]+)='?([a-zA-Z0-9_\-]+)'?\]/g;
-		while(arr=reg.exec(selector)){
-			result.attribute[arr[1]]=arr[2];
-		}
-		reg=/\[([a-zA-Z0-9_\-]+)\]/g;
-		while(arr=reg.exec(selector)){
-			result.attribute[arr[1]]=null;
-		}
-		return result;
-	}
-	function matchesInfo(element, nodeInfo){
-		if(nodeInfo.tagName && nodeInfo.tagName.toLocaleUpperCase()!=element.tagName.toLocaleUpperCase()) return false;
-		if(nodeInfo.id && nodeInfo.id!=element.id) return false;
-		for(var i=0;i<nodeInfo.classNames.length;i++){
-			if(!Sky.hasClass(element,nodeInfo.classNames[i])){
-				return false;
-			}
-		}
-		for(var key in nodeInfo.attribute){
-			var value=nodeInfo.attribute[key];
-			if(value===null){
-				if(!element.hasAttribute(key)) return false;
-			}else{
-				if(element.getAttribute(key)!=value) return false;
-			}
-		}
-		return true;
-	}
-	if(document.querySelectorAll){
-		Sky.querySelector=function(selector,e){
-			if(!e || e===document){
-				return Array.from(document.querySelectorAll(selector));
-			}else{
-				var noId=false;
-				if(!e.id){
-					e.id="SKY"+Sky.nextSequence();
-					noId=true;
-				}
-				var r=Array.from(document.querySelectorAll("#"+e.id+" "+selector));
-				if(noId){
-					e.removeAttribute('id');
-				}
-				return r;
-			}
-		};
-	}else{
-		Sky.querySelector=function(selector,ancestor){
-			ancestor=ancestor || document;
-			var arr,node,result;
-			arr=selector.match(/^#([a-zA-Z0-9_\-]+)$/);
-			if(arr){
-				result=new Array();
-				node=document.getElementById(arr[1]);
-				if(node && (ancestor==document || ancestor.contains(node))){
-					result.push(node);
-				}
-				return result;
-			}
-			arr=selector.match(/^\.([a-zA-Z0-9_\-]+)$/);
-			if(arr){
-				return Sky.getElementsByClassName(ancestor,arr[1]);
-			}
-			selector=formatSelector(selector.replace(/\s+,\s+/g,","));
-			return queryAndConcat(ancestor,selector);
-		};
-	}
-	function formatSelector(selector){
-		return selector.replace(/\s+>\s+/g,">").replace(/\s+/g," ").trim();
-	}
-	function queryAndConcat(ancestor,selector){
-		var arr=selector.split(",");
-		if(arr.length==1){
-			return querySelector(ancestor,arr[0]);
-		}
-		var nodes=[];
-		var i=arr.length;
-		while(i--){
-			selector=arr[i];
-			arr=arr.concat(querySelector(ancestor,selector));
-		}
-		return nodes;
-	}
-	function parseSeriesSelector(selector){
-		return selector.split(">").map(parseNodeSelector);
-	}
-	function queryById(ancestor,nodeInfo){
-		var node=document.getElementById(nodeInfo.id);
-		if(node && ancestor.contains(node)){
-			if(matchesInfo(node,nodeInfo)){
-				return node;
-			}
-		}
-		return null;
-	}
-	function parseSelector(selector){
-		var arr=selector.split(" ");
-		return arr.map(parseSeriesSelector);
-	}
-	function querySelector(ancestor,selector){
-		var rels=parseSelector(selector);
-		if(rels[0].length==1){
-			var first=rels[0][0];
-			if(first.id){
-				first=queryById(ancestor,first);
-				if(first){
-					rels.shift();
-					return queryByRel(first,rels);
-				}
-			}
-		}
-		return queryByRel(ancestor,rels);
-	}
-	function queryByRel(ancestor,rels){
-		var lastGroup=rels[rels.length-1];
-		var lastInfo=lastGroup[lastGroup.length-1];
-		var lasts;
-		if(lastInfo.tagName){
-			lasts=ancestor.getElementsByTagName(lastInfo.tagName);
-		}else{
-			lasts=ancestor.getElementsByTagName("*");
-		}
-		var result=[];
-		for(var i=0;i<lasts.length;i++){
-			var ele=lasts[i];
-			if(checkRels(ancestor,rels,ele)){
-				result.push(ele);
-			}
-		}
-		return result;
-	}
-	function checkRels(ancestor,rels,ele){
-		var i=rels.length-1;
-		var series=rels[i];
-		var next=checkSeries(ancestor,ele,series);
-		if(!next){
-			return false;
-		}
-		if(i<=0){
-			return true;
-		}
-		return !!matches(next,rels,ancestor,i-1);
-	}
-	function checkSeries(ancestor,ele,series){
-		var j=series.length;
-		while(j--){
-			var nodeInfo=series[j];
-			if(matchesInfo(ele,nodeInfo)){
-				ele=ele.parentNode;
-				if(j>0 && ele===ancestor){
-					return null;
-				}
-			}else{
-				return null;
-			}
-		}
-		return ele;
-	}
-	function matches(ele, rels, ancestor,i){
-		var next,first=null;
-		while(i>=0){
-			var series=rels[i];
-			next=checkSeries(ancestor,ele,series);
-			if(next){
-				if(!first){
-					first=ele;
-				}
-				ele=next;
-				i--;
-				continue ;
-			}
-			if(ele===document.body){
-				return false;
-			}
-			ele=ele.parentNode;
-			if(ele===ancestor){
-				return false;
-			}
-		}
-		return first;
-	}
-	/**
-	 * 向上匹配，匹配成功返回匹配到的元素，没有比配到返回null
-	 * **/
-	Sky.matches=function(ele, selector, ancestor){
-		ancestor=ancestor || document;
-		var rels=parseSelector(formatSelector(selector));
-		return matches(ele, rels, ancestor,rels.length-1);
-	};
-	Sky.matchesSelector=function(ele, selector, ancestor){
-		ancestor=ancestor || document;
-		if(ancestor==document){
-			if(ele.matches){
-				return ele.matches(selector);
-			}else if(ele.matchesSelector){
-				return ele.matchesSelector(selector);
-			}else if(ele.msMatchesSelector){
-				return ele.msMatchesSelector(selector);
-			}else if(ele.mozMatchesSelector){
-				return ele.mozMatchesSelector(selector);
-			}
-		}
-		var rels=parseSelector(formatSelector(selector));
-		return checkRels(ancestor,rels,ele);
-	};
-	Sky.createSelector=function(selector){
-		var nodeInfo=parseNodeSelector(selector);
-		var tagName=nodeInfo.tagName || "div";
-		var node=document.createElement(tagName);
-		if(nodeInfo.classNames.length) node.className=nodeInfo.classNames.join(" ");
-		nodeInfo.id && (node.id=nodeInfo.id);
-		for(var key in nodeInfo.attribute){
-			node.setAttribute(key,nodeInfo.attribute[key]);
-		}
-		var arr=selector.match(/:content\((.*)\)$/);
-		if(arr){
-			node.appendChild(document.createTextNode(arr[1]));
-		}
-		return node;
-	};
-})();
 (function(window){
 	if(document.addEventListener){
 		Sky.attachEvent=function(obj, evt, func){
@@ -2934,6 +2467,9 @@ if(document.getElementsByClassName){
 		var proxyHandle=function(e){
 			e=e || window.event;
 			e.target || (e.target=e.srcElement);
+			if(e.target==document){
+				return ;
+			}
 			e.stopPropagation || (e.stopPropagation=stopPropagation);
 			e.preventDefault || (e.preventDefault=preventDefault);
 			e.currentTarget || (e.currentTarget=ele);
@@ -2974,3 +2510,506 @@ if(document.getElementsByClassName){
 		proxyMap.removeEvent(ele, evt, func, selector);
 	};
 })(this);
+Sky.byId=function(id){
+	return document.getElementById(id);
+};
+Sky.hasClass=function(obj,cls){
+	if(!obj) return false;
+	return obj.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
+};
+Sky.addClass=function(obj,cls){
+	if(!Sky.hasClass(obj,cls)) obj.className=obj.className.trim()+" "+cls;
+};
+Sky.removeClass=function(obj,cls){
+	if(Sky.hasClass(obj,cls)){
+		var reg = new RegExp('(\\s+|^)'+cls+'(\\s+|$)');
+		obj.className=obj.className.replace(reg,' ');
+	}
+};
+Sky.toggleClass=function(obj,cls){
+	if(Sky.hasClass(obj,cls)){
+		var reg = new RegExp('(\\s+|^)'+cls+'(\\s+|$)');
+		obj.className=obj.className.replace(reg,' ');
+	}else{
+		obj.className=obj.className.trim()+" "+cls;
+	}
+};
+Sky.getElementStyle=function(el, prop){
+	if(el.currentStyle){//IE
+		return el.currentStyle[prop] || el.style[prop];
+	}else if(window.getComputedStyle){//非IE
+		var propprop = prop.replace (/([A-Z])/g, "-$1");
+		propprop = propprop.toLowerCase();
+		var style=window.getComputedStyle(el,null);
+		return style[prop] || style.getPropertyValue(propprop) || el.style[prop];
+	}
+	return '';
+};
+//获取元素位置
+Sky.getPageTop=function(e){
+	var offset;
+	if(e.getBoundingClientRect){
+		offset=e.getBoundingClientRect().top;
+		offset+=Math.max(document.documentElement.scrollTop,document.body.scrollTop);
+		if(Sky.browser.ie7 && !Sky.browser.quirks){
+			//ie7会比正常多两个像素，因为ie7有个边框，我不知道怎么去掉，其他ie浏览器可以使用html{border:0 none;},知道怎么处理的朋友和我说下吧
+			offset-=2;
+		}
+	}else{
+		offset=e.offsetTop;
+		if(e.offsetParent!=null) offset+=Sky.getPageTop(e.offsetParent);
+	}
+	return offset;
+};
+Sky.getPageLeft=function(e){
+	var offset;
+	if(e.getBoundingClientRect){
+		offset=e.getBoundingClientRect().left;
+		offset+=Math.max(document.documentElement.scrollLeft,document.body.scrollLeft);
+		if(Sky.browser.ie7 && !Sky.browser.quirks){
+			offset-=2;
+		}
+	}else{
+		offset=e.offsetLeft;
+		if(e.offsetParent!=null) offset+=Sky.getPageLeft(e.offsetParent);
+	}
+	return offset;
+};
+Sky.getNextElement=function(element){
+	var e = element.nextSibling;
+	if(e == null){ return null;}
+	if(e.nodeType==1){
+		return e;
+	}else{
+		return Sky.getNextElement(e);
+	}
+};
+Sky.getPrevElement=function(element){
+	var e = element.previousSibling;
+	if(e == null){ return null;}
+	if(e.nodeType==1){
+		return e;
+	}else{
+		return Sky.getPrevElement(e);
+	}
+};
+Sky.getFormData=function(form){
+	if(Sky.isString(form)){
+		form=document.forms[form];
+	}
+	if(form.tagName.toUpperCase()!="FORM"){
+		throw "form is not exit";
+	}
+	var o={};
+	for(var i=0; i<form.length; i++){
+		var input=form[i];
+		if(input.name){
+			var arr,name,value;
+			switch (input.type) {
+				case "checkbox":
+					if(input.checked){
+						if(arr=input.name.match(/(.*)\[\]$/)){
+							name=arr[1];
+							value=o[name];
+							if(!value){
+								o[name]=value=[];
+							}
+							if(input.value){
+								value.push(input.value);
+							}else{
+								value.push("on");
+							}
+						}else if(arr=input.name.match(/(.*)\[([^\]]+)\]$/)){
+							name=arr[1];
+							var key=arr[2];
+							value=o[name];
+							if(!value){
+								o[name]=value={};
+							}
+							if(input.value){
+								value[key]=input.value;
+							}else{
+								value[key]="on";
+							}
+						}else{
+							o[input.name]=input.value;
+						}
+					}
+					break;
+				case "radio":
+					if(input.checked){
+						o[input.name]=input.value;
+					}
+					break;
+				default:
+					o[input.name]=input.value;
+			}
+		}
+	}
+	return o;
+};
+Sky.setFormData=function(form,data){
+	if(Sky.isString(form)){
+		form=document.forms[form];
+	}
+	if(form.tagName.toUpperCase()!="FORM"){
+		throw "form is not exit";
+	}
+	for(var i=0; i<form.length; i++){
+		var input=form[i];
+		if(input.name){
+			var arr,name,value;
+			switch (input.type) {
+				case "checkbox":
+					if(data){
+						if(arr=input.name.match(/(.*)\[\]$/)){
+							name=arr[1];
+							if(name in data){
+								value=data[name];
+								if(value.split) value=value.split(",");
+								if(value.indexOf && value.indexOf(input.value)>=0){
+									input.checked=true;
+								}else{
+									input.checked=false;
+								}
+							}
+						}else if(arr=input.name.match(/(.*)\[([^\]]+)\]$/)){
+							name=arr[1];
+							if(name in data){
+								var key=arr[2];
+								value=data[name];
+								if(value && value[key]){
+									input.value=value[key];
+									input.checked=true;
+								}else{
+									input.checked=false;
+								}
+							}
+						}else{
+							if(input.name in data){
+								value=data[input.name];
+								if(value){
+									input.value=value;
+									input.checked=true;
+								}else{
+									input.checked=false;
+								}
+							}
+						}
+					}else{
+						input.checked=false
+					}
+					break;
+				case "radio":
+					if(data){
+						if(input.name in data){
+							input.checked=data[input.name]==input.value;
+						}
+					}else{
+						input.checked=false
+					}
+					break;
+				default:
+					if(data){
+						if(input.name in data){
+							input.value=data[input.name];
+						}
+					}else{
+						input.value="";
+					}
+			}
+		}
+	}
+};
+Sky.clearFormData=function(form){
+	if(Sky.isString(form)){
+		form=document.forms[form];
+	}
+	if(form.tagName.toUpperCase()!="FORM"){
+		throw "form is not exit";
+	}
+	for(var i=0; i<form.length; i++){
+		var input=form[i];
+		switch (input.type) {
+			case "checkbox":
+			case "radio":
+				input.checked=false;
+				break;
+			default:
+				input.value="";
+		}
+	}
+};
+if(document.getElementsByClassName){
+	Sky.getElementsByClassName=function(className,e){
+		e=e||document;
+		return Array.from(e.getElementsByClassName(className));
+	};
+}else{
+	Sky.getElementsByClassName=function(className,e){
+		e=e||document;
+		var result=[];
+		var nodes= e.getElementsByTagName("*");
+		for(var i=0;i<nodes.length;i++){
+			if(Sky.hasClass(nodes[i],className)){
+				result.push(nodes[i]);
+			}
+		}
+		return result;
+	};
+}
+Sky.destroy=function(ele){
+	for(var key in ele){
+		if(key.startsWith('on')){
+			ele[key]=null;
+		}
+	}
+	Sky.removeEvent(ele);
+	var i=ele.childNodes.length;
+	while(i--){
+		var child=ele.childNodes[i];
+		Sky.removeEvent(child);
+	}
+	var parent=ele.parentNode;
+	if(parent){
+		parent.removeChild(ele);
+	}
+};
+(function(){
+	function parseNodeSelector(selector){
+		var result={};
+		var reg=/^([a-zA-Z0-9_\-]+)/;
+		var arr=selector.match(reg);
+		if(arr){
+			result.tagName=arr[1];
+		}
+		result.classNames=[];
+		reg=/\.([a-zA-Z0-9_\-]+)/g;
+		while(arr=reg.exec(selector)){
+			result.classNames.push(arr[1]);
+		}
+		arr=selector.match(/#([a-zA-Z0-9_\-]+)/);
+		if(arr){
+			result.id=arr[1];
+		}
+		result.attribute={};
+		reg=/\[([a-zA-Z0-9_\-]+)='?([a-zA-Z0-9_\-]+)'?\]/g;
+		while(arr=reg.exec(selector)){
+			result.attribute[arr[1]]=arr[2];
+		}
+		reg=/\[([a-zA-Z0-9_\-]+)\]/g;
+		while(arr=reg.exec(selector)){
+			result.attribute[arr[1]]=null;
+		}
+		return result;
+	}
+	function matchesInfo(element, nodeInfo){
+		if(nodeInfo.tagName && nodeInfo.tagName.toLocaleUpperCase()!=element.tagName.toLocaleUpperCase()) return false;
+		if(nodeInfo.id && nodeInfo.id!=element.id) return false;
+		for(var i=0;i<nodeInfo.classNames.length;i++){
+			if(!Sky.hasClass(element,nodeInfo.classNames[i])){
+				return false;
+			}
+		}
+		for(var key in nodeInfo.attribute){
+			var value=nodeInfo.attribute[key];
+			if(value===null){
+				if(!element.getAttribute(key)) return false;
+			}else{
+				if(element.getAttribute(key)!=value) return false;
+			}
+		}
+		return true;
+	}
+	if(document.querySelectorAll){
+		Sky.querySelector=function(selector,e){
+			if(!e || e===document){
+				return Array.from(document.querySelectorAll(selector));
+			}else{
+				var noId=false;
+				if(!e.id){
+					e.id="SKY"+Sky.nextSequence();
+					noId=true;
+				}
+				var r=Array.from(document.querySelectorAll("#"+e.id+" "+selector));
+				if(noId){
+					e.removeAttribute('id');
+				}
+				return r;
+			}
+		};
+	}else{
+		Sky.querySelector=function(selector,ancestor){
+			ancestor=ancestor || document;
+			var arr,node,result;
+			arr=selector.match(/^#([a-zA-Z0-9_\-]+)$/);
+			if(arr){
+				result=new Array();
+				node=document.getElementById(arr[1]);
+				if(node && (ancestor==document || ancestor.contains(node))){
+					result.push(node);
+				}
+				return result;
+			}
+			arr=selector.match(/^\.([a-zA-Z0-9_\-]+)$/);
+			if(arr){
+				return Sky.getElementsByClassName(arr[1],ancestor);
+			}
+			selector=formatSelector(selector.replace(/\s+,\s+/g,","));
+			return queryAndConcat(ancestor,selector);
+		};
+	}
+	function formatSelector(selector){
+		return selector.replace(/\s+>\s+/g,">").replace(/\s+/g," ").trim();
+	}
+	function queryAndConcat(ancestor,selector){
+		var arr=selector.split(",");
+		if(arr.length==1){
+			return querySelector(ancestor,arr[0]);
+		}
+		var nodes=[];
+		var i=arr.length;
+		while(i--){
+			selector=arr[i];
+			arr=arr.concat(querySelector(ancestor,selector));
+		}
+		return nodes;
+	}
+	function parseSeriesSelector(selector){
+		return selector.split(">").map(parseNodeSelector);
+	}
+	function queryById(ancestor,nodeInfo){
+		var node=document.getElementById(nodeInfo.id);
+		if(node && ancestor.contains(node)){
+			if(matchesInfo(node,nodeInfo)){
+				return node;
+			}
+		}
+		return null;
+	}
+	function parseSelector(selector){
+		var arr=selector.split(" ");
+		return arr.map(parseSeriesSelector);
+	}
+	function querySelector(ancestor,selector){
+		var rels=parseSelector(selector);
+		if(rels[0].length==1){
+			var first=rels[0][0];
+			if(first.id){
+				first=queryById(ancestor,first);
+				if(first){
+					rels.shift();
+					return queryByRel(first,rels);
+				}
+			}
+		}
+		return queryByRel(ancestor,rels);
+	}
+	function queryByRel(ancestor,rels){
+		var lastGroup=rels[rels.length-1];
+		var lastInfo=lastGroup[lastGroup.length-1];
+		var lasts;
+		if(lastInfo.tagName){
+			lasts=ancestor.getElementsByTagName(lastInfo.tagName);
+		}else{
+			lasts=ancestor.getElementsByTagName("*");
+		}
+		var result=[];
+		for(var i=0;i<lasts.length;i++){
+			var ele=lasts[i];
+			if(checkRels(ancestor,rels,ele)){
+				result.push(ele);
+			}
+		}
+		return result;
+	}
+	function checkRels(ancestor,rels,ele){
+		var i=rels.length-1;
+		var series=rels[i];
+		var next=checkSeries(ancestor,ele,series);
+		if(!next){
+			return false;
+		}
+		if(i<=0){
+			return true;
+		}
+		return !!matches(next,rels,ancestor,i-1);
+	}
+	function checkSeries(ancestor,ele,series){
+		var j=series.length;
+		while(j--){
+			var nodeInfo=series[j];
+			if(matchesInfo(ele,nodeInfo)){
+				ele=ele.parentNode;
+				if(j>0 && ele===ancestor){
+					return null;
+				}
+			}else{
+				return null;
+			}
+		}
+		return ele;
+	}
+	function matches(ele, rels, ancestor,i){
+		var next,first=null;
+		while(i>=0){
+			var series=rels[i];
+			next=checkSeries(ancestor,ele,series);
+			if(next){
+				if(!first){
+					first=ele;
+				}
+				ele=next;
+				i--;
+				continue ;
+			}
+			if(ele===document.body){
+				return false;
+			}
+			ele=ele.parentNode;
+			if(ele===ancestor){
+				return false;
+			}
+		}
+		return first;
+	}
+	/**
+	 * 向上匹配，匹配成功返回匹配到的元素，没有比配到返回null
+	 * **/
+	Sky.matches=function(ele, selector, ancestor){
+		ancestor=ancestor || document;
+		var rels=parseSelector(formatSelector(selector));
+		return matches(ele, rels, ancestor,rels.length-1);
+	};
+	Sky.matchesSelector=function(ele, selector, ancestor){
+		ancestor=ancestor || document;
+		if(ancestor==document){
+			if(ele.matches){
+				return ele.matches(selector);
+			}else if(ele.matchesSelector){
+				return ele.matchesSelector(selector);
+			}else if(ele.msMatchesSelector){
+				return ele.msMatchesSelector(selector);
+			}else if(ele.mozMatchesSelector){
+				return ele.mozMatchesSelector(selector);
+			}
+		}
+		var rels=parseSelector(formatSelector(selector));
+		return checkRels(ancestor,rels,ele);
+	};
+	Sky.createSelector=function(selector){
+		var nodeInfo=parseNodeSelector(selector);
+		var tagName=nodeInfo.tagName || "div";
+		var node=document.createElement(tagName);
+		if(nodeInfo.classNames.length) node.className=nodeInfo.classNames.join(" ");
+		nodeInfo.id && (node.id=nodeInfo.id);
+		for(var key in nodeInfo.attribute){
+			node.setAttribute(key,nodeInfo.attribute[key]);
+		}
+		var arr=selector.match(/:content\((.*)\)$/);
+		if(arr){
+			node.appendChild(document.createTextNode(arr[1]));
+		}
+		return node;
+	};
+})();

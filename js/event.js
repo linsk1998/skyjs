@@ -231,6 +231,9 @@
 		var proxyHandle=function(e){
 			e=e || window.event;
 			e.target || (e.target=e.srcElement);
+			if(e.target==document){
+				return ;
+			}
 			e.stopPropagation || (e.stopPropagation=stopPropagation);
 			e.preventDefault || (e.preventDefault=preventDefault);
 			e.currentTarget || (e.currentTarget=ele);

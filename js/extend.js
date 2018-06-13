@@ -6,6 +6,15 @@ if(!Object.create){
 		return new F();
 	};
 }
+if(!Object.values){
+	Object.values=function(obj){
+		var result=[];
+		Sky.forOwn(obj,function(value,key){
+			result.push(obj[key]);
+		});
+		return result;
+	};
+}
 if(!Object.keys){
 	Object.keys=function(obj){
 		var result=[];
@@ -63,7 +72,15 @@ if(Sky.support.__defineSetter__){
 }
 if(!Array.from){
 	Array.from=function(arrayLike, mapFn, thisArg){
-		var arr=Array.prototype.slice.call(arrayLike);
+		var arr;
+		try{
+			arr=Array.prototype.slice.call(arrayLike);
+		}catch(e){
+			arr=new Array();
+			for(var i=0;i<arrayLike.length;i++){
+				arr.push(arrayLike[i]);
+			}
+		}
 		if(mapFn){
 			arr=arr.map( mapFn, thisArg);
 		}
