@@ -190,6 +190,35 @@
 			}
 		};
 	}
+	if(!("onwheel" in document)){
+		if('onmousewheel' in document){
+			Sky.event.fix.wheel={
+				attachEvent:function(ele, evt, func){
+					Sky.addEvent(ele, 'mousewheel', func);
+				},
+				detachEvent:function(ele, evt, func){
+					Sky.removeEvent(ele, 'mousewheel', func);
+				}
+			};
+		}else{
+			Sky.event.fix.wheel=Sky.event.fix.mousewheel={
+				attachEvent:function(ele, evt, func){
+					var proxyHandle=function(e){
+						e.wheelDelta=-e.detail*40;
+						return func.call(ele, e);
+					};
+					proxyHandle.target=func;
+					proxyHandle.element=ele;
+					proxyHandle.event=evt;
+					proxyMap.addEvent(ele,"DOMMouseScroll",proxyHandle);
+				},
+				detachEvent:function(ele, evt, func){
+					proxyMap.removeEvent(ele, evt, func);
+				}
+			};
+		}
+	}
+
 	if(Sky.browser.ie9){
 		Sky.event.fix.input={
 			attachEvent:function(ele, evt, func){
