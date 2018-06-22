@@ -93,8 +93,8 @@
 	var Animal=Sky.declare({
 		'extends':EventEmitter,
 		'constructor':function(){
-			this.birthday=new Date("2001/02/01 00:00:00");
 			EventEmitter.apply(this);
+			this.birthday=new Date("2001/02/01 00:00:00");
 		},
 		'member':{//需要声明
 			'birthday':null

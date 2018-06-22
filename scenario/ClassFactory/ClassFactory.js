@@ -30,7 +30,7 @@ Sky.declare=function(conf){
 						if(member in me){
 							var fun=constructor.prototype[member];
 							if(Sky.isFunction(fun)){
-								me[member]=fun.bind(me);
+								me[member]=bindFun(fun,me);
 							}
 						}
 					}
@@ -68,6 +68,20 @@ Sky.declare=function(conf){
 		}
 		return me;
 	};
+	function bindFun(fun,me){
+		var newFun=function(){
+			fun.apply(me,arguments);
+		};
+		newFun.apply=function(obj,args){
+			fun.apply(obj,args);
+		};
+		newFun.call=function(obj){
+			var args=Array.from(arguments);
+			args.shift();
+			fun.apply(obj,args);
+		};
+		return newFun;
+	}
 	if('extends' in conf){
 		var superclass=conf['extends'];
 		constructor.prototype=Object.create(superclass.prototype);
