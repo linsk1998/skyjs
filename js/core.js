@@ -34,14 +34,15 @@ Sky.noop=function(){};
 
 if(!({toString:null}).propertyIsEnumerable('toString')){
 	Sky.dontEnums=["toString","toLocaleString","valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable"];
-	Sky.forIn=function(obj,fn){
+	Sky.forIn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
 		for(var key in obj) {
 			if(!(obj instanceof Object)){
 				if(key.startsWith("__") || key=="constructor"){
 					continue ;
 				}
 			}
-			if(fn.call(obj,obj[key],key)===false){
+			if(fn.call(thisArg,obj[key],key)===false){
 				return false;
 			}
 		}
@@ -51,14 +52,15 @@ if(!({toString:null}).propertyIsEnumerable('toString')){
 		while(nonEnumIdx--){
 			var prop=Sky.dontEnums[nonEnumIdx];
 			if(prop in obj && obj[prop]!==proto[prop]){
-				if(fn.call(obj,obj[prop],prop)===false){
+				if(fn.call(thisArg,obj[prop],prop)===false){
 					return false;
 				}
 			}
 		}
 		return true;
 	};
-	Sky.forOwn=function(obj,fn){
+	Sky.forOwn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
 		var type=typeof obj;
 		if(type=="unknow"){
 			return true;
@@ -73,7 +75,7 @@ if(!({toString:null}).propertyIsEnumerable('toString')){
 				}
 			}
 			if(Sky.hasOwn(obj,key)){
-				if(fn.call(obj,obj[key],key)===false){
+				if(fn.call(thisArg,obj[key],key)===false){
 					return false;
 				}
 			}
@@ -81,7 +83,7 @@ if(!({toString:null}).propertyIsEnumerable('toString')){
 		for(var i=0;i<Sky.dontEnums.length;i++){
 			var prop=Sky.dontEnums[i];
 			if(Sky.hasOwn(obj,prop)){
-				if(fn.call(obj,obj[prop],prop)===false){
+				if(fn.call(thisArg,obj[prop],prop)===false){
 					return false;
 				}
 			}
@@ -102,18 +104,20 @@ if(!({toString:null}).propertyIsEnumerable('toString')){
 		return Object.prototype.hasOwnProperty.call(obj,key);
 	};
 }else{
-	Sky.forIn=function(obj,fn){
+	Sky.forIn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
 		for(var key in obj) {
-			if(fn.call(obj,obj[key],key)===false){
+			if(fn.call(thisArg,obj[key],key)===false){
 				return false;
 			}
 		}
 		return true;
 	};
-	Sky.forOwn=function(obj,fn){
+	Sky.forOwn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
 		for(var key in obj) {
 			if(Object.prototype.hasOwnProperty.call(obj,key)){
-				if(fn.call(obj,obj[key],key)===false){
+				if(fn.call(thisArg,obj[key],key)===false){
 					return false;
 				}
 			}

@@ -718,6 +718,30 @@ if(!-[1,]){//ie6-8
 		return this._source;
 	}
 }
+function Duration(dt){
+	this.value=dt;
+}
+Duration.prototype.valueOf=function(){
+	return this.value;
+};
+Duration.prototype.getYear=function(){
+	return this.value/8765813;
+};
+Duration.prototype.getMonth=function(){
+	return this.value/8765813*12;
+};
+Duration.prototype.getDay=function(){
+	return this.value/1000/60/60/24;
+};
+Duration.prototype.getMin=function(){
+	return this.value/1000/60/60;
+};
+Duration.prototype.getMinute=function(){
+	return this.value/1000/60;
+};
+Duration.prototype.getSecond=function(){
+	return this.value/1000;
+};
 function DateFormat(pattern){
 	this.pattern=pattern;
 }

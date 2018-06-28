@@ -266,23 +266,6 @@ searchParams.set("a","b");//注意:非字符串调用toString,如Date,调用toSt
 searchParams.append("arr[]","1");
 searchParams.append("arr[]","2");
 searchParams.toString();//"a=b&arr[]=1&arr[]=2"</code></pre>
-		<h3 id="StringBuilder">StringBuilder</h3>
-		<p>用于频繁大量的字符串拼接操作。</p>
-		<table class="table table-bordered table-condensed table-striped">
-			<thead>
-			<tr class="info">
-				<th>方法</th><th>描述</th>
-			</tr>
-			</thead>
-			<tbody class="table-hover">
-			<tr>
-				<td>append</td><td>添加字符串</td>
-			</tr>
-			<tr>
-				<td>toString</td><td>生成字符串</td>
-			</tr>
-			</tbody>
-		</table>
 		<h3 id="DateFormat">DateFormat</h3>
 		<p>按通用格式将一个日期转换成一个字符串。</p>
 		<a class="btn btn-primary" href="javascript:alert(DateFormat.format(new Date()))">DateFormat.format(new Date())</a>
