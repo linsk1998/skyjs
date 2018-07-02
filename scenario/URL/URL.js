@@ -57,7 +57,7 @@ if(!Sky.support.URL){
 				}else if(relativePath.startsWith("/")){
 					path=relativePath;
 				}else if(relativePath.startsWith("../")){
-					path=absInfo.pathname+relativePath;
+					path=absInfo.pathname.replace(/\/[^\/]*$/,"/")+relativePath;
 					pattern=/[^\/]+\/\.\.\//;
 					while(pattern.test(path)){
 						path=path.replace(pattern,"");
