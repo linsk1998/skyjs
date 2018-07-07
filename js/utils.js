@@ -2,57 +2,6 @@
 Sky.later=function(fn){
 	setTimeout(fn,0);
 };
-Sky.clearSelect="getSelection" in window ? function(){
-	window.getSelection().removeAllRanges();
-} : function(){
-	document.selection.empty();
-};
-Sky.addFavorite=function(sURL, sTitle){
-	try{
-		window.external.addFavorite(sURL, sTitle);
-	}catch (e){
-		try{
-			window.sidebar.addPanel(sTitle, sURL, "");
-		}catch (e){
-			if(Sky.browser.moblie){
-				alert("请点击菜单上的“☆”加入收藏");
-			}else{
-				alert("\u52a0\u5165\u6536\u85cf\u5931\u8d25\uff0c\u8bf7\u4f7f\u7528Ctrl+D\u8fdb\u884c\u6dfb\u52a0");
-			}
-		}
-	}
-};
-Sky.setHome=function(ele,url){
-	ele.onclick=function(){
-		try{
-			this.style.behavior='url(#default#homepage)';
-			this.setHomePage(url);
-			return false;
-		}catch(e){
-			if('netscape' in window){
-				try{
-					netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-				}catch(e){
-					alert("抱歉，此操作被浏览器拒绝！\n\n请在浏览器地址栏输入“about:config”并回车然后将[signed.applets.codebase_principal_support]设置为'true'");
-					return false;
-				}
-			}
-		}
-	};
-};
-Sky.copyToClipboard=function(txt){
-	if(window.clipboardData){
-		try{
-			window.clipboardData.setData("Text",txt);
-			return ;
-		}catch(e){
-		}
-	}
-	var tip=Sky.browser.moblie?"长按复制到剪贴板：":"Ctrl+C复制到剪贴板：";
-	prompt(tip,txt);
-};
-//document.getElementById("text").select();
-//document.execCommand("copy",false,null);
 //获取字符串占位长度
 Sky.strlen=function(str){
 	var len=0;
@@ -329,38 +278,3 @@ Sky.UUID=function() {
 		resolve(uuid);
 	});
 };
-(function(){
-	Sky.isReady=false;
-	var p=new Promise(function(resolve, reject){
-		if(document.addEventListener){
-			document.addEventListener("DOMContentLoaded",function(){
-				Sky.isReady=true;
-				resolve();
-			},false);
-		}else if(window==window.top){
-			(function() {
-				try{
-					document.documentElement.doScroll('left');
-					Sky.isReady=true;
-					resolve();
-				}catch(e){
-					setTimeout(arguments.callee, 0);
-				}
-			})();
-		}else{
-			document.attachEvent("onreadystatechange",function(){
-				if(document.readyState === "complete") {
-					document.detachEvent("onreadystatechange", arguments.callee);
-					Sky.isReady=true;
-					resolve();
-				}
-			});
-		}
-	});
-	Sky.ready=function(callback){
-		if(callback && !Sky.isReady){
-			p.then(callback);
-		}
-		return p;
-	};
-})();

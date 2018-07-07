@@ -11,6 +11,7 @@ https.get("https://raw.githubusercontent.com/linsk1998/dollar/master/%24.js",fun
 		out+=fs.readFileSync(__dirname+'/js/extend.js', 'utf-8');
 		out+=fs.readFileSync(__dirname+'/js/promise.js', 'utf-8');
 		out+=fs.readFileSync(__dirname+'/js/url-read.js', 'utf-8');
+		out+=fs.readFileSync(__dirname+'/js/browser.js', 'utf-8');
 		out+=fs.readFileSync(__dirname+'/js/storage.js', 'utf-8');
 		out+=fs.readFileSync(__dirname+'/js/network.js', 'utf-8');
 		out+=fs.readFileSync(__dirname+'/js/script.js', 'utf-8');

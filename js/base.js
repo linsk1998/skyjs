@@ -1,4 +1,6 @@
-var Sky={};
+var Sky=function(){
+	return $.overload(arguments,this);
+};
 Sky.isArray=function(a){
 	return Array.isArray(a);
 };

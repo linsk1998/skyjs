@@ -60,6 +60,13 @@ if(!Object.getPrototypeOf){
 		};
 	}
 }
+//上面的Object.getPrototypeOf有局限性，必须按照下面方式继承类才能使用
+function __extends(clazz, superClazz) {
+	Object.assign(clazz,superClazz);
+	clazz.prototype=Object.create(superClazz.prototype);
+	clazz.superclass=superClazz;//为了其他程序的代码方便获取父类
+	clazz.prototype.constructor=clazz;
+}
 Sky.support.defineProperty=!!Object.defineProperty && !!document.addEventListener;
 if(Sky.support.__defineSetter__){
 	Sky.support.defineProperty=true;

@@ -3,17 +3,17 @@ function EventEmitter(){
 	this._events=new Array();
 }
 EventEmitter.prototype._events=null;
-EventEmitter.prototype.on=function(ev,fn,after){
+EventEmitter.prototype.on=function on(ev,fn,after){
 	after=!!after;
 	this._events.push({'ev':ev,'fn':fn,'after':after});
 };
-EventEmitter.prototype.before=function(ev,fn){
+EventEmitter.prototype.before=function before(ev,fn){
 	EventEmitter.prototype.on.call(ev,fn);
 };
-EventEmitter.prototype.after=function(ev,fn){
+EventEmitter.prototype.after=function after(ev,fn){
 	EventEmitter.prototype.on.call(ev,fn,true);
 };
-EventEmitter.prototype.off=function(ev,fn){
+EventEmitter.prototype.off=function off(ev,fn){
 	var events=this._events;
 	for(var i=events.length-1;i>=0;i--){
 		var e=events[i];
@@ -22,7 +22,7 @@ EventEmitter.prototype.off=function(ev,fn){
 		}
 	}
 };
-EventEmitter.prototype.emit=function(ev,after,args){
+EventEmitter.prototype.emit=function emit(ev,after,args){
 	var events=this._events;
 	if(arguments.length==2){
 		if(Array.isArray(after)){
