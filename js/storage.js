@@ -29,7 +29,7 @@ if(!this.sessionStorage){
 		var ele=document.createElement("sessionStorage");
 		var sessionId=Sky.getCookie("JSESSIONID");
 		if(!sessionId){
-			sessionId=Math.random()+"";
+			sessionId=Math.random().toString(16).replace("0.","");
 			Sky.setCookie("JSESSIONID",sessionId);
 		}
 		if(ele.addBehavior){

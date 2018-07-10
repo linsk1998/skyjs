@@ -1,217 +1,255 @@
-
-if(!this.Promise){
+//setImmediate在setTimeout之前执行
+if(!this.setImmediate){
 	(function(global){
-		var PENDING = 'pending';
-		var SEALED = 'sealed';
-		var FULFILLED = 'fulfilled';
-		var REJECTED = 'rejected';
-
-// async calls
-		var asyncSetTimer = typeof setImmediate !== 'undefined' ? setImmediate : setTimeout;
-		var asyncQueue = [];
-		var asyncTimer;
-
-		function asyncFlush(){
-			// run promise callbacks
-			for (var i = 0; i < asyncQueue.length; i++)
-				asyncQueue[i][0](asyncQueue[i][1]);
-			// reset async asyncQueue
-			asyncQueue = [];
-			asyncTimer = false;
-		}
-		function asyncCall(callback, arg){
-			asyncQueue.push([callback, arg]);
-			if (!asyncTimer){
-				asyncTimer = true;
-				asyncSetTimer(asyncFlush, 0);
-			}
-		}
-		function invokeResolver(resolver, promise) {
-			function resolvePromise(value) {
-				resolve(promise, value);
-			}
-			function rejectPromise(reason) {
-				reject(promise, reason);
-			}
-			try {
-				resolver(resolvePromise, rejectPromise);
-			} catch(e) {
-				console.error(e);
-				rejectPromise(e);
-			}
-		}
-		function invokeCallback(subscriber){
-			var owner = subscriber.owner;
-			var settled = owner.state_;
-			var value = owner.data_;
-			var callback = subscriber[settled];
-			var promise = subscriber.then;
-			if (typeof callback === 'function'){
-				settled = FULFILLED;
-				try {
-					value = callback(value);
-				} catch(e) {
-					console.error(e);
-					reject(promise, e);
+		var index=0;
+		var handles=new Map();
+		if(this.Promise){
+			global.setImmediate=function(fn){
+				index++;
+				var args=Array.from(arguments);
+				args.shift();
+				var p=Promise.resolve(index);
+				handles.set(index,args);
+				p.then(function(id){
+					var args=handles.get(id);
+					if(args){
+						fn.apply(global,args);
+						clearImmediate(id);
+					}
+				});
+				return index;
+			};
+		}else{
+			var setTimeoutN=setTimeout;
+			var ticks=null;
+			global.setImmediate=function(fn){
+				index++;
+				if(!ticks){
+					ticks=new Array();
+					setTimeoutN(nextTick);
 				}
+				ticks.push(index);
+				handles.set(index,arguments);
+				return index;
+			};
+			var setTimeoutN=setImmediate.setTimeout=setTimeout;
+			if(Sky.browser.ie){
+				window.execScript('function setTimeout(fn,time){time=time || 1;return setImmediate.setTimeout(fn,time);}');
+			}else{
+				global.setTimeout=function(fn,time){
+					time=time || 11;
+					return setTimeoutN(fn,time);
+				};
 			}
-			if (!handleThenable(promise, value)){
-				if (settled === FULFILLED)
-					resolve(promise, value);
-
-				if (settled === REJECTED)
-					reject(promise, value);
-			}
-		}
-		function handleThenable(promise, value) {
-			var resolved;
-			try {
-				if (promise === value)
-					throw new TypeError('A promises callback cannot return that same promise.');
-
-				if (value && (typeof value === 'function' || typeof value === 'object')){
-					var then = value.then;  // then should be retrived only once
-					if (typeof then === 'function'){
-						then.call(value, function(val){
-							if (!resolved){
-								resolved = true;
-								if (value !== val)
-									resolve(promise, val);
-								else
-									fulfill(promise, val);
-							}
-						}, function(reason){
-							if (!resolved){
-								resolved = true;
-								reject(promise, reason);
-							}
-						});
-						return true;
+			function nextTick(){
+				for(var i=0;i<ticks.length;i++){
+					var id=ticks[i];
+					var args=handles.get(id);
+					if(args){
+						var fn=args[0];
+						args=Array.from(args);
+						args.shift();
+						try{
+							fn.apply(global,args);
+						}catch(e){
+							console.error(e);
+						}
 					}
 				}
-			} catch (e) {
-				if (!resolved)
-					reject(promise, e);
-				return true;
-			}
-			return false;
-		}
-		function resolve(promise, value){
-			if (promise === value || !handleThenable(promise, value))
-				fulfill(promise, value);
-		}
-		function fulfill(promise, value){
-			if (promise.state_ === PENDING){
-				promise.state_ = SEALED;
-				promise.data_ = value;
-				asyncCall(publishFulfillment, promise);
+				ticks=null;
+				handles.clear();
 			}
 		}
-		function reject(promise, reason){
-			if (promise.state_ === PENDING){
-				promise.state_ = SEALED;
-				promise.data_ = reason;
-
-				asyncCall(publishRejection, promise);
-			}
-		}
-		function publish(promise) {
-			var callbacks = promise.then_;
-			promise.then_ = undefined;
-			for (var i = 0; i < callbacks.length; i++) {
-				invokeCallback(callbacks[i]);
-			}
-		}
-		function publishFulfillment(promise){
-			promise.state_ = FULFILLED;
-			publish(promise);
-		}
-		function publishRejection(promise){
-			promise.state_ = REJECTED;
-			publish(promise);
-		}
-		function Promise(resolver){
-			if (typeof resolver !== 'function')
-				throw new TypeError('Promise constructor takes a function argument');
-			if (this instanceof Promise === false)
-				throw new TypeError('Failed to construct \'Promise\': Please use the \'new\' operator, this object constructor cannot be called as a function.');
-			this.then_ = [];
-			invokeResolver(resolver, this);
-		}
-		Promise.prototype = {
-			constructor: Promise,
-			state_: PENDING,
-			then_: null,
-			data_: undefined,
-			then: function(onFulfillment, onRejection){
-				var subscriber = {
-					owner: this,
-					then: new this.constructor(Sky.noop),
-					fulfilled: onFulfillment,
-					rejected: onRejection
-				};
-				if (this.state_ === FULFILLED || this.state_ === REJECTED){
-					// already resolved, call callback async
-					asyncCall(invokeCallback, subscriber);
-				}else{
-					this.then_.push(subscriber);
-				}
-				return subscriber.then;
-			}
+		global.clearImmediate=function(id){
+			handles['delete'](id);
 		};
-		global.Promise=Promise;
 	})(this);
-	Promise.all=function(promises){
-		if (!Sky.isArray(promises)) {
-			throw new TypeError('You must pass an array to all.');
+}
+(function(global){
+	function Deferred(){
+		this._resolveds=[];
+		this._rejecteds=[];
+		this._state="pending";//resolved | rejected
+	}
+	Deferred.prototype.state=function(){
+		return this._state;
+	};
+	Deferred.prototype.done=function(fn){
+		if(this._state=="resolved"){
+			fn.call(this,this.data);
+		}else if(this._state=="pending"){
+			this._resolveds.push(fn);
 		}
-		return new Promise(function(resolve,reject){
-			if(promises.length==0) return resolve(new Array());
-			var result=new Array(promises.length);
-			var c=0;
-			promises.forEach(function(one,index){
-				if(one instanceof Promise){
-					one.then(function(data){
+		return this;
+	};
+	Deferred.prototype.fail=function(fn){
+		if(this._state=="rejected"){
+			fn.call(this,this.data);
+		}else if(this._state=="pending"){
+			this._rejecteds.push(fn);
+		}
+		return this;
+	};
+	Deferred.prototype.always=function(fn){
+		if(this._state=="pending"){
+			this._resolveds.push(fn);
+			this._rejecteds.push(fn);
+		}else{
+			fn.call(this,this.data);
+		}
+	};
+	Deferred.prototype.resolve=function(d){
+		if(this._state=="pending"){
+			this.data=d;
+			this._state="resolved";
+			this._resolveds.forEach(callAll,this);
+			this._resolveds=null;
+		}
+		return this;
+	};
+	Deferred.prototype.reject=function(d){
+		if(this._state=="pending"){
+			this.data=d;
+			this._state="rejected";
+			this._rejecteds.forEach(callAll,this);
+			this._rejecteds=null;
+		}
+		return this;
+	};
+	function callAll(fn){
+		fn.call(this,this.data);
+	}
+	if(!this.Promise){
+		function Promise(executor){
+			Deferred.call(this);
+			var me=this;
+			function resolve(value) {
+				setImmediate(function(){
+					me.resolve(value);
+				});
+			}
+			function reject(reason) {
+				setImmediate(function(){
+					me.reject(reason);
+				});
+			}
+			try{
+				executor(resolve, reject);
+			}catch(e){
+				reject(e);
+			}
+		}
+		Promise.prototype=Object.create(Deferred.prototype);
+		Promise.prototype.constructor=Promise;
+		function nextPromise(before,after,resolve,reject){
+			return function(value){
+				try{
+					var x=before(value);
+					if(typeof x.then==="function"){
+						x.then(resolve, reject);
+					}else{
+						after(x);
+					}
+				}catch(r){
+					reject(r);
+				}
+			};
+		}
+		Promise.prototype.then=function(onResolved, onRejected){
+			var me=this;
+			onResolved=onResolved || Sky.noop;
+			onRejected=onRejected || Sky.noop;
+			return new Promise(function(resolve,reject){
+				switch(me.state()){
+					case "resolved":
+						setImmediate(nextPromise(onResolved,resolve,resolve,reject),me.data);
+						break ;
+					case "rejected":
+						setImmediate(nextPromise(onRejected,reject,resolve,reject),me.data);
+						break ;
+					default:
+						me._resolveds.push(nextPromise(onResolved,resolve,resolve,reject));
+						me._rejecteds.push(nextPromise(onRejected,reject,resolve,reject));
+				}
+			});
+		};
+		Promise.prototype['catch']=function(onRejected){
+			return this.then(undefined,onRejected);
+		};
+		Promise.all=function(promises){
+			if (!Sky.isArray(promises)) {
+				throw new TypeError('You must pass an array to all.');
+			}
+			return new Promise(function(resolve,reject){
+				if(promises.length==0) return resolve(new Array());
+				var result=new Array(promises.length);
+				var c=0;
+				promises.forEach(function(one,index){
+					if(one instanceof Promise){
+						one.then(function(data){
+							c++;
+							result[index]=data;
+							if(c>=promises.length){
+								resolve(result);
+							}
+						},function(data){
+							reject(data);
+						});
+					}else{
 						c++;
-						result[index]=data;
+						result[index]=one;
 						if(c>=promises.length){
 							resolve(result);
 						}
-					},function(data){
-						reject(data);
-					});
-				}else{
-					c++;
-					result[index]=one;
-					if(c>=promises.length){
-						resolve(result);
 					}
-				}
-			});
-		});
-	};
-	Promise.race=function(promises){
-		if (!Array.isArray(promises)) {
-			throw new TypeError('You must pass an array to all.');
-		}
-		return new Promise(function(resolve,reject){
-			promises.forEach(function(one){
-				one.then(function(){
-					resolve();
-				},function(){
-					reject();
 				});
 			});
-		});
+		};
+		Promise.race=function(promises){
+			if (!Array.isArray(promises)) {
+				throw new TypeError('You must pass an array to all.');
+			}
+			return new Promise(function(resolve,reject){
+				promises.forEach(function(one){
+					one.then(function(){
+						resolve();
+					},function(){
+						reject();
+					});
+				});
+			});
+		};
+		Promise.resolve=function(arg){
+			return new Promise(function(resolve,reject){
+				resolve(arg)
+			});
+		};
+		Promise.reject=function(arg){
+			return Promise(function(resolve,reject){
+				reject(arg)
+			});
+		};
+		global.Promise=Promise;
+	}
+	Sky.Deferred=function(){
+		return new Deferred();
 	};
-	Promise.resolve=function(arg){
-		return new Promise(function(resolve,reject){
-			resolve(arg)
+})(this);
+
+Sky.when=function(subordinate){
+	if(arguments.length==1){
+		return arguments[0];
+	}
+	var resolveValues=Array.from(arguments);
+	var dfd=Sky.Deferred();
+	var i=0;
+	resolveValues.forEach(function(item){
+		item.done(function(){
+			i++;
+			if(i==resolveValues.length){
+				dfd.resolve();
+			}
 		});
-	};
-	Promise.reject=function(arg){
-		return Promise(function(resolve,reject){
-			reject(arg)
-		});
-	};
-}
+	});
+	return dfd;
+};

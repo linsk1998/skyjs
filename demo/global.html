@@ -266,6 +266,27 @@ searchParams.set("a","b");//注意:非字符串调用toString,如Date,调用toSt
 searchParams.append("arr[]","1");
 searchParams.append("arr[]","2");
 searchParams.toString();//"a=b&arr[]=1&arr[]=2"</code></pre>
+		<h3 id="setImmediate">setImmediate</h3>
+		<p>setImmediate在setTimeout 0之前执行。</p>
+		<pre><code>setTimeout(function(){alert(1)},0);
+setImmediate(function(){
+	setImmediate(function(){
+		setImmediate(function(){
+			setImmediate(function(){
+				setImmediate(function(){
+					setImmediate(function(){
+						setImmediate(function(){
+							alert(0);
+						});
+					});
+				});
+			});
+		});
+	});
+});</code></pre>
+		<div class="btn-toolbar">
+			<a class="btn btn-primary" href="javascript:setTimeout(function(){alert(1)});setImmediate(function(){setImmediate(function(){setImmediate(function(){setImmediate(function(){setImmediate(function(){setImmediate(function(){setImmediate(function(){alert(0)})})})})})})});void 0">测试</a>
+		</div>
 		<h3 id="DateFormat">DateFormat</h3>
 		<p>按通用格式将一个日期转换成一个字符串。</p>
 		<a class="btn btn-primary" href="javascript:alert(DateFormat.format(new Date()))">DateFormat.format(new Date())</a>

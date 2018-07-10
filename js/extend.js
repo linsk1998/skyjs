@@ -143,7 +143,8 @@ if(!Array.prototype.find){
 //遍历数组
 if(!Array.prototype.forEach){
 	Array.prototype.forEach =function(callback, thisArg){
-		for(var i=0,j; i<this.length; i++){
+		var len=this.length;
+		for(var i=0,j;i<len && i<this.length; i++){
 			j=this[i];
 			callback.call(thisArg,j,i,this);
 		}
@@ -380,9 +381,12 @@ if(!this.Map){
 		return false;
 	};
 	Map.prototype.forEach=function(callbackfn,thisArg){
-		for(var i=0,j;i<this.size; i++){
+		var len=this.size;
+		for(var i=0,j;i<len; i++){
 			j=this.items[i];
-			callbackfn.call(thisArg,j[1],j[0],i,this);
+			if(j){
+				callbackfn.call(thisArg,j[1],j[0],i,this);
+			}
 		}
 	};
 	Map.prototype.get=function(key){
