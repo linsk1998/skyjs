@@ -286,6 +286,16 @@ if(!String.prototype.trim){
 		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,'');
 	};
 }
+if(!String.prototype.trimLeft){
+	String.prototype.trimLeft=function() {
+		return this.replace(/^[\s\uFEFF\xA0]+/g,'');
+	};
+}
+if(!String.prototype.trimRight){
+	String.prototype.trimRight=function() {
+		return this.replace(/[\s\uFEFF\xA0]+$/g,'');
+	};
+}
 if(!String.prototype.startsWith){
 	String.prototype.startsWith=function(prefix,position){
 		position=position?position:0;
@@ -686,17 +696,73 @@ if(!document.contains){
 		return false;
 	};
 }
-if(this.HTMLElement && !document.head.children) {
-	HTMLElement.prototype.__defineGetter__("children", function() {
-		var a=[];
-		for(var i=0; i<this.childNodes.length; i++){
-			var n=this.childNodes[i];
-			if(n.nodeType==1){
-				a.push(n);
+if(this.HTMLElement) {
+	if(!document.head.children){
+		HTMLElement.prototype.__defineGetter__("children", function() {
+			var a=[];
+			for(var i=0; i<this.childNodes.length; i++){
+				var n=this.childNodes[i];
+				if(n.nodeType==1){
+					a.push(n);
+				}
 			}
-		}
-		return a;
-	});
+			return a;
+		});
+	}
+	if(!('innerText' in document.head)){
+		(function(){
+			HTMLElement.prototype.__defineGetter__( "innerText", function(){
+				var anyString = "";
+				var childS = this.childNodes;
+				for(var i=0; i<childS.length; i++){
+					var node=childS[i];
+					if(node.nodeType==1){
+						switch(node.tagName){
+							case "BR":
+								anyString+='\n';
+								break ;
+							case "SCRIPT":
+							case "STYLE":
+							case "TEMPLATE":
+								break ;
+							default :
+								anyString+=node.innerText;
+						}
+					}else if(node.nodeType==3){
+						var nodeValue=node.nodeValue;
+						if(i==0)
+							nodeValue=nodeValue.trimLeft();
+						if(i==childS.length-1)
+							nodeValue=nodeValue.trimRight();
+						if(i>0 && i<childS.length-1){
+							if(nodeValue.match(/^\s+$/)){
+								if(checkBlock(childS[i-1]) || checkBlock(childS[i+1])){
+									nodeValue="\n";
+								}
+							}
+						}
+						anyString+=nodeValue;
+					}
+				}
+				return anyString.trim();
+			});
+			function checkBlock(node){
+				switch(node.tagName){
+					case "BR":
+					case "SPAN":
+					case "I":
+					case "U":
+					case "B":
+					case "FONT":
+						return false;
+				}
+				return true;
+			}
+		})();
+		HTMLElement.prototype.__defineSetter__( "innerText", function(sText){
+			this.textContent=sText;
+		});
+	}
 }
 if(!window.execScript){
 	window.execScript=function(script,lang) {
