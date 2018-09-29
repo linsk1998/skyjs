@@ -82,6 +82,20 @@ Sky.getPrevElement=function(element){
 		return Sky.getPrevElement(e);
 	}
 };
+Sky.getAttrs=function(ele){
+	var arr=[];
+	var i=ele.attributes.length;
+	while(i-->0){
+		var attr=ele.attributes[i];
+		var key=attr.name,value=attr.value;
+		if(attr.specified || key==="value"){
+			if(value){
+				arr.push(attr);
+			}
+		}
+	}
+	return arr;
+};
 Sky.getFormData=function(form){
 	if(Sky.isString(form)){
 		form=document.forms[form];

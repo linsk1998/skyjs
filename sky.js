@@ -1,7 +1,7 @@
-
-var $=function(){
-	return $.overload(arguments,this);
+var Sky=function(){
+	return Sky.overload(arguments,this);
 };
+this.$=this.$ || Sky;
 (function(){
 	var rules=[];
 	function ckeck(ckeckFunc,index){
@@ -10,7 +10,7 @@ var $=function(){
 	function compare(x, y){//比较函数
 		return x.checks.length-y.checks.length;
 	}
-	$.overload=function(checks,func,target){
+	Sky.overload=function(checks,func,target){
 		if(target){
 			rules.push({
 				'checks':checks,
@@ -32,33 +32,33 @@ var $=function(){
 					}
 				}
 			}
-			return $;
+			return Sky;
 		}
 	};
 })();
-$.isArray=function(a){
+Sky.isArray=function(a){
 	return Array.isArray(a);
 };
-$.isDate=function(obj){
+Sky.isDate=function(obj){
 	return Object.prototype.toString.call(obj)==='[object Date]';
 };
-$.isRegExp=function(obj){
+Sky.isRegExp=function(obj){
 	return Object.prototype.toString.call(obj)==='[object RegExp]';
 };
-$.isString=function(obj){
+Sky.isString=function(obj){
 	return Object.prototype.toString.call(obj)==='[object String]';
 };
-$.isFunction=function(obj){
+Sky.isFunction=function(obj){
 	return Object.prototype.toString.call(obj)==='[object Function]';
 };
-$.isNumber=function(obj){
+Sky.isNumber=function(obj){
 	return Object.prototype.toString.call(obj)==='[object Number]';
 };
-$.is=function(obj,Clazz){
+Sky.is=function(obj,Clazz){
 	obj=Object(obj);
 	return obj instanceof Clazz;
 };
-$.isObject=function(obj){
+Sky.isObject=function(obj){
 	var type=typeof obj;
 	if(type!=="object"){
 		return false;
@@ -73,53 +73,66 @@ $.isObject=function(obj){
 	}
 	return true;
 };
-$.isDefined=function(obj){
+Sky.isDefined=function(obj){
 	return obj!==void 0;
 };
-$.isPlainObject=function(obj){
-	var key;
-	if(typeof obj !=="object"){
-		return false;
-	}
-	if(obj.toString()!=='[object Object]'){
-		return false;
-	}
-	var hasOwn=Object.prototype.hasOwnProperty;
-	try{
-		if(obj.constructor && obj.constructor!=Object){
-			return false;
-		}
-	}catch(e){
-		return false;
-	}
-	for( key in obj ){
-		if(!hasOwn.call(obj,key)){
-			return false;
-		}
-	}
-	return true;
+Sky.isWindow=function(obj){
+	return obj && typeof obj === "object" && "setInterval" in obj;
 };
-$.isArrayLike=function(obj){
+Sky.isPlainObject=function(obj){
+	if(typeof obj!=="object" || obj.nodeType || Sky.isWindow(obj)){
+		return false;
+	}
+	return obj.constructor===Object;
+};
+Sky.isArrayLike=function(obj){
 	var length=obj.length;
 	if(typeof length !="number" || length<0 || isNaN(length) || Math.ceil(length)!=length){
 		return false;
 	}
 	return true;
 };
-$.isNumeric=function(obj){
+Sky.isNumeric=function(obj){
 	var n=parseFloat(obj);
 	return !isNaN(n);
 };
 if(this.HTMLElement){
-	$.isElement=function(obj){
+	Sky.isElement=function(obj){
 		return obj instanceof HTMLElement;
 	};
 }else{
-	$.isElement=function(obj){
+	Sky.isElement=function(obj){
 		return obj?obj.nodeType===1:false;
 	};
 }
-$.isDocument=function(obj){
+Sky.isEmpty=function(obj){
+	if(obj==null) return true;
+	if(Sky.isNumber(obj.length)){
+		return !obj.length;
+	}
+	if(Sky.isNumber(obj.size)){
+		return !obj.size;
+	}
+	if(Sky.isFunction(obj.size)){
+		return !obj.size();
+	}
+	if(Sky.isFunction(obj.toArray)){
+		return !obj.toArray().length;
+	}
+	return false;
+};
+Sky.isArrayLike=function(obj){
+	var length=obj.length;
+	if(typeof length !="number" || length<0 || isNaN(length) || Math.ceil(length)!=length){
+		return false;
+	}
+	return true;
+};
+Sky.isNumeric=function(obj){
+	var n=parseFloat(obj);
+	return !isNaN(n);
+};
+Sky.isDocument=function(obj){
 	return obj===document;
 };
 Sky=this.Sky || this.$;
@@ -1106,7 +1119,7 @@ if(this.HTMLElement) {
 					case "U":
 					case "B":
 					case "FONT":
-					return false;
+						return false;
 				}
 				return true;
 			}
@@ -1320,13 +1333,13 @@ if(!this.setImmediate){
 				return index;
 			};
 			var setTimeoutN=setImmediate.setTimeout=setTimeout;
-			if(Sky.browser.ie){
-				window.execScript('function setTimeout(fn,time){time=time || 1;return setImmediate.setTimeout(fn,time);}');
-			}else{
+			if(document.addEventListener){
 				global.setTimeout=function(fn,time){
 					time=time || 11;
 					return setTimeoutN(fn,time);
 				};
+			}else{
+				window.execScript('function setTimeout(fn,time){time=time || 54;var setTimeout=setImmediate.setTimeout;return setTimeout(fn,time);}');
 			}
 			function nextTick(){
 				for(var i=0;i<ticks.length;i++){
@@ -1539,110 +1552,7 @@ Sky.when=function(subordinate){
 		});
 	});
 	return dfd;
-};/* 这个polyfill只适合解析URL，
- * URL对象创建后，属性修改，其他属性不会变化
- * 如果需要的话，用scenario文件夹的那个polyfill
-  * */
-try{
-	if(new URL(location.href).href){
-		Sky.support.URL=true;
-	}else{
-		Sky.support.URL=false;
-	}
-}catch(e){
-	Sky.support.URL=false;
-}
-if(!Sky.support.URL){
-	URL=function(relativePath, absolutePath){
-		var path,arr;
-		var pattern=/^[a-zA-Z]+:/;
-		if(arr=relativePath.match(pattern)){
-			this.href=relativePath;
-			this.protocol=arr[0];
-			path=relativePath.replace(pattern,"");
-			pattern=/^\/*([^\/]+)/;
-			var host=path.match(pattern)[1];
-			path=path.replace(pattern,"");
-			arr=host.split("@");
-			if(arr.length>1){
-				this.host=arr[1];
-				arr=arr[0].split(":");
-				if(arr.length>1){
-					this.username=arr[0];
-					this.password=arr[1];
-				}else{
-					this.username=arr[0];
-				}
-			}else{
-				this.username="";
-				this.password="";
-				this.host=host;
-			}
-		}else if(absolutePath){
-			var absInfo=absolutePath.indexOf?new URL(absolutePath):absolutePath;
-			this.protocol=absInfo.protocol;
-			this.hostname=absInfo.hostname;
-			this.host=absInfo.host;
-			this.origin=absInfo.origin;
-			this.port=absInfo.port;
-			this.username=absInfo.username || "";
-			this.password=absInfo.password || "";
-			this.pathname=absInfo.pathname;
-			if(relativePath.startsWith("/")){
-				path=relativePath;
-			}else if(relativePath.startsWith("../")){
-				path=absInfo.pathname.replace(/\/[^\/]*$/,"/")+relativePath;
-				pattern=/[^\/]+\/\.\.\//;
-				while(pattern.test(path)){
-					path=path.replace(pattern,"");
-				}
-				path=path.replace(/^(\/\.\.)+/,"");
-			}else{
-				if(relativePath.startsWith("#")){
-					this.search=absInfo.search;
-					this.hash=relativePath;
-					this.href=absInfo.href.replace(/#.*$/,this.hash);
-					return ;
-				}else if(relativePath.startsWith("?")){
-					path=absInfo.pathname+relativePath;
-				}else{
-					path=absInfo.pathname.replace(/[^\/]*$/,"")+relativePath.replace(/^\.\//,"");
-				}
-			}
-		}else{
-			throw "SYNTAX_ERROR";
-		}
-		pattern=/^[^#]*/;
-		this.hash=path.replace(pattern,"");
-		arr=path.match(pattern);
-		path=arr[0];
-		pattern=/^[^\?]*/;
-		this.search=path.replace(pattern,"");
-		arr=path.match(pattern);
-		this.pathname=arr[0];
-
-		pattern=/(.*):(\d+)$/;
-		arr=this.host.match(pattern);
-		this.port="";
-		if(arr){
-			this.hostname=arr[1];
-			if(arr[2]!="80"){
-				this.port=arr[2];
-			}
-		}else{
-			this.hostname=this.host;
-		}
-		this.origin=this.protocol+"//"+this.host;
-		var user=this.username;
-		if(user){
-			if(this.password){
-				user+=":"+this.password;
-			}
-			user+="@";
-		}
-		this.href=this.protocol+"//"+user+this.host+this.pathname+this.search+this.hash;
-	};
-}
+};
 Sky.getCookie=function(name){
 	var arr=document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
 	if(arr != null) return decodeURIComponent(arr[2]); return null;
@@ -2603,13 +2513,11 @@ Sky.UUID=function() {
 	if(Sky.browser.ie9){
 		Sky.event.fix.input={
 			attachEvent:function(ele, evt, func){
-				Sky.attachEvent(ele,'change',func);
 				Sky.attachEvent(ele,'selectionchange',func);
 				Sky.attachEvent(ele,'keyup',func);
 				Sky.attachEvent(ele,'input',func);
 			},
 			detachEvent:function(ele, evt, func){
-				Sky.detachEvent(ele,'change',func);
 				Sky.detachEvent(ele,'selectionchange',func);
 				Sky.detachEvent(ele,'keyup',func);
 				Sky.detachEvent(ele,'input',func);
@@ -2620,7 +2528,7 @@ Sky.UUID=function() {
 			attachEvent:function(ele, evt, func){
 				var proxyHandle=function(e){
 					e=e || window.event;
-					if(e.propertyName=='value'){
+					if(e.propertyName==='value'){
 						if(!e.srcElement.disabled && !e.srcElement.readOnly){
 							e.target=e.srcElement;
 							e.currentTarget=ele;
@@ -2766,6 +2674,20 @@ Sky.getPrevElement=function(element){
 	}else{
 		return Sky.getPrevElement(e);
 	}
+};
+Sky.getAttrs=function(ele){
+	var arr=[];
+	var i=ele.attributes.length;
+	while(i-->0){
+		var attr=ele.attributes[i];
+		var key=attr.name,value=attr.value;
+		if(attr.specified || key==="value"){
+			if(value){
+				arr.push(attr);
+			}
+		}
+	}
+	return arr;
 };
 Sky.getFormData=function(form){
 	if(Sky.isString(form)){

@@ -33,13 +33,13 @@ if(!this.setImmediate){
 				return index;
 			};
 			var setTimeoutN=setImmediate.setTimeout=setTimeout;
-			if(Sky.browser.ie){
-				window.execScript('function setTimeout(fn,time){time=time || 1;return setImmediate.setTimeout(fn,time);}');
-			}else{
+			if(document.addEventListener){
 				global.setTimeout=function(fn,time){
 					time=time || 11;
 					return setTimeoutN(fn,time);
 				};
+			}else{
+				window.execScript('function setTimeout(fn,time){time=time || 54;var setTimeout=setImmediate.setTimeout;return setTimeout(fn,time);}');
 			}
 			function nextTick(){
 				for(var i=0;i<ticks.length;i++){

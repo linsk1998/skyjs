@@ -1,6 +1,41 @@
 var Sky=function(){
-	return $.overload(arguments,this);
+	return Sky.overload(arguments,this);
 };
+this.$=this.$ || Sky;
+(function(){
+	var rules=[];
+	function ckeck(ckeckFunc,index){
+		return ckeckFunc(this[index]);
+	}
+	function compare(x, y){//比较函数
+		return x.checks.length-y.checks.length;
+	}
+	Sky.overload=function(checks,func,target){
+		if(target){
+			rules.push({
+				'checks':checks,
+				'func':func,
+				'target':target
+			});
+			rules.sort(compare);
+		}else{
+			var args=checks;
+			var thisVal=func;
+			var i=rules.length;
+			while(i--){
+				var rule=rules[i];
+				if(args.callee===rule.func){
+					if(rule.checks.length>=args.length){
+						if(rule.checks.every(ckeck,args)){
+							return rule.target.apply(thisVal,args);
+						}
+					}
+				}
+			}
+			return Sky;
+		}
+	};
+})();
 Sky.isArray=function(a){
 	return Array.isArray(a);
 };
@@ -41,28 +76,14 @@ Sky.isObject=function(obj){
 Sky.isDefined=function(obj){
 	return obj!==void 0;
 };
+Sky.isWindow=function(obj){
+	return obj && typeof obj === "object" && "setInterval" in obj;
+};
 Sky.isPlainObject=function(obj){
-	var key;
-	if(typeof obj !=="object"){
+	if(typeof obj!=="object" || obj.nodeType || Sky.isWindow(obj)){
 		return false;
 	}
-	if(obj.toString()!=='[object Object]'){
-		return false;
-	}
-	var hasOwn=Object.prototype.hasOwnProperty;
-	try{
-		if(obj.constructor && obj.constructor!=Object){
-			return false;
-		}
-	}catch(e){
-		return false;
-	}
-	for( key in obj ){
-		if(!hasOwn.call(obj,key)){
-			return false;
-		}
-	}
-	return true;
+	return obj.constructor===Object;
 };
 Sky.isArrayLike=function(obj){
 	var length=obj.length;
@@ -99,4 +120,18 @@ Sky.isEmpty=function(obj){
 		return !obj.toArray().length;
 	}
 	return false;
+};
+Sky.isArrayLike=function(obj){
+	var length=obj.length;
+	if(typeof length !="number" || length<0 || isNaN(length) || Math.ceil(length)!=length){
+		return false;
+	}
+	return true;
+};
+Sky.isNumeric=function(obj){
+	var n=parseFloat(obj);
+	return !isNaN(n);
+};
+Sky.isDocument=function(obj){
+	return obj===document;
 };

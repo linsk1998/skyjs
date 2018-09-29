@@ -222,13 +222,11 @@
 	if(Sky.browser.ie9){
 		Sky.event.fix.input={
 			attachEvent:function(ele, evt, func){
-				Sky.attachEvent(ele,'change',func);
 				Sky.attachEvent(ele,'selectionchange',func);
 				Sky.attachEvent(ele,'keyup',func);
 				Sky.attachEvent(ele,'input',func);
 			},
 			detachEvent:function(ele, evt, func){
-				Sky.detachEvent(ele,'change',func);
 				Sky.detachEvent(ele,'selectionchange',func);
 				Sky.detachEvent(ele,'keyup',func);
 				Sky.detachEvent(ele,'input',func);
@@ -239,7 +237,7 @@
 			attachEvent:function(ele, evt, func){
 				var proxyHandle=function(e){
 					e=e || window.event;
-					if(e.propertyName=='value'){
+					if(e.propertyName==='value'){
 						if(!e.srcElement.disabled && !e.srcElement.readOnly){
 							e.target=e.srcElement;
 							e.currentTarget=ele;
