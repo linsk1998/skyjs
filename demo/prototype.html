@@ -65,9 +65,13 @@ arr = Array.from(arr);
 alert(arr);
 //[undefined,1]</code></pre>
 	<a class="btn btn-primary" href="javascript:alert(Array.from({'1':1,'length':2}))">Array.from({'1':1,'length':2})</a>
+	<h4>Array.isArray</h4>
+	<p>判断一个对象是否是数组。</p>
 	<h3 id="Object">Object</h3>
 	<h4>Object.keys</h4>
 	<p>方法会返回一个由给定对象的自身可枚举属性组成的数组</p>
+	<h4>Object.values</h4>
+	<p>方法会返回一个包含对象自身的所有可枚举属性值的数组</p>
 	<a class="btn btn-primary" href="javascript:alert(Object.keys({a:1,toString:2}))">Object.keys({a:1,toString:2})</a>
 	<h4>Object.assign</h4>
 	<p>如果目标对象中的属性具有相同的键，则属性将被源中的属性覆盖。后来的源的属性将类似地覆盖早先的属性</p>
@@ -170,6 +174,8 @@ console.log(o1);  // { a: 1, b: 2, c: 3 }, 注意目标对象自身也会改变�
 	<p>用来判断当前字符串是否是以另外一个给定的子字符串“开头”的，根据判断结果返回 true 或 false。</p>
 	<h4>String.prototype.endsWith</h4>
 	<p>用来判断当前字符串是否是以另外一个给定的子字符串“结尾”的，根据判断结果返回 true 或 false。</p>
+	<h4>String.prototype.includes</h4>
+	<p>这个方法可以帮你判断一个字符串是否包含另外一个字符串。</p>
 	<h4>String.prototype.repeat</h4>
 	<p>构造并返回一个新字符串，该字符串包含被连接在一起的指定数量的字符串的副本。</p>
 	<h4>String.prototype.padStart</h4>
@@ -178,7 +184,7 @@ console.log(o1);  // { a: 1, b: 2, c: 3 }, 注意目标对象自身也会改变�
 	<h4>String.prototype.padEnd</h4>
 	<p>会用第二个参数中指定的填充字符串，在当前字符串的尾部不断填充，直到它达到第一个参数中指定的目标长度。</p>
 	<h4>String.prototype.replaceAll</h4>
-	<p>替换此字符串匹配给定的所有子字符串。</p>
+	<p>替换此字符串匹配给定的所有子字符串，如果子字符串是固定的尽量用replace正则表达式替换。</p>
 	<a class="btn btn-primary" href="javascript:alert('\\n\t\d\\n'.replaceAll('\\n','0').replaceAll('\t','1').replaceAll('\d','2'))">
 		'\\n\t\d\\n'.replaceAll('\\n','0').replaceAll('\t','1').replaceAll('\d','2')
 	</a>

@@ -49,8 +49,11 @@
 	<h3 id="buildQuery">Sky.buildQuery</h3>
 	<p>转变为url数据(utf-8)</p>
 <pre><code>var param={"a":"1","b":"2","c":"3"};
-alert(Sky.buildQuery(param));   //a=1&b=2&c=3
-</code></pre>
+alert(Sky.buildQuery(param));   //a=1&b=2&c=3</code></pre>
+	<h3 id="parseQuery">Sky.parseQuery</h3>
+	<p>解析url参数</p>
+	<pre><code>var param=Sky.parseQuery(location.search);
+var param2=Sky.parseQuery("a=1&b=2&c=3");   //{"a":"1","b":"2","c":"3"}</code></pre>
 </div>
 </body>
 </html>

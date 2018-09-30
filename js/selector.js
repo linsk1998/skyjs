@@ -52,7 +52,7 @@
 			}else{
 				var noId=false;
 				if(!e.id){
-					e.id="SKY"+Sky.nextSequence();
+					e.id="SKY"+Sky.uniqueId();
 					noId=true;
 				}
 				var r=Array.from(document.querySelectorAll("#"+e.id+" "+selector));

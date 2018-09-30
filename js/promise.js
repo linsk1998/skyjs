@@ -230,6 +230,7 @@ if(!this.setImmediate){
 			});
 		};
 		global.Promise=Promise;
+		global.Deferred=Deferred;
 	}
 	Sky.Deferred=function(){
 		return new Deferred();

@@ -1,4 +1,5 @@
 
+//later is Deprecated
 Sky.later=function(fn){
 	setTimeout(fn,0);
 };
@@ -218,7 +219,7 @@ Sky.sortedLastIndex=function(arr,value){
 	};
 	var defaultNextSequence;
 	var sequenceMap=new Map();
-	Sky.nextSequence=function(arg1,arg2){
+	Sky.uniqueId=function(arg1,arg2){
 		if(Sky.isString(arg1)){
 			var s=sequenceMap.get(arg1);
 			if(Sky.isDefined(s)){

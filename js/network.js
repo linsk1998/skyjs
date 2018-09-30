@@ -1,5 +1,6 @@
 
 Sky.ajax=function(options){
+	var dfd=Sky.Deferred();
 	var targetUrl=options.url;
 	var success=options.success;
 	var error=options.error;
@@ -20,8 +21,10 @@ Sky.ajax=function(options){
 				}
 				if(dataType.toUpperCase() == 'XML') {
 					if(!xhr.responseXML || !xhr.responseXML.lastChild || xhr.responseXML.lastChild.localName == 'parsererror') {
+						dfd.reject(xhr.responseText);
 						if(error) error.call(xhr,xhr.responseText);
 					} else {
+						dfd.resolve(xhr.responseXML.lastChild);
 						success.call(xhr,xhr.responseXML.lastChild);
 					}
 				}else if(dataType.toUpperCase() == 'JSON') {
@@ -29,13 +32,19 @@ Sky.ajax=function(options){
 					try {
 						data=JSON.parse(xhr.responseText);
 					}catch(err) {
+						dfd.reject(xhr.responseText);
 						if(error) error.call(xhr,xhr.responseText);
 					}
-					if(data) success.call(xhr,data);
+					if(data){
+						dfd.resolve(data);
+						success.call(xhr,data);
+					}
 				}else{
+					dfd.resolve(xhr.responseText);
 					success.call(xhr,xhr.responseText);
 				}
 			}else if(error){
+				dfd.reject(xhr.responseText);
 				error.call(xhr,xhr.responseText);
 			}
 			if(complete) complete.call(xhr,xhr.responseText);
@@ -66,9 +75,10 @@ Sky.ajax=function(options){
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 		xhr.send(null);
 	}
+	return dfd;
 };
 Sky.get=function(targetUrl,success,datatype,error){
-	Sky.ajax({
+	return Sky.ajax({
 		'url' : targetUrl,
 		'type' : "GET",
 		'dataType' : datatype,
@@ -92,7 +102,7 @@ Sky.ajax.get=function(targetUrl,datatype){
 	});
 };
 Sky.post=function(targetUrl,data,success,datatype,error){
-	Sky.ajax({
+	return Sky.ajax({
 		'url' : targetUrl,
 		'type' : "POST",
 		'data' : data,

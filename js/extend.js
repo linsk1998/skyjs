@@ -678,7 +678,7 @@ if(!URLSearchParams.prototype.sort){
 		});
 	};
 }
-document.head=document.getElementsByTagName("head")[0];
+document.head=document.head || document.getElementsByTagName("head")[0];
 /** 判断一个节点后代是否包含另一个节点 **/
 if(this.Node && Node.prototype && !Node.prototype.contains){
 	Node.prototype.contains=function(arg){
@@ -772,7 +772,7 @@ if(!window.execScript){
 		window["eval"].call( window,script);
 	};
 }
-
+//坑
 var StringBuilder;
 if(!-[1,]){//ie6-8
 	StringBuilder=function() {
@@ -795,6 +795,7 @@ if(!-[1,]){//ie6-8
 		return this._source;
 	}
 }
+//坑
 function Duration(dt){
 	this.value=dt;
 }
@@ -822,6 +823,9 @@ Duration.prototype.getSecond=function(){
 function DateFormat(pattern){
 	this.pattern=pattern;
 }
+DateFormat.prototype.toString=function(){
+	return this.pattern;
+};
 DateFormat.prototype.format=function(date){
 	return this.pattern.replace(/yyyy/g,date.getFullYear())
 		.replace(/yy/g,Sky.pad(date.getYear()%100,2))

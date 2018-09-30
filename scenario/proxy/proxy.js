@@ -42,7 +42,7 @@ if(!this.Proxy){
 			window.VBProxyFactory=function(target,handler){
 				var className=VBProxyPool.get(target);
 				if(!className){
-					className="VBClass_"+Sky.nextSequence();
+					className="VBClass_"+Sky.uniqueId();
 					VBProxyPool.set(target,className);
 					var buffer=["Class "+className];
 					buffer.push('Public [__target__]');

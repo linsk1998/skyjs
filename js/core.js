@@ -1,5 +1,4 @@
 
-Sky=this.Sky || this.$;
 Sky.support={};
 (function(){
 	var userAgent = navigator.userAgent.toLowerCase();
@@ -31,8 +30,8 @@ Sky.support={};
 	}
 })();
 Sky.noop=function(){};
-
-if(!({toString:null}).propertyIsEnumerable('toString')){
+Sky.toString=null;
+if(!Sky.propertyIsEnumerable('toString')){
 	Sky.dontEnums=["toString","toLocaleString","valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable"];
 	Sky.forIn=function(obj,fn,thisArg){
 		thisArg=thisArg || window;
@@ -130,16 +129,18 @@ if(!({toString:null}).propertyIsEnumerable('toString')){
 }
 Sky.support.VBScript=false;
 if(window.execScript){
-	window.execScript([
-		'Function alert(msg)',
-		'msgbox msg',
-		'End Function' //去除弹窗的图标
-	].join('\n'), 'VBScript');
-	if(typeof alert=="unknown"){
-		Sky.support.VBScript=true;
-	}
+	try{
+		window.execScript([
+			'Function alert(msg)',
+			'msgbox msg',
+			'End Function' //去除弹窗的图标
+		].join('\n'), 'VBScript');
+		if(typeof alert=="unknown"){
+			Sky.support.VBScript=true;
+		}
+	}catch(e){}
 }
-//开头补零
+//数字开头补零
 Sky.pad=function(value,width,chars){
 	if(!chars){chars=" ";}
 	if(Sky.isNumber(value)){

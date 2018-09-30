@@ -135,7 +135,6 @@ Sky.isNumeric=function(obj){
 Sky.isDocument=function(obj){
 	return obj===document;
 };
-Sky=this.Sky || this.$;
 Sky.support={};
 (function(){
 	var userAgent = navigator.userAgent.toLowerCase();
@@ -167,8 +166,8 @@ Sky.support={};
 	}
 })();
 Sky.noop=function(){};
-
-if(!({toString:null}).propertyIsEnumerable('toString')){
+Sky.toString=null;
+if(!Sky.propertyIsEnumerable('toString')){
 	Sky.dontEnums=["toString","toLocaleString","valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable"];
 	Sky.forIn=function(obj,fn,thisArg){
 		thisArg=thisArg || window;
@@ -266,16 +265,18 @@ if(!({toString:null}).propertyIsEnumerable('toString')){
 }
 Sky.support.VBScript=false;
 if(window.execScript){
-	window.execScript([
-		'Function alert(msg)',
-		'msgbox msg',
-		'End Function' //去除弹窗的图标
-	].join('\n'), 'VBScript');
-	if(typeof alert=="unknown"){
-		Sky.support.VBScript=true;
-	}
+	try{
+		window.execScript([
+			'Function alert(msg)',
+			'msgbox msg',
+			'End Function' //去除弹窗的图标
+		].join('\n'), 'VBScript');
+		if(typeof alert=="unknown"){
+			Sky.support.VBScript=true;
+		}
+	}catch(e){}
 }
-//开头补零
+//数字开头补零
 Sky.pad=function(value,width,chars){
 	if(!chars){chars=" ";}
 	if(Sky.isNumber(value)){
@@ -1043,7 +1044,7 @@ if(!URLSearchParams.prototype.sort){
 		});
 	};
 }
-document.head=document.getElementsByTagName("head")[0];
+document.head=document.head || document.getElementsByTagName("head")[0];
 /** 判断一个节点后代是否包含另一个节点 **/
 if(this.Node && Node.prototype && !Node.prototype.contains){
 	Node.prototype.contains=function(arg){
@@ -1137,7 +1138,7 @@ if(!window.execScript){
 		window["eval"].call( window,script);
 	};
 }
-
+//坑
 var StringBuilder;
 if(!-[1,]){//ie6-8
 	StringBuilder=function() {
@@ -1160,6 +1161,7 @@ if(!-[1,]){//ie6-8
 		return this._source;
 	}
 }
+//坑
 function Duration(dt){
 	this.value=dt;
 }
@@ -1187,6 +1189,9 @@ Duration.prototype.getSecond=function(){
 function DateFormat(pattern){
 	this.pattern=pattern;
 }
+DateFormat.prototype.toString=function(){
+	return this.pattern;
+};
 DateFormat.prototype.format=function(date){
 	return this.pattern.replace(/yyyy/g,date.getFullYear())
 		.replace(/yy/g,Sky.pad(date.getYear()%100,2))
@@ -1530,6 +1535,7 @@ if(!this.setImmediate){
 			});
 		};
 		global.Promise=Promise;
+		global.Deferred=Deferred;
 	}
 	Sky.Deferred=function(){
 		return new Deferred();
@@ -1730,6 +1736,7 @@ if(!this.sessionStorage){
 	}();
 }
 Sky.ajax=function(options){
+	var dfd=Sky.Deferred();
 	var targetUrl=options.url;
 	var success=options.success;
 	var error=options.error;
@@ -1750,8 +1757,10 @@ Sky.ajax=function(options){
 				}
 				if(dataType.toUpperCase() == 'XML') {
 					if(!xhr.responseXML || !xhr.responseXML.lastChild || xhr.responseXML.lastChild.localName == 'parsererror') {
+						dfd.reject(xhr.responseText);
 						if(error) error.call(xhr,xhr.responseText);
 					} else {
+						dfd.resolve(xhr.responseXML.lastChild);
 						success.call(xhr,xhr.responseXML.lastChild);
 					}
 				}else if(dataType.toUpperCase() == 'JSON') {
@@ -1759,13 +1768,19 @@ Sky.ajax=function(options){
 					try {
 						data=JSON.parse(xhr.responseText);
 					}catch(err) {
+						dfd.reject(xhr.responseText);
 						if(error) error.call(xhr,xhr.responseText);
 					}
-					if(data) success.call(xhr,data);
+					if(data){
+						dfd.resolve(data);
+						success.call(xhr,data);
+					}
 				}else{
+					dfd.resolve(xhr.responseText);
 					success.call(xhr,xhr.responseText);
 				}
 			}else if(error){
+				dfd.reject(xhr.responseText);
 				error.call(xhr,xhr.responseText);
 			}
 			if(complete) complete.call(xhr,xhr.responseText);
@@ -1796,9 +1811,10 @@ Sky.ajax=function(options){
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 		xhr.send(null);
 	}
+	return dfd;
 };
 Sky.get=function(targetUrl,success,datatype,error){
-	Sky.ajax({
+	return Sky.ajax({
 		'url' : targetUrl,
 		'type' : "GET",
 		'dataType' : datatype,
@@ -1822,7 +1838,7 @@ Sky.ajax.get=function(targetUrl,datatype){
 	});
 };
 Sky.post=function(targetUrl,data,success,datatype,error){
-	Sky.ajax({
+	return Sky.ajax({
 		'url' : targetUrl,
 		'type' : "POST",
 		'data' : data,
@@ -2011,6 +2027,7 @@ Sky.getScript=function(src,func,charset){
 		}
 	}
 })();
+//later is Deprecated
 Sky.later=function(fn){
 	setTimeout(fn,0);
 };
@@ -2230,7 +2247,7 @@ Sky.sortedLastIndex=function(arr,value){
 	};
 	var defaultNextSequence;
 	var sequenceMap=new Map();
-	Sky.nextSequence=function(arg1,arg2){
+	Sky.uniqueId=function(arg1,arg2){
 		if(Sky.isString(arg1)){
 			var s=sequenceMap.get(arg1);
 			if(Sky.isDefined(s)){
@@ -2924,7 +2941,7 @@ Sky.destroy=function(ele){
 			}else{
 				var noId=false;
 				if(!e.id){
-					e.id="SKY"+Sky.nextSequence();
+					e.id="SKY"+Sky.uniqueId();
 					noId=true;
 				}
 				var r=Array.from(document.querySelectorAll("#"+e.id+" "+selector));
