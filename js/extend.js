@@ -40,6 +40,16 @@ if(!Object.assign){
 		}
 	};
 }
+Object.is=function(a,b){
+	if(a===0 && b===0){
+		return 1/a===1/b;
+	}else if(a===b){
+		return true;
+	}else if(numberIsNaN(a) && numberIsNaN(b)){
+		return true;
+	}
+	return false;
+};
 if(!Object.getPrototypeOf){
 	if('__proto__' in Sky){
 		Object.getPrototypeOf=function(object){
