@@ -136,6 +136,29 @@ Sky.applyIf=function(obj,config){
 	});
 	return obj;
 };
+
+Sky.pick=function(obj,keys){
+	var rest={};
+	if(obj){
+		Sky.forOwn(obj, function(value,key){
+			if(keys.indexOf(key)>=0){
+				rest[key]=value;
+			}
+		});
+	}
+	return rest;
+};
+Sky.omit=function(obj,keys){
+	var rest={};
+	if(obj){
+		Sky.forOwn(obj, function(value,key){
+			if(keys.indexOf(key)<0){
+				rest[key]=value;
+			}
+		});
+	}
+	return rest;
+};
 Sky.times=function(n,iteratee,thisArg){
 	if(n<1){
 		return [];
@@ -219,7 +242,7 @@ Sky.sortedLastIndex=function(arr,value){
 	};
 	var defaultNextSequence;
 	var sequenceMap=new Map();
-	Sky.uniqueId=function(arg1,arg2){
+	Sky.uniqueId=Sky.nextSequence=function(arg1,arg2){
 		if(Sky.isString(arg1)){
 			var s=sequenceMap.get(arg1);
 			if(Sky.isDefined(s)){

@@ -38,18 +38,21 @@ if(!Object.assign){
 				});
 			}
 		}
+		return target;
 	};
 }
-Object.is=function(a,b){
-	if(a===0 && b===0){
-		return 1/a===1/b;
-	}else if(a===b){
-		return true;
-	}else if(numberIsNaN(a) && numberIsNaN(b)){
-		return true;
-	}
-	return false;
-};
+if(!Object.is){
+	Object.is=function(a,b){
+		if(a===0 && b===0){
+			return 1/a===1/b;
+		}else if(a===b){
+			return true;
+		}else if(numberIsNaN(a) && numberIsNaN(b)){
+			return true;
+		}
+		return false;
+	};
+}
 if(!Object.getPrototypeOf){
 	if('__proto__' in Sky){
 		Object.getPrototypeOf=function(object){
@@ -71,7 +74,7 @@ if(!Object.getPrototypeOf){
 	}
 }
 //上面的Object.getPrototypeOf有局限性，必须按照下面方式继承类才能使用
-function __extends(clazz, superClazz) {
+Sky.inherits=function(clazz,superClazz){
 	Object.assign(clazz,superClazz);
 	clazz.prototype=Object.create(superClazz.prototype);
 	clazz.superclass=superClazz;//为了其他程序的代码方便获取父类

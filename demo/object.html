@@ -16,6 +16,16 @@
 <div class="container-fluid">
 	<h2>对象操作</h2>
 	<h3 id="applyIf">Sky.applyIf</h3>
+	<h3 id="pick">Sky.pick</h3>
+	<p>返回一个只有列入挑选key属性的对象。</p>
+	<pre><code>var object = { 'a': 1, 'b': '2', 'c': 3 };
+Sky.pick(object, ['a', 'c']);
+// => { 'a': 1, 'c': 3 }</code></pre>
+	<h3 id="omit">Sky.omit</h3>
+	<p>返回一个没有列入排除key属性的对象。</p>
+	<pre><code>var object = { 'a': 1, 'b': '2', 'c': 3 };
+Sky.omit(object, ['a', 'c']);
+// => { 'b': '2' }</code></pre>
 	<p>属性拷贝不会覆盖</p>
 	<h3 id="extend">Sky.extend</h3>
 	<p>扩展对象，一般推荐使用Object.assign。</p>
