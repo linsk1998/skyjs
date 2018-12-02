@@ -404,18 +404,20 @@ if(!Object.assign){
 				});
 			}
 		}
+		return target;
 	};
 }
-Object.is=function(a,b){
-	if(a===0 && b===0){
-		return 1/a===1/b;
-	}else if(a===b){
-		return true;
-	}else if(numberIsNaN(a) && numberIsNaN(b)){
-		return true;
-	}
-	return false;
-};
+if (!Object.is){
+	Object.is=function(x, y){
+		if(x===y){// Steps 1-5, 7-10
+			// Steps 6.b-6.e: +0 != -0
+			return x!==0 || 1/x===1/y;
+		}else{
+			// Step 6.a: NaN == NaN
+			return x!==x && y!==y;
+		}
+	};
+}
 if(!Object.getPrototypeOf){
 	if('__proto__' in Sky){
 		Object.getPrototypeOf=function(object){
@@ -437,7 +439,7 @@ if(!Object.getPrototypeOf){
 	}
 }
 //上面的Object.getPrototypeOf有局限性，必须按照下面方式继承类才能使用
-function __extends(clazz, superClazz) {
+Sky.inherits=function(clazz,superClazz){
 	Object.assign(clazz,superClazz);
 	clazz.prototype=Object.create(superClazz.prototype);
 	clazz.superclass=superClazz;//为了其他程序的代码方便获取父类
@@ -2174,6 +2176,29 @@ Sky.applyIf=function(obj,config){
 	});
 	return obj;
 };
+
+Sky.pick=function(obj,keys){
+	var rest={};
+	if(obj){
+		Sky.forOwn(obj, function(value,key){
+			if(keys.indexOf(key)>=0){
+				rest[key]=value;
+			}
+		});
+	}
+	return rest;
+};
+Sky.omit=function(obj,keys){
+	var rest={};
+	if(obj){
+		Sky.forOwn(obj, function(value,key){
+			if(keys.indexOf(key)<0){
+				rest[key]=value;
+			}
+		});
+	}
+	return rest;
+};
 Sky.times=function(n,iteratee,thisArg){
 	if(n<1){
 		return [];
@@ -2257,7 +2282,7 @@ Sky.sortedLastIndex=function(arr,value){
 	};
 	var defaultNextSequence;
 	var sequenceMap=new Map();
-	Sky.uniqueId=function(arg1,arg2){
+	Sky.uniqueId=Sky.nextSequence=function(arg1,arg2){
 		if(Sky.isString(arg1)){
 			var s=sequenceMap.get(arg1);
 			if(Sky.isDefined(s)){
