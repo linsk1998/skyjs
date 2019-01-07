@@ -88,6 +88,15 @@ if(Sky.support.__defineSetter__){
 			if(descriptor.set) obj.__defineSetter__(prop,descriptor.set);
 		};
 	}
+	if(!Object.defineProperties){
+		Object.defineProperties=function(obj,properties){
+			for(var key in properties){
+				var descriptor=properties[key];
+				if(descriptor.get) obj.__defineGetter__(key,descriptor.get);
+				if(descriptor.set) obj.__defineSetter__(key,descriptor.set);
+			}
+		};
+	}
 }
 if(!Array.from){
 	Array.from=function(arrayLike, mapFn, thisArg){
@@ -120,6 +129,11 @@ if(!Array.prototype.indexOf){
 			if(j===e){return i;}
 		}
 		return -1;
+	};
+}
+if(!Array.prototype.includes){
+	Array.prototype.includes=function(search,start){
+		return this.indexOf(search, start)!==-1;
 	};
 }
 if(!Array.prototype.lastIndexOf){
@@ -207,7 +221,7 @@ if(!Array.prototype.every){
 	}
 	Iterator.prototype.next=function(){
 		var result={};
-		result.done=this.array.length>this.i;
+		result.done=this.array.length<=this.i;
 		result.value=this.array[this.i];
 		if(!result.done){
 			this.i++;
@@ -617,79 +631,6 @@ if(!this.XMLHttpRequest){
 		}
 	};
 }
-if(!this.URLSearchParams){
-	URLSearchParams=function(paramsString){
-		this._data=new Array();
-		if(paramsString){
-			if(paramsString.indexOf("?")==0){
-				paramsString=paramsString.substr(1,paramsString.length-1);
-			}
-			var pairs=paramsString.split("&");
-			for(var i=0;i<pairs.length;i++){
-				var arr=pairs[i].split("=");
-				if(arr.length==2){
-					this._data.push([arr[0],arr[1]]);
-				}else if(arr.length>2){
-					var key=arr[0];
-					arr.shift();
-					this._data.push(key,arr.join("="));
-				}
-			}
-		}
-	};
-	URLSearchParams.prototype.append=function(key,value){
-		this._data.push([key,value]);
-	};
-	URLSearchParams.prototype.get=function(key){
-		var item=this._data.find(function(item){
-			return item[0]==key;
-		});
-		if(item) return item[1];
-		return null;
-	};
-	URLSearchParams.prototype.getAll=function(key){
-		return this._data.filter(function(item){
-			return item[0]==key;
-		}).map(function(item){
-			return item[1];
-		});
-	};
-	URLSearchParams.prototype.set=function(key,value){
-		var item=this._data.find(function(item){
-			return item[0]==key;
-		});
-		if(item){
-			item[1]=value;
-		}else{
-			this.append(key,value);
-		}
-	};
-	URLSearchParams.prototype['delete']=function(key){
-		this._data=this._data.filter(function(item){
-			return item[0]!=key;
-		});
-	};
-	URLSearchParams.prototype.has=function(key){
-		return this._data.some(function(item){
-			return item[0]==key;
-		});
-	};
-	URLSearchParams.prototype.toString=function(key){
-		return this._data.map(function(item){
-			return encodeURIComponent(item[0])+"="+encodeURIComponent(item[1]);
-		}).join("&");
-	};
-}
-if(!URLSearchParams.prototype.remove){
-	URLSearchParams.prototype.remove=URLSearchParams.prototype['delete'];
-}
-if(!URLSearchParams.prototype.sort){
-	URLSearchParams.prototype.sort=function(key){
-		return this._data.sort(function(a,b){
-			return a[0] > b[0];
-		});
-	};
-}
 document.head=document.head || document.getElementsByTagName("head")[0];
 /** 判断一个节点后代是否包含另一个节点 **/
 if(this.Node && Node.prototype && !Node.prototype.contains){
@@ -784,169 +725,3 @@ if(!window.execScript){
 		window["eval"].call( window,script);
 	};
 }
-//坑
-var StringBuilder;
-if(!-[1,]){//ie6-8
-	StringBuilder=function() {
-		this._source=new Array();
-	};
-	StringBuilder.prototype.append = function(str){
-		this._source.push(str);
-	}
-	StringBuilder.prototype.toString = function(){
-		return this._source.join("");
-	}
-}else{
-	StringBuilder=function() {
-		this._source="";
-	};
-	StringBuilder.prototype.append = function(str){
-		this._source+=str;
-	}
-	StringBuilder.prototype.toString = function(){
-		return this._source;
-	}
-}
-//坑
-function Duration(dt){
-	this.value=dt;
-}
-Duration.prototype.valueOf=function(){
-	return this.value;
-};
-Duration.prototype.getYear=function(){
-	return this.value/8765813;
-};
-Duration.prototype.getMonth=function(){
-	return this.value/8765813*12;
-};
-Duration.prototype.getDay=function(){
-	return this.value/1000/60/60/24;
-};
-Duration.prototype.getMin=function(){
-	return this.value/1000/60/60;
-};
-Duration.prototype.getMinute=function(){
-	return this.value/1000/60;
-};
-Duration.prototype.getSecond=function(){
-	return this.value/1000;
-};
-function DateFormat(pattern){
-	this.pattern=pattern;
-}
-DateFormat.prototype.toString=function(){
-	return this.pattern;
-};
-DateFormat.prototype.format=function(date){
-	return this.pattern.replace(/yyyy/g,date.getFullYear())
-		.replace(/yy/g,Sky.pad(date.getYear()%100,2))
-		.replace(/MM/g,Sky.pad(date.getMonth()+1,2))
-		.replace(/M/g,date.getMonth()+1)
-		.replace(/dd/g,Sky.pad(date.getDate(),2))
-		.replace(/d/g,date.getDate())
-		.replace(/HH/g,Sky.pad(date.getHours(),2))
-		.replace(/H/g,date.getHours())
-		.replace(/hh/g,date.getHours()<13?date.getHours():Sky.pad(date.getHours()%12,2))
-		.replace(/h/g,date.getHours()<13?date.getHours():(date.getHours()%12))
-		.replace(/mm/g,Sky.pad(date.getMinutes(),2))
-		.replace(/m/g,date.getMinutes())
-		.replace(/ss/g,Sky.pad(date.getSeconds(),2))
-		.replace(/s/g,date.getSeconds())
-		.replace(/a{1,3}/g,date.getHours()%12>1?"PM":"AM")
-		.replace(/S{3}/g,Sky.pad(date.getMilliseconds(),3));
-};
-DateFormat.prototype.parse=function(dateString){
-	var reg1=/(yyyy|yy|MM|M|dd|d|HH|H|hh|h|mm|m|ss|s|aaa|a|SSS)/g;
-	var keys=this.pattern.match(reg1);
-	if(!keys){
-		return dateString;
-	}
-	var reg2Text=Sky.escapeRegExp(this.pattern).replace(reg1,function(word){
-		if(word=="a"){
-			return "(PM|AM)";
-		}
-		return "(\\d{"+word.length+"})";
-	});
-	reg2Text="^"+reg2Text+"$";
-	var reg2=new RegExp(reg2Text);
-	var values=dateString.match(reg2);
-	if(!values) throw "ParseException";
-	var date=new Date();
-	var a12=false;
-	var h12=false;
-	for(var i=0;i<keys.length;i++){
-		var key=keys[i];
-		var value;
-		if(!key.startsWith("a")){
-			value=parseInt(values[i+1]);
-			switch(key){
-				case "yyyy":
-					date.setFullYear(value);
-					break;
-				case "yy":
-					date.setYear(value+Math.floor(date.getYear()/100)*100);
-					break;
-				case "MM":
-				case "M":
-					date.setMonth(value-1);
-					break;
-				case "dd":
-				case "d":
-					date.setDate(value);
-					break;
-				case "HH":
-				case "H":
-					date.setHours(value);
-					h12=false;
-					break;
-				case "hh":
-				case "h":
-					h12=true;
-					if(a12 && value<12){
-						date.setHours(value+12);
-					}else{
-						date.setHours(value);
-					}
-					break;
-				case "mm":
-				case "m":
-					date.setMinutes(value);
-					break;
-				case "ss":
-				case "s":
-					date.setSeconds(value);
-					break;
-				case "SSS":
-					date.setMilliseconds(value);
-					break;
-				default:
-			}
-		}else{
-			value=values[i+1];
-			if(value=="PM" || value=="下午"){
-				a12=true;
-				if(h12){
-					var h=date.getHours();
-					if(h<12){
-						date.setHours(h+12);
-					}
-				}
-			}
-		}
-	}
-	return date;
-};
-DateFormat.format=function(date){
-	return date.toLocaleFormat("%Y/%m/%d %H:%M:%S");
-};
-DateFormat.parse=function(str){
-	var d=new Date(str);
-	if(isNaN(d)){
-		d=new Date(str.replace(/\-/g,"/"));
-		if(isNaN(d)){
-			throw "ParseException";
-		}
-	}
-	return d;
-};

@@ -252,6 +252,25 @@ myFirstPromise.then(function(successMessage){
 				});
 			};
 		</script>
+		<h3 id="URL">URL</h3>
+		<p>用于解析URL。</p>
+		<script type="text/javascript">
+			var url;
+			function printURL(btn){
+				url=eval(btn.innerText);
+				var a=[];
+				for(var key in url){
+					a.push(key+":"+url[key]);
+				}
+				alert(a.join("\n"));
+			}
+		</script>
+		<div class="btn-toolbar">
+			<button class="btn btn-primary" type="button" onclick="printURL(this)">new URL("/?a=x#e","http://shengdiyage.us:80/abc/index.asp?id=1&t=1400#top")</button>
+			<button class="btn btn-primary" type="button" onClick="alert(url.href)">url.href</button>
+			<button class="btn btn-primary" type="button" onClick="alert(url.pathname)">url.pathname</button>
+			<button class="btn btn-primary" type="button" onClick="url.pathname='/qweea/asdsa.aasd'">url.pathname='/qweea/asdsa.aasd'</button>
+		</div>
 		<h3 id="URLSearchParams">URLSearchParams</h3>
 		<p>用于解析或生成URL参数。</p>
 		<pre><code>//解析例子
@@ -284,14 +303,6 @@ setImmediate(function(){
 		});
 	});
 });</code></pre>
-		<div class="btn-toolbar">
-			<a class="btn btn-primary" href="javascript:setTimeout(function(){alert(1)});setImmediate(function(){setImmediate(function(){setImmediate(function(){setImmediate(function(){setImmediate(function(){setImmediate(function(){setImmediate(function(){alert(0)})})})})})})});void 0">测试</a>
-		</div>
-		<h3 id="DateFormat">DateFormat</h3>
-		<p>按通用格式将一个日期转换成一个字符串。</p>
-		<a class="btn btn-primary" href="javascript:alert(DateFormat.format(new Date()))">DateFormat.format(new Date())</a>
-		<a class="btn btn-primary" href="javascript:alert(DateFormat.parse('2017/12/14 02:16:27'))">DateFormat.parse('2017/12/14 02:16:27')</a>
-		<a class="btn btn-primary" href="javascript:alert(new DateFormat('yyyy-MM-dd HH:mm:ss.SSS').format(new Date()))">yyyy-MM-dd HH:mm:ss.SSS</a>
 	</div>
 </body>
 </html>

@@ -1,8 +1,4 @@
 
-//later is Deprecated
-Sky.later=function(fn){
-	setTimeout(fn,0);
-};
 //获取字符串占位长度
 Sky.strlen=function(str){
 	var len=0;
