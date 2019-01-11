@@ -9,9 +9,16 @@ Sky.getScript=function(src,func,charset){
 		var event='onreadystatechange';
 		if(event in script){
 			script.attachEvent(event,function(){
-				if(script.readyState=='loaded'){
+				if(script.readyState==='loaded'){
 					document.head.appendChild(script);
-				}else if(script.readyState=='complete'){
+				}else if(script.readyState==='interactive'){
+					if(!Object.defineProperty){
+						document.currentScript=script;
+					}
+				}else if(script.readyState==='complete'){
+					if(!Object.defineProperty){
+						document.currentScript=void 0;
+					}
 					script.detachEvent(event,arguments.callee);
 					var evt=window.event;
 					//evt.target=evt.currentTarget=evt.srcElement;
@@ -35,7 +42,7 @@ Sky.getScript=function(src,func,charset){
 	var nodes=document.getElementsByTagName('SCRIPT');
 	var currentScript=nodes[nodes.length-1];
 	Sky.support.getCurrentScript=true;
-	if("currentScript" in document){//最新浏览器
+	if(document.currentScript!==void 0){//最新浏览器
 	}else{
 		if("readyState" in currentScript){
 			Sky.getCurrentScript=function(){//IE11-
@@ -43,7 +50,7 @@ Sky.getScript=function(src,func,charset){
 				var i=nodes.length;
 				while(i--){
 					var node=nodes[i];
-					if(node.readyState==="interactive") {
+					if(node.readyState==="interactive"){
 						return node;
 					}
 				}
@@ -56,8 +63,6 @@ Sky.getScript=function(src,func,charset){
 						return Sky.getCurrentScript();
 					}
 				});
-			}else{
-				
 			}
 		}else if("onbeforescriptexecute" in currentScript){
 			document.currentScript=currentScript;
@@ -93,17 +98,26 @@ Sky.getScript=function(src,func,charset){
 				Object.defineProperty(document,"currentScript",{
 					enumerable:true,
 					get:function(){
-						var parent=(Sky.isReady?document.head:document);
-						var nodes=parent.getElementsByTagName('SCRIPT');
-						var last=nodes[nodes.length-1];
-						if(last.readyState==="complete") {
-							return null;
+						var nodes;
+						if(Sky.isReady){
+							nodes=document.head.getElementsByTagName('SCRIPT');
+							for(var i=0;i<nodes.length;i++){
+								var node=nodes[i];
+								if(node.src){
+									if(node.readyState!=="complete") {
+										return node;
+									}
+								}
+							}
+						}else{
+							nodes=document.getElementsByTagName('SCRIPT');
+							var all=document.getElementsByTagName("*");
+							var last=all[all.length-1];
+							if(nodes.length && last===nodes[nodes.length-1]){
+								return last;
+							}
 						}
-						if(last.src){
-							return last;
-						}
-						setTimeout(function(){last.readyState="complete";},0);
-						return last;
+						return null;
 					}
 				});
 			}

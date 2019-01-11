@@ -2057,15 +2057,13 @@ Sky.getScript=function(src,func,charset){
 				}
 				return null;
 			};
-			if(Object.defineProperty){
+			if(Object.defineProperties){
 				Object.defineProperty(document,"currentScript",{
 					enumerable:!!Object.defineProperties,//IE8不支持enumerable
 					get:function(){
 						return Sky.getCurrentScript();
 					}
 				});
-			}else{
-				
 			}
 		}else if("onbeforescriptexecute" in currentScript){
 			document.currentScript=currentScript;
