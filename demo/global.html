@@ -286,9 +286,8 @@ searchParams.append("arr[]","1");
 searchParams.append("arr[]","2");
 searchParams.toString();//"a=b&arr[]=1&arr[]=2"</code></pre>
 		<h3 id="setImmediate">setImmediate</h3>
-		<p>setImmediate在setTimeout 0之前执行。</p>
-		<pre><code>setTimeout(function(){alert(1)},0);
-setImmediate(function(){
+		<p>多层setImmediate在setTimeout 0之前执行。</p>
+		<pre><code>setImmediate(function(){
 	setImmediate(function(){
 		setImmediate(function(){
 			setImmediate(function(){
@@ -302,7 +301,8 @@ setImmediate(function(){
 			});
 		});
 	});
-});</code></pre>
+});
+setTimeout(function(){alert(1)},0);</code></pre>
 	</div>
 </body>
 </html>

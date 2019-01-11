@@ -20,27 +20,17 @@ if(!this.setImmediate){
 				return index;
 			};
 		}else{
-			var setTimeoutN=setTimeout;
 			var ticks=null;
 			global.setImmediate=function(fn){
 				index++;
 				if(!ticks){
 					ticks=new Array();
-					setTimeoutN(nextTick);
+					setTimeout(nextTick);
 				}
 				ticks.push(index);
 				handles.set(index,arguments);
 				return index;
 			};
-			var setTimeoutN=setImmediate.setTimeout=setTimeout;
-			if(document.addEventListener){
-				global.setTimeout=function(fn,time){
-					time=time || 11;
-					return setTimeoutN(fn,time);
-				};
-			}else{
-				window.execScript('function setTimeout(fn,time){time=time || 54;var setTimeout=setImmediate.setTimeout;return setTimeout(fn,time);}');
-			}
 			function nextTick(){
 				for(var i=0;i<ticks.length;i++){
 					var id=ticks[i];
