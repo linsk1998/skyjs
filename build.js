@@ -4,6 +4,7 @@ var out='';
 out+=fs.readFileSync(__dirname+'/js/overload.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/core.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/extend.js', 'utf-8');
+out+=fs.readFileSync(__dirname+'/../url-polyfill/URLSearchParams.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/../url-polyfill/URL.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/promise.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/browser.js', 'utf-8');

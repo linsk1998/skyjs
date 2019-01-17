@@ -1090,7 +1090,7 @@ if(!window.execScript){
 		}
 		window["eval"].call( window,script);
 	};
-}var URLSearchParams,URL;
+}var URLSearchParams;
 if(!this.URLSearchParams){
 	URLSearchParams=function(paramsString){
 		this._data=new Array();
@@ -1107,8 +1107,10 @@ if(!this.URLSearchParams){
 				i=this._data.length=pairs.length;
 				while(i-->0){
 					pair=pairs[i];
-					var id=pair.indexOf("=");
-					this._data[i]=new Array(pair.substring(id+1,pair.length),pair.substring(0,id));
+					if(pair){
+						var id=pair.indexOf("=");
+						this._data[i]=new Array(decodeURIComponent(pair.substring(id+1,pair.length)),decodeURIComponent(pair.substring(0,id)));
+					}
 				}
 			}
 		}
@@ -1163,7 +1165,7 @@ if(!this.URLSearchParams){
 	URLSearchParams.prototype.forEach=function(fn,thisArg){
 		this._data.forEach.apply(this._data,arguments);
 	};
-}
+}var URL;
 (function(window){
 	var SearchParams=function(url){
 		this._url=url;
@@ -1195,6 +1197,7 @@ if(!this.URLSearchParams){
 			}
 			me.protocol=me.hostname=me.pathname=null;
 			me.port=me.search=me.hash=me.username=me.password="";
+			me.searchParams=new SearchParams(me);
 			var pattern=/^[a-zA-Z]+:/;
 			if(arr=relativePath.match(pattern)){
 				me.protocol=arr[0];
@@ -1313,44 +1316,6 @@ if(!this.URLSearchParams){
 				this.username=url.username;
 				this.password=url.password;
 			}
-		},
-		search:{
-			enumerable:true,
-			get:function(){
-				if(this.searchParams){
-					var search=this.searchParams.toString();
-					if(search){
-						return "?"+search;
-					}
-				}
-				return "";
-			},
-			set:function(value){
-				if(this.searchParams){
-					var search=this.searchParams.toString();
-					var keys=[];
-					var pairs=search.split("&");
-					var i=pairs.length;
-					while(i-->0){
-						var pair=pairs[i];
-						var id=pair.indexOf("=");
-						var key=pair.substring(0,id);
-						this.searchParams['delete'](key);
-					}
-					search=value.replace(/^\?/,"");
-					if(search){
-						pairs=search.split("&");
-						i=pairs.length;
-						while(i-->0){
-							var pair=pairs[i];
-							var id=pair.indexOf("=");
-							this.searchParams.append(pair.substring(id+1,pair.length),pair.substring(0,id));
-						}
-					}
-				}else{
-					this.searchParams=new URLSearchParams(value.replace(/^\?/,""));
-				}
-			}
 		}
 	};
 	if(Object.defineProperties){
@@ -1381,6 +1346,7 @@ if(!this.URLSearchParams){
 			'	Public [hostname]',
 			'	Public [pathname]',
 			'	Public [port]',
+			'	Public [search]',
 			'	Public [searchParams]',
 			'	Public [hash]',
 			'	Public [username]',
@@ -1401,12 +1367,6 @@ if(!this.URLSearchParams){
 			'	End Property',
 			'	Public Property Get [href]',
 			'		[href]=URL.properties.href.get.call(Me)',
-			'	End Property',
-			'	Public Property Let [search](var)',
-			'		Call URL.properties.search.set.call(Me,var)',
-			'	End Property',
-			'	Public Property Get [search]',
-			'		[search]=URL.properties.search.get.call(Me)',
 			'	End Property',
 			'End Class',
 			'Function VBUrlFactory()',
@@ -2096,26 +2056,26 @@ Sky.getScript=function(src,func,charset){
 				Object.defineProperty(document,"currentScript",{
 					enumerable:true,
 					get:function(){
-						var nodes;
-						if(Sky.isReady){
-							nodes=document.head.getElementsByTagName('SCRIPT');
-							for(var i=0;i<nodes.length;i++){
-								var node=nodes[i];
-								if(node.src){
-									if(node.readyState!=="complete") {
-										return node;
+						if(Sky.support.getCurrentPath){
+							var path=Sky.getCurrentPath();
+							var nodes=document.getElementsByTagName('SCRIPT');
+							if(path && path!==location.href){
+								for(var i=0;i<nodes.length;i++){
+									var node=nodes[i];
+									if(path===new URL(node.src,location).href){
+										if(node.readyState!=="complete") {
+											return node;
+										}
 									}
 								}
+								return null;
 							}
-						}else{
-							nodes=document.getElementsByTagName('SCRIPT');
-							var all=document.getElementsByTagName("*");
-							var last=all[all.length-1];
-							if(nodes.length && last===nodes[nodes.length-1]){
-								return last;
+							if(Sky.isReady){
+								return null;
 							}
 						}
-						return null;
+						nodes=document.getElementsByTagName('SCRIPT');
+						return nodes[nodes.length-1];
 					}
 				});
 			}

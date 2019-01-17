@@ -98,26 +98,26 @@ Sky.getScript=function(src,func,charset){
 				Object.defineProperty(document,"currentScript",{
 					enumerable:true,
 					get:function(){
-						var nodes;
-						if(Sky.isReady){
-							nodes=document.head.getElementsByTagName('SCRIPT');
-							for(var i=0;i<nodes.length;i++){
-								var node=nodes[i];
-								if(node.src){
-									if(node.readyState!=="complete") {
-										return node;
+						if(Sky.support.getCurrentPath){
+							var path=Sky.getCurrentPath();
+							var nodes=document.getElementsByTagName('SCRIPT');
+							if(path && path!==location.href){
+								for(var i=0;i<nodes.length;i++){
+									var node=nodes[i];
+									if(path===new URL(node.src,location).href){
+										if(node.readyState!=="complete") {
+											return node;
+										}
 									}
 								}
+								return null;
 							}
-						}else{
-							nodes=document.getElementsByTagName('SCRIPT');
-							var all=document.getElementsByTagName("*");
-							var last=all[all.length-1];
-							if(nodes.length && last===nodes[nodes.length-1]){
-								return last;
+							if(Sky.isReady){
+								return null;
 							}
 						}
-						return null;
+						nodes=document.getElementsByTagName('SCRIPT');
+						return nodes[nodes.length-1];
 					}
 				});
 			}
