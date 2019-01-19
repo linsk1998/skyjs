@@ -78,49 +78,32 @@ Sky.getScript=function(src,func,charset){
 					e.target.readyState="complete";
 				}
 			},true);
-			if(Sky.browser.ie11){//ie11的script可以触发onload
-				Object.defineProperty(document,"currentScript",{
-					enumerable:true,
-					get:function(){
+			Sky.support.getCurrentScript=false;
+			Object.defineProperty(document,"currentScript",{
+				enumerable:true,
+				get:function(){
+					if(Sky.support.getCurrentPath){
+						var path=Sky.getCurrentPath();
 						var nodes=document.getElementsByTagName('SCRIPT');
-						var i=nodes.length;
-						while(i--){
-							var node=nodes[i];
-							if(node.readyState!=="complete") {
-								return node;
-							}
-						}
-						return null;
-					}
-				});
-			}else{//非IE的低版本无法完美获取
-				Sky.support.getCurrentScript=false;
-				Object.defineProperty(document,"currentScript",{
-					enumerable:true,
-					get:function(){
-						if(Sky.support.getCurrentPath){
-							var path=Sky.getCurrentPath();
-							var nodes=document.getElementsByTagName('SCRIPT');
-							if(path && path!==location.href){
-								for(var i=0;i<nodes.length;i++){
-									var node=nodes[i];
-									if(path===new URL(node.src,location).href){
-										if(node.readyState!=="complete") {
-											return node;
-										}
+						if(path){
+							for(var i=0;i<nodes.length;i++){
+								var node=nodes[i];
+								if(path===new URL(node.src,location).href){
+									if(node.readyState!=="complete") {
+										return node;
 									}
 								}
-								return null;
 							}
-							if(Sky.isReady){
-								return null;
-							}
+							return null;
 						}
-						nodes=document.getElementsByTagName('SCRIPT');
-						return nodes[nodes.length-1];
+						if(Sky.isReady){
+							return null;
+						}
 					}
-				});
-			}
+					nodes=document.getElementsByTagName('SCRIPT');
+					return nodes[nodes.length-1];
+				}
+			});
 		}
 	}
 	if(!Sky.getCurrentScript){//最新浏览器
@@ -149,8 +132,10 @@ Sky.getScript=function(src,func,charset){
 					throw new Error('get stack');
 				}catch(e){
 					var arr=getLastStack(e[stackResult.name]).match(stackResult.pattern);
-					if(arr && arr[1]!=location.href){
-						return arr[1];
+					if(arr){
+						if(arr[1]!=location.href && arr[1]!=location.origin+location.pathname+location.search){
+							return arr[1];
+						}
 					}
 				}
 			};
