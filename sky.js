@@ -998,6 +998,7 @@ if(!this.XMLHttpRequest){
 	};
 }
 document.head=document.head || document.getElementsByTagName("head")[0];
+location.origin=location.origin || location.protocol+"//"+location.host;
 /** 判断一个节点后代是否包含另一个节点 **/
 if(this.Node && Node.prototype && !Node.prototype.contains){
 	Node.prototype.contains=function(arg){
