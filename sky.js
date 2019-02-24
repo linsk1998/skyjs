@@ -365,6 +365,13 @@ Sky.escapeRegExp=function(str){//from lodash
 	}
 	return "(?:)";
 };
+
+Sky.inherits=function(clazz,superClazz){
+	Object.assign(clazz,superClazz);
+	clazz.prototype=Object.create(superClazz.prototype);
+	clazz.superclass=superClazz;//为了其他程序的代码方便获取父类
+	clazz.prototype.constructor=clazz;
+}
 if(!Object.create){
 	Object.create=function(proto){
 		function F(){}
@@ -437,13 +444,6 @@ if(!Object.getPrototypeOf){
 			return Object.prototype;
 		};
 	}
-}
-//上面的Object.getPrototypeOf有局限性，必须按照下面方式继承类才能使用
-Sky.inherits=function(clazz,superClazz){
-	Object.assign(clazz,superClazz);
-	clazz.prototype=Object.create(superClazz.prototype);
-	clazz.superclass=superClazz;//为了其他程序的代码方便获取父类
-	clazz.prototype.constructor=clazz;
 }
 Sky.support.defineProperty=!!Object.defineProperty && !!document.addEventListener;
 if(Sky.support.__defineSetter__){
@@ -578,6 +578,17 @@ if(!Array.prototype.every){
 			passed = !!fn.call(context, this[k], k, this);
 		}
 		return passed;
+	};
+}
+if(!Array.prototype.reduce){
+	Array.prototype.reduce=function(callback,initialValue){
+		var value=initialValue;
+		for (var i=0;i<this.length;i++) {
+			if (i in this) {
+				value=callback(value,this[i],i,this);
+			}
+		}
+		return value;
 	};
 }
 (function(){
@@ -2022,64 +2033,56 @@ Sky.getScript=function(src,func,charset){
 						return Sky.getCurrentScript();
 					}
 				});
+			}else{
+				window.execScript([
+					'Class VBDocProxy',
+					'	Public Property Get [title]',
+					'		[title]=document.title',
+					'	End Property',
+					'	Public Property Get [currentScript]',
+					'		[currentScript]=Sky.getCurrentScript()',
+					'	End Property',
+					'End Class',
+					'Function VBDocProxyFactory()',
+					'	Dim o',
+					'	Set o = New VBDocProxy',
+					'	Set VBDocProxyFactory = o',
+					'End Function'
+				].join('\n'), 'VBScript');
+				window.document=VBDocProxyFactory();
 			}
-		}else if("onbeforescriptexecute" in currentScript){
-			document.currentScript=currentScript;
-			document.addEventListener('beforescriptexecute',function(e){
-				document.currentScript=e.target;
-			},true);
-			document.addEventListener('afterscriptexecute',function(e){
-				document.currentScript=null;
-			},true);
 		}else{
 			document.addEventListener('load',function(e){
 				if(e.target.tagName==="SCRIPT"){
 					e.target.readyState="complete";
 				}
 			},true);
-			if(Sky.browser.ie11){//ie11的script可以触发onload
-				Object.defineProperty(document,"currentScript",{
-					enumerable:true,
-					get:function(){
+			Sky.support.getCurrentScript=false;
+			Object.defineProperty(document,"currentScript",{
+				enumerable:true,
+				get:function(){
+					if(Sky.support.getCurrentPath){
+						var path=Sky.getCurrentPath();
 						var nodes=document.getElementsByTagName('SCRIPT');
-						var i=nodes.length;
-						while(i--){
-							var node=nodes[i];
-							if(node.readyState!=="complete") {
-								return node;
-							}
-						}
-						return null;
-					}
-				});
-			}else{//非IE的低版本无法完美获取
-				Sky.support.getCurrentScript=false;
-				Object.defineProperty(document,"currentScript",{
-					enumerable:true,
-					get:function(){
-						if(Sky.support.getCurrentPath){
-							var path=Sky.getCurrentPath();
-							var nodes=document.getElementsByTagName('SCRIPT');
-							if(path && path!==location.href){
-								for(var i=0;i<nodes.length;i++){
-									var node=nodes[i];
-									if(path===new URL(node.src,location).href){
-										if(node.readyState!=="complete") {
-											return node;
-										}
+						if(path){
+							for(var i=0;i<nodes.length;i++){
+								var node=nodes[i];
+								if(path===new URL(node.src,location).href){
+									if(node.readyState!=="complete") {
+										return node;
 									}
 								}
-								return null;
 							}
-							if(Sky.isReady){
-								return null;
-							}
+							return null;
 						}
-						nodes=document.getElementsByTagName('SCRIPT');
-						return nodes[nodes.length-1];
+						if(Sky.isReady){
+							return null;
+						}
 					}
-				});
-			}
+					nodes=document.getElementsByTagName('SCRIPT');
+					return nodes[nodes.length-1];
+				}
+			});
 		}
 	}
 	if(!Sky.getCurrentScript){//最新浏览器
@@ -2108,8 +2111,10 @@ Sky.getScript=function(src,func,charset){
 					throw new Error('get stack');
 				}catch(e){
 					var arr=getLastStack(e[stackResult.name]).match(stackResult.pattern);
-					if(arr && arr[1]!=location.href){
-						return arr[1];
+					if(arr){
+						if(arr[1]!=location.href && arr[1]!=location.origin+location.pathname+location.search){
+							return arr[1];
+						}
 					}
 				}
 			};

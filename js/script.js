@@ -63,15 +63,21 @@ Sky.getScript=function(src,func,charset){
 						return Sky.getCurrentScript();
 					}
 				});
+			}else{
+				window.execScript([
+					'Class VBDocProxy',
+					'	Public Property Get [currentScript]',
+					'		[currentScript]=Sky.getCurrentScript()',
+					'	End Property',
+					'End Class',
+					'Function VBDocProxyFactory()',
+					'	Dim o',
+					'	Set o = New VBDocProxy',
+					'	Set VBDocProxyFactory = o',
+					'End Function'
+				].join('\n'), 'VBScript');
+				window.document=VBDocProxyFactory();
 			}
-		}else if("onbeforescriptexecute" in currentScript){
-			document.currentScript=currentScript;
-			document.addEventListener('beforescriptexecute',function(e){
-				document.currentScript=e.target;
-			},true);
-			document.addEventListener('afterscriptexecute',function(e){
-				document.currentScript=null;
-			},true);
 		}else{
 			document.addEventListener('load',function(e){
 				if(e.target.tagName==="SCRIPT"){
