@@ -166,103 +166,7 @@ Sky.support={};
 	}
 })();
 Sky.noop=function(){};
-Sky.toString=null;
-if(!Sky.propertyIsEnumerable('toString')){
-	Sky.dontEnums=["toString","toLocaleString","valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable"];
-	Sky.forIn=function(obj,fn,thisArg){
-		thisArg=thisArg || window;
-		for(var key in obj) {
-			if(!(obj instanceof Object)){
-				if(key.startsWith("__") || key=="constructor"){
-					continue ;
-				}
-			}
-			if(fn.call(thisArg,obj[key],key)===false){
-				return false;
-			}
-		}
-		var nonEnumIdx=Sky.dontEnums.length;
-		var proto=Object.getPrototypeOf(obj);
-		//遍历nonEnumerableProps数组
-		while(nonEnumIdx--){
-			var prop=Sky.dontEnums[nonEnumIdx];
-			if(prop in obj && obj[prop]!==proto[prop]){
-				if(fn.call(thisArg,obj[prop],prop)===false){
-					return false;
-				}
-			}
-		}
-		return true;
-	};
-	Sky.forOwn=function(obj,fn,thisArg){
-		thisArg=thisArg || window;
-		var type=typeof obj;
-		if(type=="unknow"){
-			return true;
-		}
-		if(type!="object"){
-			obj=Object(obj);
-		}
-		for(var key in obj) {
-			if(!(obj instanceof Object)){
-				if(key.startsWith("__") || key=="constructor"){
-					continue ;
-				}
-			}
-			if(Sky.hasOwn(obj,key)){
-				if(fn.call(thisArg,obj[key],key)===false){
-					return false;
-				}
-			}
-		}
-		for(var i=0;i<Sky.dontEnums.length;i++){
-			var prop=Sky.dontEnums[i];
-			if(Sky.hasOwn(obj,prop)){
-				if(fn.call(thisArg,obj[prop],prop)===false){
-					return false;
-				}
-			}
-		}
-		return true;
-	};
-	Sky.hasOwn=function(obj,key){
-		if(!(key in obj)){
-			return false;
-		}
-		var value=obj[key];
-		if(typeof obj=="object" && !(obj instanceof Object)){
-			if(Sky.isFunction(value)){
-				return true;
-			}
-			return false;
-		}
-		return Object.prototype.hasOwnProperty.call(obj,key);
-	};
-}else{
-	Sky.forIn=function(obj,fn,thisArg){
-		thisArg=thisArg || window;
-		for(var key in obj) {
-			if(fn.call(thisArg,obj[key],key)===false){
-				return false;
-			}
-		}
-		return true;
-	};
-	Sky.forOwn=function(obj,fn,thisArg){
-		thisArg=thisArg || window;
-		for(var key in obj) {
-			if(Object.prototype.hasOwnProperty.call(obj,key)){
-				if(fn.call(thisArg,obj[key],key)===false){
-					return false;
-				}
-			}
-		}
-		return true;
-	};
-	Sky.hasOwn=function(obj,key){
-		return Object.prototype.hasOwnProperty.call(obj,key);
-	};
-}
+
 Sky.support.VBScript=false;
 if(window.execScript){
 	try{
@@ -275,194 +179,6 @@ if(window.execScript){
 			Sky.support.VBScript=true;
 		}
 	}catch(e){}
-}
-//数字开头补零
-Sky.pad=function(value,width,chars){
-	if(!chars){chars=" ";}
-	if(Sky.isNumber(value)){
-		chars="0";
-	}
-	value+='';
-	return value.padStart(width,chars);
-};
-//清除HTML代码
-Sky.escapeHtml=function(str) {
-	return str.replace(/&/g,'&amp;')
-		.replace(/</g,'&lt;')
-		.replace(/>/g,'&gt;');
-};
-Sky.escapeAttribute=function(str,quot){
-	var esc=Sky.escapeHtml(str);
-	if(!quot || quot=='"'){
-		return esc.replace(/"/g,'&quot;');
-	}else{
-		return esc.replaceAll(quot.charAt(0),'&#'+quot.charCodeAt(0)+";");
-	}
-};
-(function(){
-	var div=document.createElement('div');
-	var htmlEscapes={
-		'&': '&amp;',
-		'<': '&lt;',
-		'>': '&gt;',
-		'"': '&quot;',
-		"'": '&#39;',
-		'`': '&#96;'
-	};
-	Sky.escape=function(text){
-		return text.replace(/[&<>"'`]/g,function(i){
-			return htmlEscapes[i];
-		});
-	};
-	Sky.unescape=function(html){
-		div.innerHTML=html;
-		return div.innerText || div.textContent ;
-	};
-})();
-Sky.escapeString=function(str) {//from lodash
-	var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-	rx_escapable.lastIndex = 0;
-	return rx_escapable.test(str)
-		? str.replace(rx_escapable, function(a) {
-		var meta = {
-			"\b":"\\b","\t":"\\t","\n":"\\n","\f":"\\f","\r": "\\r",	"\"": "\\\"","\\": "\\\\"
-		};
-		var c = meta[a];
-		return typeof c === "string"
-			? c
-			: "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
-	}): str;
-};
-Sky.escapeRegExp=function(str){//from lodash
-	if(str){
-		var reRegExpChars = /^[:!,]|[\\^$.*+?()[\]{}|\/]|(^[0-9a-fA-Fnrtuvx])|([\n\r\u2028\u2029])/g;
-		reRegExpChars.lastIndex = 0;
-		return (reRegExpChars.test(str))
-			? str.replace(reRegExpChars, function(chr, leadingChar, whitespaceChar) {
-			if (leadingChar) {
-				var regexpEscapes = {
-					'0': 'x30', '1': 'x31', '2': 'x32', '3': 'x33', '4': 'x34',
-					'5': 'x35', '6': 'x36', '7': 'x37', '8': 'x38', '9': 'x39',
-					'A': 'x41', 'B': 'x42', 'C': 'x43', 'D': 'x44', 'E': 'x45', 'F': 'x46',
-					'a': 'x61', 'b': 'x62', 'c': 'x63', 'd': 'x64', 'e': 'x65', 'f': 'x66',
-					'n': 'x6e', 'r': 'x72', 't': 'x74', 'u': 'x75', 'v': 'x76', 'x': 'x78'
-				};
-				chr = regexpEscapes[chr];
-			} else if (whitespaceChar) {
-				var stringEscapes = {
-					'\\': '\\',
-					"'": "'",
-					'\n': 'n',
-					'\r': 'r',
-					'\u2028': 'u2028',
-					'\u2029': 'u2029'
-				};
-				chr = stringEscapes[chr];
-			}
-			return '\\' + chr;
-		})
-			: str;
-	}
-	return "(?:)";
-};
-
-Sky.inherits=function(clazz,superClazz){
-	Object.assign(clazz,superClazz);
-	clazz.prototype=Object.create(superClazz.prototype);
-	clazz.superclass=superClazz;//为了其他程序的代码方便获取父类
-	clazz.prototype.constructor=clazz;
-}
-if(!Object.create){
-	Object.create=function(proto){
-		function F(){}
-		F.prototype = proto;
-		return new F();
-	};
-}
-if(!Object.values){
-	Object.values=function(obj){
-		var result=[];
-		Sky.forOwn(obj,function(value,key){
-			result.push(obj[key]);
-		});
-		return result;
-	};
-}
-if(!Object.keys){
-	Object.keys=function(obj){
-		var result=[];
-		Sky.forOwn(obj,function(value,key){
-			result.push(key);
-		});
-		return result;
-	};
-}
-if(!Object.assign){
-	Object.assign=function(target, varArgs){
-		if(target==null){
-			throw 'Cannot convert undefined or null to object';
-		}
-		var to=Object(target);
-		for(var i=1;i<arguments.length;i++){
-			var obj=arguments[i];
-			if(obj!=null){
-				Sky.forOwn(obj,function(v,k){
-					to[k]=v;
-				});
-			}
-		}
-		return target;
-	};
-}
-if (!Object.is){
-	Object.is=function(x, y){
-		if(x===y){// Steps 1-5, 7-10
-			// Steps 6.b-6.e: +0 != -0
-			return x!==0 || 1/x===1/y;
-		}else{
-			// Step 6.a: NaN == NaN
-			return x!==x && y!==y;
-		}
-	};
-}
-if(!Object.getPrototypeOf){
-	if('__proto__' in Sky){
-		Object.getPrototypeOf=function(object){
-			return object.__proto__;
-		};
-	}else{
-		Object.getPrototypeOf=function(object){
-			var constructor=object.constructor;
-			if(Sky.isFunction(constructor)){
-				if(object!=constructor.prototype){
-					return constructor.prototype;
-				}else if('superclass' in constructor){
-					return constructor.superclass.prototype;
-				}
-			}
-			console.warn("cannot find Prototype");
-			return Object.prototype;
-		};
-	}
-}
-Sky.support.defineProperty=!!Object.defineProperty && !!document.addEventListener;
-if(Sky.support.__defineSetter__){
-	Sky.support.defineProperty=true;
-	if (!Object.defineProperty) {
-		Object.defineProperty=function(obj, prop, descriptor){
-			if(descriptor.get) obj.__defineGetter__(prop,descriptor.get);
-			if(descriptor.set) obj.__defineSetter__(prop,descriptor.set);
-		};
-	}
-	if(!Object.defineProperties){
-		Object.defineProperties=function(obj,properties){
-			for(var key in properties){
-				var descriptor=properties[key];
-				if(descriptor.get) obj.__defineGetter__(key,descriptor.get);
-				if(descriptor.set) obj.__defineSetter__(key,descriptor.set);
-			}
-		};
-	}
 }
 if(!Array.from){
 	Array.from=function(arrayLike, mapFn, thisArg){
@@ -591,7 +307,7 @@ if(!Array.prototype.reduce){
 		return value;
 	};
 }
-(function(){
+(function(){//TODO
 	function Iterator(arr){
 		this.array=arr;
 		this.i=0;
@@ -609,80 +325,7 @@ if(!Array.prototype.reduce){
 		return new Iterator(this);
 	};
 })();
-(function(){
-	/** 时间对象的格式化; **/
-	/* eg:format="%Y-%m-%d %H:%M:%S"; */
-	function pad2(number) {
-		if(number<10){
-			return '0'+number;
-		}
-		return number;
-	}
-	if (!Date.prototype.toLocaleFormat) {//部分浏览器支持
-		Date.prototype.toLocaleFormat = function(format) {
-			var Y=this.getFullYear();
-			var M=pad2(this.getMonth()+1);
-			var D=pad2(this.getDate());
-			var h=pad2(this.getHours());
-			var m=pad2(this.getMinutes());
-			var s=pad2(this.getSeconds());
-			var o={
-				"%x":Y+"/"+M+"/"+D,
-				"%X":h+":"+m+":"+s,
-				"%Y":Y,
-				"%y":Sky.pad(this.getYear()%100,2),
-				"%m":M,
-				"%e":this.getDate(),
-				"%d":D,
-				"%H":h,
-				"%i":Sky.pad(this.getHours()%12,2),
-				"%M":m,
-				"%S":s,
-				"%p":this.getHours()%12>1?"PM":"AM",
-				"%%":"%"
-			};
-			o["%T"]=o["%X"];
-			return format.replace(/%[xXTYymedHiMSp%]/g,function(word){
-				for(var k in o){
-					if(k==word){
-						return o[k];
-					}
-				}
-				return word;
-			});
-		};
-	}
-	if (!Date.prototype.toISOString){//部分浏览器支持
-		Date.prototype.toISOString = function() {
-			return this.getUTCFullYear()+
-				'-'+pad2(this.getUTCMonth()+1)+
-				'-'+pad2( this.getUTCDate() ) +
-				'T'+pad2( this.getUTCHours() ) +
-				':'+pad2( this.getUTCMinutes() ) +
-				':'+pad2( this.getUTCSeconds() ) +
-				'.'+Sky.pad(this.getUTCMilliseconds(),3)+'Z';
-		};
-	}
-})();
-if(!Date.prototype.toJSON){
-	Date.prototype.toJSON=Date.prototype.toISOString;
-}
-if(new Date().toLocaleString().match(/[a-z]/i)){//谷歌浏览器，360用谷歌内核，会显示成英文(未考虑语言环境)
-	Date.prototype.toLocaleString = function() {
-		return this.toLocaleFormat("%Y-%m-%d %H:%M:%S");
-	};
-	Date.prototype.toLocaleDateString = function() {
-		return this.toLocaleFormat("%Y-%m-%d");
-	};
-	Date.prototype.toLocaleTimeString = function() {
-		return this.toLocaleFormat("%H:%M:%S");
-	};
-}
-if(!Date.now){
-	Date.now=function(){
-		return new Date().getTime();
-	};
-}
+
 //删除左右两端的空格
 if(!String.prototype.trim){
 	String.prototype.trim=function() {
@@ -751,9 +394,6 @@ if(!String.prototype.padEnd){
 		return this+padString.repeat(Math.ceil(x/padString.length)).substr(0,x);
 	};
 }
-String.prototype.replaceAll=function(reallyDo, replaceWith, ignoreCase) {
-	return this.replace(new RegExp(Sky.escapeRegExp(reallyDo), (ignoreCase ? "gi": "g")), replaceWith);
-};
 Math.log2 = Math.log2 || function(n){ return Math.log(n) / Math.log(2); };
 Number.isNaN=Number.isNaN || function(value){
 	return typeof value === "number" && isNaN(value);
@@ -761,6 +401,299 @@ Number.isNaN=Number.isNaN || function(value){
 Number.isInteger=Number.isInteger || function(value){
 	return typeof value === "number" &&	isFinite(value) &&	Math.floor(value) === value;
 };
+(function(){
+	/** 时间对象的格式化; **/
+	/* eg:format="%Y-%m-%d %H:%M:%S"; */
+	function pad2(number) {
+		if(number<10){
+			return '0'+number;
+		}
+		return number;
+	}
+	if (!Date.prototype.toLocaleFormat) {//部分浏览器支持
+		Date.prototype.toLocaleFormat = function(format) {
+			var Y=this.getFullYear();
+			var M=pad2(this.getMonth()+1);
+			var D=pad2(this.getDate());
+			var h=pad2(this.getHours());
+			var m=pad2(this.getMinutes());
+			var s=pad2(this.getSeconds());
+			var o={
+				"%x":Y+"/"+M+"/"+D,
+				"%X":h+":"+m+":"+s,
+				"%Y":Y,
+				"%y":pad2(this.getYear()%100),
+				"%m":M,
+				"%e":this.getDate(),
+				"%d":D,
+				"%H":h,
+				"%i":pad2(this.getHours()%12),
+				"%M":m,
+				"%S":s,
+				"%p":this.getHours()%12>1?"PM":"AM",
+				"%%":"%"
+			};
+			o["%T"]=o["%X"];
+			return format.replace(/%[xXTYymedHiMSp%]/g,function(word){
+				for(var k in o){
+					if(k==word){
+						return o[k];
+					}
+				}
+				return word;
+			});
+		};
+	}
+	if (!Date.prototype.toISOString){//部分浏览器支持
+		Date.prototype.toISOString = function() {
+			return this.getUTCFullYear()+
+				'-'+pad2(this.getUTCMonth()+1)+
+				'-'+pad2( this.getUTCDate() ) +
+				'T'+pad2( this.getUTCHours() ) +
+				':'+pad2( this.getUTCMinutes() ) +
+				':'+pad2( this.getUTCSeconds() ) +
+				'.'+new String(this.getUTCMilliseconds()).padStart(3,'0')+'Z';
+		};
+	}
+})();
+if(!Date.prototype.toJSON){
+	Date.prototype.toJSON=Date.prototype.toISOString;
+}
+if(new Date().toLocaleString().match(/[a-z]/i)){//谷歌浏览器，360用谷歌内核，会显示成英文(未考虑语言环境)
+	Date.prototype.toLocaleString = function() {
+		return this.toLocaleFormat("%Y-%m-%d %H:%M:%S");
+	};
+	Date.prototype.toLocaleDateString = function() {
+		return this.toLocaleFormat("%Y-%m-%d");
+	};
+	Date.prototype.toLocaleTimeString = function() {
+		return this.toLocaleFormat("%H:%M:%S");
+	};
+}
+if(!Date.now){
+	Date.now=function(){
+		return new Date().getTime();
+	};
+}
+Sky.toString=null;
+if(!Sky.propertyIsEnumerable('toString')){
+	Sky.dontEnums=["toString","toLocaleString","valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable"];
+	Sky.forIn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
+		for(var key in obj) {
+			if(!(obj instanceof Object)){
+				if(key.startsWith("__") || key=="constructor"){
+					continue ;
+				}
+			}
+			if(fn.call(thisArg,obj[key],key)===false){
+				return false;
+			}
+		}
+		var nonEnumIdx=Sky.dontEnums.length;
+		var proto=Object.getPrototypeOf(obj);
+		//遍历nonEnumerableProps数组
+		while(nonEnumIdx--){
+			var prop=Sky.dontEnums[nonEnumIdx];
+			if(prop in obj && obj[prop]!==proto[prop]){
+				if(fn.call(thisArg,obj[prop],prop)===false){
+					return false;
+				}
+			}
+		}
+		return true;
+	};
+	Sky.forOwn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
+		var type=typeof obj;
+		if(type=="unknow"){
+			return true;
+		}
+		if(type!="object"){
+			obj=Object(obj);
+		}
+		for(var key in obj) {
+			if(!(obj instanceof Object)){
+				if(key.startsWith("__") || key=="constructor"){
+					continue ;
+				}
+			}
+			if(Sky.hasOwn(obj,key)){
+				if(fn.call(thisArg,obj[key],key)===false){
+					return false;
+				}
+			}
+		}
+		for(var i=0;i<Sky.dontEnums.length;i++){
+			var prop=Sky.dontEnums[i];
+			if(Sky.hasOwn(obj,prop)){
+				if(fn.call(thisArg,obj[prop],prop)===false){
+					return false;
+				}
+			}
+		}
+		return true;
+	};
+	Sky.hasOwn=function(obj,key){
+		if(!(key in obj)){
+			return false;
+		}
+		var value=obj[key];
+		if(typeof obj=="object" && !(obj instanceof Object)){
+			if(Sky.isFunction(value)){
+				return true;
+			}
+			return false;
+		}
+		return Object.prototype.hasOwnProperty.call(obj,key);
+	};
+}else{
+	Sky.forIn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
+		for(var key in obj) {
+			if(fn.call(thisArg,obj[key],key)===false){
+				return false;
+			}
+		}
+		return true;
+	};
+	Sky.forOwn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
+		for(var key in obj) {
+			if(Object.prototype.hasOwnProperty.call(obj,key)){
+				if(fn.call(thisArg,obj[key],key)===false){
+					return false;
+				}
+			}
+		}
+		return true;
+	};
+	Sky.hasOwn=function(obj,key){
+		return Object.prototype.hasOwnProperty.call(obj,key);
+	};
+}
+Sky.pick=function(obj,keys){
+	var rest={};
+	if(obj){
+		Sky.forOwn(obj, function(value,key){
+			if(keys.indexOf(key)>=0){
+				rest[key]=value;
+			}
+		});
+	}
+	return rest;
+};
+Sky.omit=function(obj,keys){
+	var rest={};
+	if(obj){
+		Sky.forOwn(obj, function(value,key){
+			if(keys.indexOf(key)<0){
+				rest[key]=value;
+			}
+		});
+	}
+	return rest;
+};
+
+if(!Object.values){
+	Object.values=function(obj){
+		var result=[];
+		Sky.forOwn(obj,function(value,key){
+			result.push(obj[key]);
+		});
+		return result;
+	};
+}
+if(!Object.keys){
+	Object.keys=function(obj){
+		var result=[];
+		Sky.forOwn(obj,function(value,key){
+			result.push(key);
+		});
+		return result;
+	};
+}
+if(!Object.assign){
+	Object.assign=function(target, varArgs){
+		if(target==null){
+			throw 'Cannot convert undefined or null to object';
+		}
+		var to=Object(target);
+		for(var i=1;i<arguments.length;i++){
+			var obj=arguments[i];
+			if(obj!=null){
+				Sky.forOwn(obj,function(v,k){
+					to[k]=v;
+				});
+			}
+		}
+		return target;
+	};
+}
+Sky.inherits=function(clazz,superClazz){
+	Object.assign(clazz,superClazz);
+	clazz.prototype=Object.create(superClazz.prototype);
+	clazz.superclass=superClazz;//为了其他程序的代码方便获取父类
+	clazz.prototype.constructor=clazz;
+}
+
+if(!Object.create){
+	Object.create=function(proto){
+		function F(){}
+		F.prototype = proto;
+		return new F();
+	};
+}
+if (!Object.is){
+	Object.is=function(x, y){
+		if(x===y){// Steps 1-5, 7-10
+			// Steps 6.b-6.e: +0 != -0
+			return x!==0 || 1/x===1/y;
+		}else{
+			// Step 6.a: NaN == NaN
+			return x!==x && y!==y;
+		}
+	};
+}
+if(!Object.getPrototypeOf){
+	if('__proto__' in Sky){
+		Object.getPrototypeOf=function(object){
+			return object.__proto__;
+		};
+	}else{
+		Object.getPrototypeOf=function(object){
+			var constructor=object.constructor;
+			if(Sky.isFunction(constructor)){
+				if(object!=constructor.prototype){
+					return constructor.prototype;
+				}else if('superclass' in constructor){
+					return constructor.superclass.prototype;
+				}
+			}
+			console.warn("cannot find Prototype");
+			return Object.prototype;
+		};
+	}
+}
+if(Sky.support.__defineSetter__){
+	if(!Object.defineProperty) {
+		Object.defineProperty=function(obj, prop, descriptor){
+			if(descriptor.get) obj.__defineGetter__(prop,descriptor.get);
+			if(descriptor.set) obj.__defineSetter__(prop,descriptor.set);
+			if(descriptor.value) obj[prop]=descriptor.value;
+		};
+	}
+	if(!Object.defineProperties){
+		Object.defineProperties=function(obj,properties){
+			for(var key in properties){
+				var descriptor=properties[key];
+				if(descriptor.get) obj.__defineGetter__(key,descriptor.get);
+				if(descriptor.set) obj.__defineSetter__(key,descriptor.set);
+				if(descriptor.value) obj[key]=descriptor.value;
+			}
+		};
+	}
+}
 if(!Function.prototype.bind){
 	Function.prototype.bind=function(context){
 		var self=this,args=Array.prototype.slice.call(arguments,1);
@@ -919,188 +852,6 @@ if(!Set.prototype.toArray){
 			r.push(item);
 		});
 		return r;
-	};
-}
-if(!this.console){
-	console={};
-	if(this.Debug){
-		console.log=console.info=console.error=console.warn=function(data){
-			window.status=data;
-			Debug.writeln(data);
-		};
-	}else{
-		console.log=console.info=console.error=console.warn=function(data){
-			window.status=data;
-		};
-	}
-}
-Sky.support.JSON=true;
-if(!this.JSON){
-	Sky.support.JSON=false;
-	JSON={
-		'stringify':function(obj){
-			switch(obj){
-				case null:
-					return "null";
-				case false:
-				case true:
-					return obj;
-					break;
-				default:
-					var type=Object.prototype.toString.call(obj);
-					switch(type){
-						case '[object String]':
-							return '"'+Sky.escapeString(obj)+'"';
-						case '[object Number]':
-							return isNaN(obj)?"null":obj.toString();
-						case '[object Array]':
-							return "["+obj.map(JSON.stringify).join(",")+"]";
-						default:
-							if(Sky.isFunction(obj.toJSON)){
-								return JSON.stringify(obj.toJSON());
-							}
-							var items=[];
-							Sky.forOwn(function(value,key){
-								if(value!==void 0){
-									if(!Sky.isFunction(value)){
-										items.push('"'+Sky.escapeString(k)+'":'+JSON.stringify(value));
-									}
-								}
-							});
-							return "{"+items.join(",")+"}";
-					}
-			}
-		},
-		'parse':function(str){
-			return eval('('+str+')');
-		}
-	};
-}
-Sky.support.DOMParser=true;
-if(!this.DOMParser){
-	Sky.support.DOMParser=false;
-	DOMParser=function(){};
-	DOMParser.prototype.parseFromString=function(xmlStr){
-		var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-		xmlDoc.async = "false";
-		xmlDoc.loadXML(xmlStr);
-		return xmlDoc;
-	};
-}
-Sky.support.XMLHttpRequest=true;
-if(!this.XMLHttpRequest){
-	Sky.support.XMLHttpRequest=false;
-	XMLHttpRequest=function(){
-		if(XMLHttpRequest.progid){
-			return new ActiveXObject(XMLHttpRequest.progid);
-		}
-		var versions=["Microsoft.XMLHTTP","MSXML2.XMLHTTP","Msxml2.XMLHTTP.5.0"];
-		var i=versions.length;
-		while(i--){
-			try{
-				var progid=versions[i];
-				var request=new ActiveXObject(progid);
-				if(request){
-					XMLHttpRequest.progid=progid;
-					return request;
-				}
-			}catch(e){}
-		}
-	};
-}
-document.head=document.head || document.getElementsByTagName("head")[0];
-location.origin=location.origin || location.protocol+"//"+location.host;
-/** 判断一个节点后代是否包含另一个节点 **/
-if(this.Node && Node.prototype && !Node.prototype.contains){
-	Node.prototype.contains=function(arg){
-		return !!(this.compareDocumentPosition(arg) & 16);
-	}
-}
-if(!document.contains){
-	document.contains=function(ele){
-		var i,arr=document.all;
-		for(i=0;i<arr.length;i++){
-			if(arr[i]===ele){
-				return true;
-			}
-		}
-		return false;
-	};
-}
-if(this.HTMLElement) {
-	if(!document.head.children){
-		HTMLElement.prototype.__defineGetter__("children", function() {
-			var a=[];
-			for(var i=0; i<this.childNodes.length; i++){
-				var n=this.childNodes[i];
-				if(n.nodeType==1){
-					a.push(n);
-				}
-			}
-			return a;
-		});
-	}
-	if(!('innerText' in document.head)){
-		(function(){
-			HTMLElement.prototype.__defineGetter__( "innerText", function(){
-				var anyString = "";
-				var childS = this.childNodes;
-				for(var i=0; i<childS.length; i++){
-					var node=childS[i];
-					if(node.nodeType==1){
-						switch(node.tagName){
-							case "BR":
-								anyString+='\n';
-								break ;
-							case "SCRIPT":
-							case "STYLE":
-							case "TEMPLATE":
-								break ;
-							default :
-								anyString+=node.innerText;
-						}
-					}else if(node.nodeType==3){
-						var nodeValue=node.nodeValue;
-						if(i==0)
-							nodeValue=nodeValue.trimLeft();
-						if(i==childS.length-1)
-							nodeValue=nodeValue.trimRight();
-						if(i>0 && i<childS.length-1){
-							if(nodeValue.match(/^\s+$/)){
-								if(checkBlock(childS[i-1]) || checkBlock(childS[i+1])){
-									nodeValue="\n";
-								}
-							}
-						}
-						anyString+=nodeValue;
-					}
-				}
-				return anyString.trim();
-			});
-			function checkBlock(node){
-				switch(node.tagName){
-					case "BR":
-					case "SPAN":
-					case "I":
-					case "U":
-					case "B":
-					case "FONT":
-						return false;
-				}
-				return true;
-			}
-		})();
-		HTMLElement.prototype.__defineSetter__( "innerText", function(sText){
-			this.textContent=sText;
-		});
-	}
-}
-if(!window.execScript){
-	window.execScript=function(script,lang) {
-		if(lang && lang.toUpperCase().indexOf("VB")>=0){
-			return ;
-		}
-		window["eval"].call( window,script);
 	};
 }var URLSearchParams;
 if(!this.URLSearchParams){
@@ -1388,7 +1139,63 @@ if(!this.URLSearchParams){
 			'End Function'
 		].join('\n'), 'VBScript');
 	}
-})(this);//setImmediate在setTimeout之前执行
+})(this);
+Sky.escapeString=function(str) {//from lodash
+	var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+	rx_escapable.lastIndex = 0;
+	return rx_escapable.test(str)
+		? str.replace(rx_escapable, function(a) {
+		var meta = {
+			"\b":"\\b","\t":"\\t","\n":"\\n","\f":"\\f","\r": "\\r",	"\"": "\\\"","\\": "\\\\"
+		};
+		var c = meta[a];
+		return typeof c === "string"
+			? c
+			: "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+	}): str;
+};
+Sky.support.JSON=true;
+if(!this.JSON){
+	Sky.support.JSON=false;
+	JSON={
+		'stringify':function(obj){
+			switch(obj){
+				case null:
+					return "null";
+				case false:
+				case true:
+					return obj;
+					break;
+				default:
+					var type=Object.prototype.toString.call(obj);
+					switch(type){
+						case '[object String]':
+							return '"'+Sky.escapeString(obj)+'"';
+						case '[object Number]':
+							return isNaN(obj)?"null":obj.toString();
+						case '[object Array]':
+							return "["+obj.map(JSON.stringify).join(",")+"]";
+						default:
+							if(Sky.isFunction(obj.toJSON)){
+								return JSON.stringify(obj.toJSON());
+							}
+							var items=[];
+							Sky.forOwn(function(value,key){
+								if(value!==void 0){
+									if(!Sky.isFunction(value)){
+										items.push('"'+Sky.escapeString(k)+'":'+JSON.stringify(value));
+									}
+								}
+							});
+							return "{"+items.join(",")+"}";
+					}
+			}
+		},
+		'parse':function(str){
+			return eval('('+str+')');
+		}
+	};
+}//setImmediate在setTimeout之前执行
 if(!this.setImmediate){
 	(function(global){
 		var index=0;
@@ -1422,22 +1229,36 @@ if(!this.setImmediate){
 				return index;
 			};
 			function nextTick(){
-				for(var i=0;i<ticks.length;i++){
-					var id=ticks[i];
-					var args=handles.get(id);
-					if(args){
-						var fn=args[0];
-						args=Array.from(args);
-						args.shift();
-						try{
-							fn.apply(global,args);
-						}catch(e){
-							console.error(e);
+				if(ticks && ticks.length){
+					for(var i=0;i<ticks.length;i++){
+						var id=ticks[i];
+						var args=handles.get(id);
+						if(args){
+							var fn=args[0];
+							args=Array.from(args);
+							args.shift();
+							try{
+								fn.apply(global,args);
+							}catch(e){
+								console.error(e);
+							}
 						}
 					}
+					ticks=null;
+					handles.clear();
 				}
-				ticks=null;
-				handles.clear();
+			}
+			setImmediate.nextTick=nextTick;
+			var setTimeoutN=setImmediate.setTimeout=setTimeout;
+			if(document.addEventListener){
+				global.setTimeout=function(fn,d){
+					setTimeoutN(function(){
+						setImmediate.nextTick();
+						fn();
+					},d)
+				};
+			}else{
+				window.execScript("function setTimeout(fn,d){setImmediate.setTimeout(function(){setImmediate.nextTick();fn();},d)}");
 			}
 		}
 		global.clearImmediate=function(id){
@@ -1634,94 +1455,284 @@ Sky.when=function(subordinate){
 	});
 	return dfd;
 };
-Sky.getCookie=function(name){
-	var arr=document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
-	if(arr != null) return decodeURIComponent(arr[2]); return null;
-};
-Sky.setCookie=function(name,value){
-	var path="/";
-	var seconds;
-	var domain;
-	var expires;
-	if(arguments.length>2){
-		for(var i=2;i<arguments.length;i++){
-			if(Sky.isNumber(arguments[i])){
-				seconds=arguments[i];
-			}else if(Sky.isString(arguments[i])){
-				if(arguments[i].indexOf(".")>=0){
-					domain=arguments[i];
-				}else if(arguments[i].indexOf("/")>=0){
-					path=arguments[i];
-				}
-			}
+Sky.support.XMLHttpRequest=true;
+if(!this.XMLHttpRequest){
+	Sky.support.XMLHttpRequest=false;
+	XMLHttpRequest=function(){
+		if(XMLHttpRequest.progid){
+			return new ActiveXObject(XMLHttpRequest.progid);
 		}
-	}
-	if(value==null || seconds<=0) {
-		value='';
-		seconds=-2592000;
-	}
-	if(!isNaN(seconds)){
-		expires=new Date();
-		expires.setTime(expires.getTime() + seconds * 1000);
-	}
-	document.cookie=name+'='+encodeURIComponent(value)
-		+(expires?'; expires='+expires.toGMTString():'')
-		+'; path='+path
-		+(domain?'; domain='+domain:'');
-};
-
-Sky.clearSelect="getSelection" in window ? function(){
-	window.getSelection().removeAllRanges();
-} : function(){
-	document.selection.empty();
-};
-Sky.addFavorite=function(sURL, sTitle){
-	try{
-		window.external.addFavorite(sURL, sTitle);
-	}catch (e){
-		try{
-			window.sidebar.addPanel(sTitle, sURL, "");
-		}catch (e){
-			if(Sky.browser.moblie){
-				alert("请点击菜单上的“☆”加入收藏");
-			}else{
-				alert("\u52a0\u5165\u6536\u85cf\u5931\u8d25\uff0c\u8bf7\u4f7f\u7528Ctrl+D\u8fdb\u884c\u6dfb\u52a0");
-			}
-		}
-	}
-};
-Sky.setHome=function(ele,url){
-	ele.onclick=function(){
-		try{
-			this.style.behavior='url(#default#homepage)';
-			this.setHomePage(url);
-			return false;
-		}catch(e){
-			if('netscape' in window){
-				try{
-					netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-				}catch(e){
-					alert("抱歉，此操作被浏览器拒绝！\n\n请在浏览器地址栏输入“about:config”并回车然后将[signed.applets.codebase_principal_support]设置为'true'");
-					return false;
+		var versions=["Microsoft.XMLHTTP","MSXML2.XMLHTTP","Msxml2.XMLHTTP.5.0"];
+		var i=versions.length;
+		while(i--){
+			try{
+				var progid=versions[i];
+				var request=new ActiveXObject(progid);
+				if(request){
+					XMLHttpRequest.progid=progid;
+					return request;
 				}
-			}
+			}catch(e){}
 		}
 	};
-};
-Sky.copyToClipboard=function(txt){
-	if(window.clipboardData){
-		try{
-			window.clipboardData.setData("Text",txt);
-			return ;
-		}catch(e){
+}
+if(!('head' in document)) document.head=document.getElementsByTagName("head")[0];
+location.origin=location.origin || location.protocol+"//"+location.host;
+/** 判断一个节点后代是否包含另一个节点 **/
+if(this.Node && Node.prototype && !Node.prototype.contains){
+	Node.prototype.contains=function(arg){
+		return !!(this.compareDocumentPosition(arg) & 16);
+	}
+}
+if(!document.contains){
+	document.contains=function(ele){
+		var i,arr=document.all;
+		for(i=0;i<arr.length;i++){
+			if(arr[i]===ele){
+				return true;
+			}
+		}
+		return false;
+	};
+}
+if(this.HTMLElement) {
+	if(!document.head.children){
+		HTMLElement.prototype.__defineGetter__("children", function() {
+			var a=[];
+			for(var i=0; i<this.childNodes.length; i++){
+				var n=this.childNodes[i];
+				if(n.nodeType==1){
+					a.push(n);
+				}
+			}
+			return a;
+		});
+	}
+	if(!('innerText' in document.head)){
+		(function(){
+			HTMLElement.prototype.__defineGetter__( "innerText", function(){
+				var anyString = "";
+				var childS = this.childNodes;
+				for(var i=0; i<childS.length; i++){
+					var node=childS[i];
+					if(node.nodeType==1){
+						switch(node.tagName){
+							case "BR":
+								anyString+='\n';
+								break ;
+							case "SCRIPT":
+							case "STYLE":
+							case "TEMPLATE":
+								break ;
+							default :
+								anyString+=node.innerText;
+						}
+					}else if(node.nodeType==3){
+						var nodeValue=node.nodeValue;
+						if(i==0)
+							nodeValue=nodeValue.trimLeft();
+						if(i==childS.length-1)
+							nodeValue=nodeValue.trimRight();
+						if(i>0 && i<childS.length-1){
+							if(nodeValue.match(/^\s+$/)){
+								if(checkBlock(childS[i-1]) || checkBlock(childS[i+1])){
+									nodeValue="\n";
+								}
+							}
+						}
+						anyString+=nodeValue;
+					}
+				}
+				return anyString.trim();
+			});
+			function checkBlock(node){
+				switch(node.tagName){
+					case "BR":
+					case "SPAN":
+					case "I":
+					case "U":
+					case "B":
+					case "FONT":
+						return false;
+				}
+				return true;
+			}
+		})();
+		HTMLElement.prototype.__defineSetter__( "innerText", function(sText){
+			this.textContent=sText;
+		});
+	}
+}
+(function(){
+	var nodes=document.getElementsByTagName('SCRIPT');
+	var currentScript=nodes[nodes.length-1];
+	Sky.support.getCurrentScript=true;
+	if(document.currentScript!==void 0){//最新浏览器
+	}else{
+		if("readyState" in currentScript){
+			Sky.getCurrentScript=function(){//IE11-
+				var nodes=document.getElementsByTagName('SCRIPT');
+				var i=nodes.length;
+				while(i--){
+					var node=nodes[i];
+					if(node.readyState==="interactive"){
+						return node;
+					}
+				}
+				return null;
+			};
+			if(Object.defineProperty){
+				Object.defineProperty(document,"currentScript",{
+					enumerable:!!Object.defineProperties,//IE8不支持enumerable
+					get:function(){
+						return Sky.getCurrentScript();
+					}
+				});
+			}
+		}else{
+			document.addEventListener('load',function(e){
+				if(e.target.tagName==="SCRIPT"){
+					e.target.readyState="complete";
+				}
+			},true);
+			Sky.support.getCurrentScript=false;
+			Object.defineProperty(document,"currentScript",{
+				enumerable:true,
+				get:function(){
+					if(Sky.support.getCurrentPath){
+						var path=Sky.getCurrentPath();
+						var nodes=document.getElementsByTagName('SCRIPT');
+						if(path){
+							for(var i=0;i<nodes.length;i++){
+								var node=nodes[i];
+								if(path===new URL(node.src,location).href){
+									if(node.readyState!=="complete") {
+										return node;
+									}
+								}
+							}
+							return null;
+						}
+						if(Sky.isReady){
+							return null;
+						}
+					}
+					nodes=document.getElementsByTagName('SCRIPT');
+					return nodes[nodes.length-1];
+				}
+			});
 		}
 	}
-	var tip=Sky.browser.moblie?"长按复制到剪贴板：":"Ctrl+C复制到剪贴板：";
-	prompt(tip,txt);
+	if(!Sky.getCurrentScript){//最新浏览器
+		Sky.getCurrentScript=function(){
+			return document.currentScript;
+		};
+	}
+	Sky.support.getCurrentPath=true;
+	try{
+		throw new Error('get stack');
+	}catch(e){
+		var stackHandler={
+			'stack':[
+				/^@(.*):\d+$/,// Firefox
+				/^\s+at (.*):\d+:\d+$/,//Chrome
+				/^\s+at [^\(]*\((.*):\d+:\d+\)$/ //IE11
+			],
+			'stacktrace':[
+				/\(\) in\s+(.*?\:\/\/\S+)/m//opera
+			]
+		};
+		var stackResult=handleStack(e,stackHandler);
+		if(stackResult){
+			Sky.getCurrentPath=function(){
+				try{
+					throw new Error('get stack');
+				}catch(e){
+					var arr=getLastStack(e[stackResult.name]).match(stackResult.pattern);
+					if(arr){
+						if(arr[1]!=location.href && arr[1]!=location.origin+location.pathname+location.search){
+							return arr[1];
+						}
+					}
+				}
+			};
+		}
+	}
+	if(!Sky.getCurrentPath){
+		Sky.support.getCurrentPath=false;
+		Sky.getCurrentPath=function(){
+			var currentScript=Sky.getCurrentScript();
+			return new URL(currentScript.src,location).href;
+		};
+	}
+	function getLastStack(stack){
+		var stacks=stack.trim().split("\n");;
+		return stacks[stacks.length-1];
+	}
+	function handleStack(e,stackHandler){
+		for(var name in stackHandler){
+			var stacks=e[name];
+			if(stacks){
+				var patterns=stackHandler[name];
+				var stack=getLastStack(stacks);
+				var i=patterns.length;
+				while(i--){
+					var pattern=patterns[i];
+					if(pattern.test(stack)){
+						return {'name':name,'pattern':pattern};
+					}
+				}
+			}
+		}
+	}
+})();
+if(!this.console){
+	console={};
+	if(this.Debug){
+		console.log=console.info=console.error=console.warn=function(data){
+			Debug.writeln(data);
+		};
+	}else{
+		console.log=console.info=console.error=console.warn=function(data){
+			window.status=data;
+		};
+		console.clear=function(){
+			window.status='';
+		};
+	}
+}
+Sky.getScript=function(src,func,charset){
+	var script=document.createElement('script');
+	if(!charset){charset="UTF-8"};
+	script.charset=charset;
+	script.src=src;
+	script.async=true;
+	if(func){
+		var event='onreadystatechange';
+		if(event in script){
+			script.attachEvent(event,function(){
+				if(script.readyState==='loaded'){
+					document.head.appendChild(script);
+				}else if(script.readyState==='complete'){
+					script.detachEvent(event,arguments.callee);
+					var evt=window.event;
+					//evt.target=evt.currentTarget=evt.srcElement;
+					func.call(script,evt);
+				}
+			});
+		}else{
+			if('onafterscriptexecute' in script){
+				script.onafterscriptexecute=func;
+			}else{
+				script.onload=func;
+			}
+			document.head.appendChild(script);
+		}
+	}else{
+		document.head.appendChild(script);
+	}
+	return script;
 };
-//document.getElementById("text").select();
-//document.execCommand("copy",false,null);
-
 (function(){
 	Sky.isReady=false;
 	var p=new Promise(function(resolve, reject){
@@ -1752,64 +1763,71 @@ Sky.copyToClipboard=function(txt){
 	});
 	Sky.ready=function(callback){
 		if(callback && !Sky.isReady){
-			p.then(callback);
+			return p.then(callback);
 		}
 		return p;
 	};
+	Sky.then=function(callback){
+		return p.then(callback);
+	};
 })();
 
-Sky.support.localStorage=true;
-if(!this.localStorage){
-	Sky.support.localStorage=false;
-	localStorage=new function(){
-		var ele=document.createElement("localStorage");
-		if(ele.addBehavior){
-			ele.addBehavior("#default#userData");
-			document.head.appendChild(ele);
-			this.getItem=function(key){
-				ele.load("localStorage");
-				return ele.getAttribute(key);
-			};
-			this.setItem=function(key,value){
-				ele.setAttribute(key,value+"");
-				ele.save("localStorage");
-			};
-			this.removeItem=function(key){
-				ele.removeAttribute(key);
-				ele.save("localStorage");
-			};
+Sky.parseQuery=function(str){
+	var arr;
+	if(str.indexOf('?')!=-1){
+		arr=str.split("?");
+		str=arr[arr.length-1];
+	}
+	var o = new Object();
+	var strs = str.split("&");
+	for(var i = 0; i < strs.length; i ++) {
+		arr=strs[i].split("=");
+		if(arr.length!=2) break ;
+		var key=arr[0],value=decodeURIComponent(arr[1]),name,k,v;
+		if(arr=key.match(/(.*)\[\]$/)){
+			name=arr[1];
+			v=o[name];
+			if(!v){
+				o[name]=v=[];
+			}
+			v.push(value);
+		}else if(arr=key.match(/(.*)\[([^\]]+)\]$/)){
+			name=arr[1];
+			k=arr[2];
+			v=o[name];
+			if(!v){
+				o[name]=v={};
+			}
+			v[k]=value;
+		}else{
+			o[key]=value;
 		}
-	}();
-}
-Sky.support.sessionStorage=true;
-if(!this.sessionStorage){
-	Sky.support.sessionStorage=false;
-	sessionStorage=new function(){
-		var ele=document.createElement("sessionStorage");
-		var sessionId=Sky.getCookie("JSESSIONID");
-		if(!sessionId){
-			sessionId=Math.random().toString(16).replace("0.","");
-			Sky.setCookie("JSESSIONID",sessionId);
+	}
+	return o;
+};
+Sky.buildQuery=function(obj){
+	var s='';
+	if(obj instanceof Map){
+		obj.forEach(fn);
+	}else{
+		Sky.forOwn(obj,fn);
+	}
+	function fn(value,key){
+		if(value.toJSON) value=value.toJSON();
+		if(value.forEach){
+			value.forEach(function(value){
+				s=s+key+'[]='+encodeURIComponent(value)+'&';
+			});
+		}else if(Sky.isObject(value)){
+			Sky.forOwn(value,function(v,k){
+				s=s+key+'['+k+']='+encodeURIComponent(v)+'&';
+			});
+		}else{
+			s=s+key+'='+encodeURIComponent(value)+'&';
 		}
-		if(ele.addBehavior){
-			ele.addBehavior("#default#userData");
-			var head=document.documentElement.firstChild;
-			head.appendChild(ele);
-			this.getItem=function(key){
-				ele.load(sessionId);
-				return ele.getAttribute(key);
-			};
-			this.setItem=function(key,value){
-				ele.setAttribute(key,value+"");
-				ele.save(sessionId);
-			};
-			this.removeItem=function(key){
-				ele.removeAttribute(key);
-				ele.save(sessionId);
-			};
-		}
-	}();
-}
+	}
+	return s.substring(0,s.length-1);
+};
 Sky.ajax=function(options){
 	var dfd=Sky.Deferred();
 	var targetUrl=options.url;
@@ -1940,14 +1958,14 @@ Sky.ajax.post=function(targetUrl,data,dataType,contentType){
 	});
 };
 Sky.getJSONP=function(url, callback){
-	var cbname="cb"+Sky.id();
+	var cbname=Sky.uniqueId("cb");
 	if(url.indexOf("=?")!=-1){
 		url=url.replace("=?","="+cbname);
 	}else{
 		url+=cbname;
 	}
 	var script=document.createElement("script");
-	if(document.addEventListener()){
+	if(document.addEventListener){
 		window[cbname]=function(response){
 			try{
 				callback(response);
@@ -1969,483 +1987,137 @@ Sky.getJSONP=function(url, callback){
 	script.src=url;
 	document.body.appendChild(script);
 };
-Sky.getScript=function(src,func,charset){
-	var script=document.createElement('script');
-	if(!charset){charset="UTF-8"};
-	script.charset=charset;
-	script.src=src;
-	script.async=true;
-	if(func){
-		var event='onreadystatechange';
-		if(event in script){
-			script.attachEvent(event,function(){
-				if(script.readyState==='loaded'){
-					document.head.appendChild(script);
-				}else if(script.readyState==='interactive'){
-					if(!Object.defineProperty){
-						document.currentScript=script;
-					}
-				}else if(script.readyState==='complete'){
-					if(!Object.defineProperty){
-						document.currentScript=void 0;
-					}
-					script.detachEvent(event,arguments.callee);
-					var evt=window.event;
-					//evt.target=evt.currentTarget=evt.srcElement;
-					func.call(script,evt);
-				}
-			});
-		}else{
-			if('onafterscriptexecute' in script){
-				script.onafterscriptexecute=func;
-			}else{
-				script.onload=func;
-			}
-			document.head.appendChild(script);
+Sky.byId=function(id){
+	return document.getElementById(id);
+};
+Sky.hasClass=function(obj,cls){
+	if(!obj) return false;
+	return obj.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
+};
+Sky.addClass=function(obj,cls){
+	if(!Sky.hasClass(obj,cls)) obj.className=obj.className.trim()+" "+cls;
+};
+Sky.removeClass=function(obj,cls){
+	if(Sky.hasClass(obj,cls)){
+		var reg = new RegExp('(\\s+|^)'+cls+'(\\s+|$)');
+		obj.className=obj.className.replace(reg,' ');
+	}
+};
+Sky.toggleClass=function(obj,cls){
+	if(Sky.hasClass(obj,cls)){
+		var reg = new RegExp('(\\s+|^)'+cls+'(\\s+|$)');
+		obj.className=obj.className.replace(reg,' ');
+	}else{
+		obj.className=obj.className.trim()+" "+cls;
+	}
+};
+Sky.getElementStyle=function(el, prop){
+	if(el.currentStyle){//IE
+		return el.currentStyle[prop] || el.style[prop];
+	}else if(window.getComputedStyle){//非IE
+		var propprop = prop.replace (/([A-Z])/g, "-$1");
+		propprop = propprop.toLowerCase();
+		var style=window.getComputedStyle(el,null);
+		return style[prop] || style.getPropertyValue(propprop) || el.style[prop];
+	}
+	return '';
+};
+//获取元素位置
+Sky.getPageTop=function(e){
+	var offset;
+	if(e.getBoundingClientRect){
+		offset=e.getBoundingClientRect().top;
+		offset+=Math.max(document.documentElement.scrollTop,document.body.scrollTop);
+		if(Sky.browser.ie7 && !Sky.browser.quirks){
+			//ie7会比正常多两个像素，因为ie7有个边框，我不知道怎么去掉，其他ie浏览器可以使用html{border:0 none;},知道怎么处理的朋友和我说下吧
+			offset-=2;
 		}
 	}else{
-		document.head.appendChild(script);
+		offset=e.offsetTop;
+		if(e.offsetParent!=null) offset+=Sky.getPageTop(e.offsetParent);
 	}
-	return script;
+	return offset;
 };
-(function(){
-	var nodes=document.getElementsByTagName('SCRIPT');
-	var currentScript=nodes[nodes.length-1];
-	Sky.support.getCurrentScript=true;
-	if(document.currentScript!==void 0){//最新浏览器
-	}else{
-		if("readyState" in currentScript){
-			Sky.getCurrentScript=function(){//IE11-
-				var nodes=document.getElementsByTagName('SCRIPT');
-				var i=nodes.length;
-				while(i--){
-					var node=nodes[i];
-					if(node.readyState==="interactive"){
-						return node;
-					}
-				}
-				return null;
-			};
-			if(Object.defineProperty){
-				Object.defineProperty(document,"currentScript",{
-					enumerable:!!Object.defineProperties,//IE8不支持enumerable
-					get:function(){
-						return Sky.getCurrentScript();
-					}
-				});
-			}else{
-				window.execScript([
-					'Class VBDocProxy',
-					'	Public Property Get [title]',
-					'		[title]=document.title',
-					'	End Property',
-					'	Public Property Get [currentScript]',
-					'		[currentScript]=Sky.getCurrentScript()',
-					'	End Property',
-					'End Class',
-					'Function VBDocProxyFactory()',
-					'	Dim o',
-					'	Set o = New VBDocProxy',
-					'	Set VBDocProxyFactory = o',
-					'End Function'
-				].join('\n'), 'VBScript');
-				window.document=VBDocProxyFactory();
-			}
-		}else{
-			document.addEventListener('load',function(e){
-				if(e.target.tagName==="SCRIPT"){
-					e.target.readyState="complete";
-				}
-			},true);
-			Sky.support.getCurrentScript=false;
-			Object.defineProperty(document,"currentScript",{
-				enumerable:true,
-				get:function(){
-					if(Sky.support.getCurrentPath){
-						var path=Sky.getCurrentPath();
-						var nodes=document.getElementsByTagName('SCRIPT');
-						if(path){
-							for(var i=0;i<nodes.length;i++){
-								var node=nodes[i];
-								if(path===new URL(node.src,location).href){
-									if(node.readyState!=="complete") {
-										return node;
-									}
-								}
-							}
-							return null;
-						}
-						if(Sky.isReady){
-							return null;
-						}
-					}
-					nodes=document.getElementsByTagName('SCRIPT');
-					return nodes[nodes.length-1];
-				}
-			});
-		}
-	}
-	if(!Sky.getCurrentScript){//最新浏览器
-		Sky.getCurrentScript=function(){
-			return document.currentScript;
-		};
-	}
-	Sky.support.getCurrentPath=true;
-	try{
-		throw new Error('get stack');
-	}catch(e){
-		var stackHandler={
-			'stack':[
-				/^@(.*):\d+$/,// Firefox
-				/^\s+at (.*):\d+:\d+$/,//Chrome
-				/^\s+at [^\(]*\((.*):\d+:\d+\)$/ //IE11
-			],
-			'stacktrace':[
-				/\(\) in\s+(.*?\:\/\/\S+)/m//opera
-			]
-		};
-		var stackResult=handleStack(e,stackHandler);
-		if(stackResult){
-			Sky.getCurrentPath=function(){
-				try{
-					throw new Error('get stack');
-				}catch(e){
-					var arr=getLastStack(e[stackResult.name]).match(stackResult.pattern);
-					if(arr){
-						if(arr[1]!=location.href && arr[1]!=location.origin+location.pathname+location.search){
-							return arr[1];
-						}
-					}
-				}
-			};
-		}
-	}
-	if(!Sky.getCurrentPath){
-		Sky.support.getCurrentPath=false;
-		Sky.getCurrentPath=function(){
-			var currentScript=Sky.getCurrentScript();
-			return new URL(currentScript.src,location).href;
-		};
-	}
-	function getLastStack(stack){
-		var stacks=stack.trim().split("\n");;
-		return stacks[stacks.length-1];
-	}
-	function handleStack(e,stackHandler){
-		for(var name in stackHandler){
-			var stacks=e[name];
-			if(stacks){
-				var patterns=stackHandler[name];
-				var stack=getLastStack(stacks);
-				var i=patterns.length;
-				while(i--){
-					var pattern=patterns[i];
-					if(pattern.test(stack)){
-						return {'name':name,'pattern':pattern};
-					}
-				}
-			}
-		}
-	}
-})();
-//获取字符串占位长度
-Sky.strlen=function(str){
-	var len=0;
-	for(var i = 0; i < str.length; i++){
-		if (str.charCodeAt(i) > 127 || str.charCodeAt(i) < 0){
-			len+=2;
-		}else{
-			len++;
-		}
-	}
-	return len;
-};
-//截取字符串占位长度
-Sky.trunc=function(str,len,replaceStr){
-	var relen=Sky.strlen(replaceStr);
-	if(relen>len){
-		for (var i = relen.length-1; i >= 0; i--){
-			if (relen.charCodeAt(i) > 127 || relen.charCodeAt(i) < 0){
-				len-=2;
-			}else{
-				len--;
-			}
-			if(len<0){
-				i++;
-				return replaceStr.substr(i,replaceStr.length-i);
-			}
+Sky.getPageLeft=function(e){
+	var offset;
+	if(e.getBoundingClientRect){
+		offset=e.getBoundingClientRect().left;
+		offset+=Math.max(document.documentElement.scrollLeft,document.body.scrollLeft);
+		if(Sky.browser.ie7 && !Sky.browser.quirks){
+			offset-=2;
 		}
 	}else{
-		len-=relen;
-		var p=0;
-		for (var i = 0; i < str.length; i++){
-			if (str.charCodeAt(i) > 127 || str.charCodeAt(i) < 0){
-				p+=2;
-			}else{
-				p++;
-			}
-			if(p>len){
-				return str.substring(0,i)+replaceStr;
-			}
-		}
-		return str;
+		offset=e.offsetLeft;
+		if(e.offsetParent!=null) offset+=Sky.getPageLeft(e.offsetParent);
 	}
+	return offset;
 };
-Sky.parseQuery=function(str){
-	var arr;
-	if(str.indexOf('?')!=-1){
-		arr=str.split("?");
-		str=arr[arr.length-1];
-	}
-	var o = new Object();
-	var strs = str.split("&");
-	for(var i = 0; i < strs.length; i ++) {
-		arr=strs[i].split("=");
-		if(arr.length!=2) break ;
-		var key=arr[0],value=decodeURIComponent(arr[1]),name,k,v;
-		if(arr=key.match(/(.*)\[\]$/)){
-			name=arr[1];
-			v=o[name];
-			if(!v){
-				o[name]=v=[];
-			}
-			v.push(value);
-		}else if(arr=key.match(/(.*)\[([^\]]+)\]$/)){
-			name=arr[1];
-			k=arr[2];
-			v=o[name];
-			if(!v){
-				o[name]=v={};
-			}
-			v[k]=value;
-		}else{
-			o[key]=value;
-		}
-	}
-	return o;
-};
-Sky.buildQuery=function(obj){
-	var s='';
-	if(obj instanceof Map){
-		obj.forEach(fn);
+Sky.getNextElement=function(element){
+	var e = element.nextSibling;
+	if(e == null){ return null;}
+	if(e.nodeType==1){
+		return e;
 	}else{
-		Sky.forOwn(obj,fn);
+		return Sky.getNextElement(e);
 	}
-	function fn(value,key){
-		if(value.toJSON) value=value.toJSON();
-		if(value.forEach){
-			value.forEach(function(value){
-				s=s+key+'[]='+encodeURIComponent(value)+'&';
-			});
-		}else if(Sky.isObject(value)){
-			Sky.forOwn(value,function(v,k){
-				s=s+key+'['+k+']='+encodeURIComponent(v)+'&';
-			});
-		}else{
-			s=s+key+'='+encodeURIComponent(value)+'&';
-		}
-	}
-	return s.substring(0,s.length-1);
 };
-Sky.extend=function(){//扩展对象
-	var args=arguments;
-	if(args.length==0) return;
-	if(args.length==1) return args[0];
-	var temp=args[0]==true?args[1]:args[0]; //调用复制对象方法
-	for (var n=args[0]==true?2:1;n<args.length;n++){
-		for(var i in args[n]){
-			if(Sky.hasOwn(args[n],i)){
-				if(args[n][i]!=null && args[0]==true && Sky.isObject(args[n][i]) && Sky.isObject(temp[i])){
-					temp[i]=Sky.extend(true,temp[i],args[n][i]);
-					//temp[i] = args[n][i];
-				}else{
-					temp[i] = args[n][i];
-				}
+Sky.getPrevElement=function(element){
+	var e = element.previousSibling;
+	if(e == null){ return null;}
+	if(e.nodeType==1){
+		return e;
+	}else{
+		return Sky.getPrevElement(e);
+	}
+};
+Sky.getAttrs=function(ele){
+	var arr=[];
+	var i=ele.attributes.length;
+	while(i-->0){
+		var attr=ele.attributes[i];
+		var key=attr.name,value=attr.value;
+		if(attr.specified || key==="value"){
+			if(value){
+				arr.push(attr);
 			}
 		}
 	}
-	return temp;
+	return arr;
 };
-Sky.apply=function(obj,config){
-	console.warn("Deprecated. use Object.assign");
-	Sky.forIn(config,function(v,k){
-		obj[k]=v;
-	});
-	return obj;
-};
-Sky.applyIf=function(obj,config){
-	Sky.forIn(config,function(v,k){
-		if(!(k in obj)){
-			obj[k]=v;
-		}
-	});
-	return obj;
-};
-
-Sky.pick=function(obj,keys){
-	var rest={};
-	if(obj){
-		Sky.forOwn(obj, function(value,key){
-			if(keys.indexOf(key)>=0){
-				rest[key]=value;
-			}
-		});
-	}
-	return rest;
-};
-Sky.omit=function(obj,keys){
-	var rest={};
-	if(obj){
-		Sky.forOwn(obj, function(value,key){
-			if(keys.indexOf(key)<0){
-				rest[key]=value;
-			}
-		});
-	}
-	return rest;
-};
-Sky.times=function(n,iteratee,thisArg){
-	if(n<1){
-		return [];
-	}
-	var index = -1,
-		result = Array(n);
-	while (++index < n) {
-		result[index] = iteratee.apply(this,thisArg);
-	}
-	return result;
-};
-Sky.findIndex=function(arr,key,value){
-	for(var i=0; i<arr.length; i++){
-		if(arr[i][key]===value){return i;}
-	}
-	return -1;
-};
-Sky.findLastIndex=function(arr,key,value){
-	for(var i=arr.length-1; i>=0; i--){
-		if(arr[i][key]===value){return i;}
-	}
-	return -1;
-};
-Sky.find=function(arr,key,value){
-	for(var i=0; i<arr.length; i++){
-		if(arr[i][key]===value){return arr[i];}
-	}
-};
-Sky.findLast=function(arr,key,value){
-	for(var i=arr.length-1; i>=0; i--){
-		if(arr[i][key]===value){return value;}
-	}
-};
-Sky.shuffle=function(arr){
-	var copyArr=arr.slice();
-	var ubound=arr.length-1;
-	for(var i=0; i<ubound; i++){
-		var r=Sky.random(0,ubound);
-		var tmp=copyArr[r];
-		copyArr[r]=copyArr[i];
-		copyArr[i]=tmp;
-	}
-	return copyArr;
-};
-Sky.sortBy=function(arr,key){
-	return arr.sort(function(a,b){
-		return a[key] > b[key];
-	});
-};
-Sky.pluck=function(arr,key){
-	return arr.map(function(item){
-		return item[key];
-	});
-};
-Sky.sortedIndex=function(arr,value){
-	for(var i=0; i<arr.length; i++){
-		if(arr[i]>=value){
-			return i;
-		}
-	}
-	return arr.length;
-};
-Sky.sortedLastIndex=function(arr,value){
-	for(var i=arr.length-1; i>=0; i--){
-		if(arr[i]<=value){
-			return i+1;
-		}
-	}
-};
-(function(){
-	var uid=0;
-	Sky.id=function(check) {
-		uid++;
-		var id=Date.now()+"_"+uid;
-		if(check){
-			if(Sky.byId(id)){
-				return Sky.id(check);
-			}
-		}
-		return id;
+if(document.getElementsByClassName){
+	Sky.getElementsByClassName=function(className,e){
+		e=e||document;
+		return Array.from(e.getElementsByClassName(className));
 	};
-	var defaultNextSequence;
-	var sequenceMap=new Map();
-	Sky.uniqueId=Sky.nextSequence=function(arg1,arg2){
-		if(Sky.isString(arg1)){
-			var s=sequenceMap.get(arg1);
-			if(Sky.isDefined(s)){
-				s++;
-			}else{
-				if(Sky.isNumber(arg2)){
-					s=arg2
-				}else{
-					s=1;
-				}
+}else{
+	Sky.getElementsByClassName=function(className,e){
+		e=e||document;
+		var result=[];
+		var nodes= e.getElementsByTagName("*");
+		for(var i=0;i<nodes.length;i++){
+			if(Sky.hasClass(nodes[i],className)){
+				result.push(nodes[i]);
 			}
-			sequenceMap.set(arg1,s);
-			return s;
-		}else{
-			if(Sky.isDefined(defaultNextSequence)){
-				defaultNextSequence++;
-			}else{
-				if(Sky.isNumber(arg1)){
-					defaultNextSequence=arg1
-				}else{
-					defaultNextSequence=1;
-				}
-			}
-			return defaultNextSequence;
 		}
+		return result;
 	};
-})();
-/* ceil floor round */
-(function(){
-	function createRound(methodName) {
-		var func = Math[methodName];
-		return function(number, precision) {
-			precision = precision === undefined ? 0 : (+precision || 0);
-			if (precision) {
-				precision =Math.pow(10,precision);
-				return func(number * precision) / precision;
-			}
-			return func(number);
-		};
+}
+Sky.destroy=function(ele){
+	for(var key in ele){
+		if(key.startsWith('on')){
+			ele[key]=null;
+		}
 	}
-	Sky.round=createRound('round');
-	Sky.floor=createRound('floor');
-	Sky.ceil=createRound('ceil');
-})();
-Sky.random=function(a,b){
-	var length=b-a+1;
-	return Math.floor(Math.random()*length)+a;
-};
-Sky.UUID=function() {
-	return new Promise(function(resolve, reject){
-		var d=new Date().getTime();
-		var uuid='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){
-			var r=(d+Math.random()*16)%16|0;
-			d=Math.floor(d/16);
-			return (c=='x'?r:(r&0x3|0x8)).toString(16);
-		});
-		resolve(uuid);
-	});
+	Sky.removeEvent(ele);
+	var i=ele.childNodes.length;
+	while(i--){
+		var child=ele.childNodes[i];
+		Sky.removeEvent(child);
+	}
+	var parent=ele.parentNode;
+	if(parent){
+		parent.removeChild(ele);
+	}
 };
 (function(window){
 	if(document.addEventListener){
@@ -2749,285 +2421,6 @@ Sky.UUID=function() {
 		proxyMap.removeEvent(ele, evt, func, selector);
 	};
 })(this);
-Sky.byId=function(id){
-	return document.getElementById(id);
-};
-Sky.hasClass=function(obj,cls){
-	if(!obj) return false;
-	return obj.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
-};
-Sky.addClass=function(obj,cls){
-	if(!Sky.hasClass(obj,cls)) obj.className=obj.className.trim()+" "+cls;
-};
-Sky.removeClass=function(obj,cls){
-	if(Sky.hasClass(obj,cls)){
-		var reg = new RegExp('(\\s+|^)'+cls+'(\\s+|$)');
-		obj.className=obj.className.replace(reg,' ');
-	}
-};
-Sky.toggleClass=function(obj,cls){
-	if(Sky.hasClass(obj,cls)){
-		var reg = new RegExp('(\\s+|^)'+cls+'(\\s+|$)');
-		obj.className=obj.className.replace(reg,' ');
-	}else{
-		obj.className=obj.className.trim()+" "+cls;
-	}
-};
-Sky.getElementStyle=function(el, prop){
-	if(el.currentStyle){//IE
-		return el.currentStyle[prop] || el.style[prop];
-	}else if(window.getComputedStyle){//非IE
-		var propprop = prop.replace (/([A-Z])/g, "-$1");
-		propprop = propprop.toLowerCase();
-		var style=window.getComputedStyle(el,null);
-		return style[prop] || style.getPropertyValue(propprop) || el.style[prop];
-	}
-	return '';
-};
-//获取元素位置
-Sky.getPageTop=function(e){
-	var offset;
-	if(e.getBoundingClientRect){
-		offset=e.getBoundingClientRect().top;
-		offset+=Math.max(document.documentElement.scrollTop,document.body.scrollTop);
-		if(Sky.browser.ie7 && !Sky.browser.quirks){
-			//ie7会比正常多两个像素，因为ie7有个边框，我不知道怎么去掉，其他ie浏览器可以使用html{border:0 none;},知道怎么处理的朋友和我说下吧
-			offset-=2;
-		}
-	}else{
-		offset=e.offsetTop;
-		if(e.offsetParent!=null) offset+=Sky.getPageTop(e.offsetParent);
-	}
-	return offset;
-};
-Sky.getPageLeft=function(e){
-	var offset;
-	if(e.getBoundingClientRect){
-		offset=e.getBoundingClientRect().left;
-		offset+=Math.max(document.documentElement.scrollLeft,document.body.scrollLeft);
-		if(Sky.browser.ie7 && !Sky.browser.quirks){
-			offset-=2;
-		}
-	}else{
-		offset=e.offsetLeft;
-		if(e.offsetParent!=null) offset+=Sky.getPageLeft(e.offsetParent);
-	}
-	return offset;
-};
-Sky.getNextElement=function(element){
-	var e = element.nextSibling;
-	if(e == null){ return null;}
-	if(e.nodeType==1){
-		return e;
-	}else{
-		return Sky.getNextElement(e);
-	}
-};
-Sky.getPrevElement=function(element){
-	var e = element.previousSibling;
-	if(e == null){ return null;}
-	if(e.nodeType==1){
-		return e;
-	}else{
-		return Sky.getPrevElement(e);
-	}
-};
-Sky.getAttrs=function(ele){
-	var arr=[];
-	var i=ele.attributes.length;
-	while(i-->0){
-		var attr=ele.attributes[i];
-		var key=attr.name,value=attr.value;
-		if(attr.specified || key==="value"){
-			if(value){
-				arr.push(attr);
-			}
-		}
-	}
-	return arr;
-};
-Sky.getFormData=function(form){
-	if(Sky.isString(form)){
-		form=document.forms[form];
-	}
-	if(form.tagName.toUpperCase()!="FORM"){
-		throw "form is not exit";
-	}
-	var o={};
-	for(var i=0; i<form.length; i++){
-		var input=form[i];
-		if(input.name){
-			var arr,name,value;
-			switch (input.type) {
-				case "checkbox":
-					if(input.checked){
-						if(arr=input.name.match(/(.*)\[\]$/)){
-							name=arr[1];
-							value=o[name];
-							if(!value){
-								o[name]=value=[];
-							}
-							if(input.value){
-								value.push(input.value);
-							}else{
-								value.push("on");
-							}
-						}else if(arr=input.name.match(/(.*)\[([^\]]+)\]$/)){
-							name=arr[1];
-							var key=arr[2];
-							value=o[name];
-							if(!value){
-								o[name]=value={};
-							}
-							if(input.value){
-								value[key]=input.value;
-							}else{
-								value[key]="on";
-							}
-						}else{
-							o[input.name]=input.value;
-						}
-					}
-					break;
-				case "radio":
-					if(input.checked){
-						o[input.name]=input.value;
-					}
-					break;
-				default:
-					o[input.name]=input.value;
-			}
-		}
-	}
-	return o;
-};
-Sky.setFormData=function(form,data){
-	if(Sky.isString(form)){
-		form=document.forms[form];
-	}
-	if(form.tagName.toUpperCase()!="FORM"){
-		throw "form is not exit";
-	}
-	for(var i=0; i<form.length; i++){
-		var input=form[i];
-		if(input.name){
-			var arr,name,value;
-			switch (input.type) {
-				case "checkbox":
-					if(data){
-						if(arr=input.name.match(/(.*)\[\]$/)){
-							name=arr[1];
-							if(name in data){
-								value=data[name];
-								if(value.split) value=value.split(",");
-								if(value.indexOf && value.indexOf(input.value)>=0){
-									input.checked=true;
-								}else{
-									input.checked=false;
-								}
-							}
-						}else if(arr=input.name.match(/(.*)\[([^\]]+)\]$/)){
-							name=arr[1];
-							if(name in data){
-								var key=arr[2];
-								value=data[name];
-								if(value && value[key]){
-									input.value=value[key];
-									input.checked=true;
-								}else{
-									input.checked=false;
-								}
-							}
-						}else{
-							if(input.name in data){
-								value=data[input.name];
-								if(value){
-									input.value=value;
-									input.checked=true;
-								}else{
-									input.checked=false;
-								}
-							}
-						}
-					}else{
-						input.checked=false
-					}
-					break;
-				case "radio":
-					if(data){
-						if(input.name in data){
-							input.checked=data[input.name]==input.value;
-						}
-					}else{
-						input.checked=false
-					}
-					break;
-				default:
-					if(data){
-						if(input.name in data){
-							input.value=data[input.name];
-						}
-					}else{
-						input.value="";
-					}
-			}
-		}
-	}
-};
-Sky.clearFormData=function(form){
-	if(Sky.isString(form)){
-		form=document.forms[form];
-	}
-	if(form.tagName.toUpperCase()!="FORM"){
-		throw "form is not exit";
-	}
-	for(var i=0; i<form.length; i++){
-		var input=form[i];
-		switch (input.type) {
-			case "checkbox":
-			case "radio":
-				input.checked=false;
-				break;
-			default:
-				input.value="";
-		}
-	}
-};
-if(document.getElementsByClassName){
-	Sky.getElementsByClassName=function(className,e){
-		e=e||document;
-		return Array.from(e.getElementsByClassName(className));
-	};
-}else{
-	Sky.getElementsByClassName=function(className,e){
-		e=e||document;
-		var result=[];
-		var nodes= e.getElementsByTagName("*");
-		for(var i=0;i<nodes.length;i++){
-			if(Sky.hasClass(nodes[i],className)){
-				result.push(nodes[i]);
-			}
-		}
-		return result;
-	};
-}
-Sky.destroy=function(ele){
-	for(var key in ele){
-		if(key.startsWith('on')){
-			ele[key]=null;
-		}
-	}
-	Sky.removeEvent(ele);
-	var i=ele.childNodes.length;
-	while(i--){
-		var child=ele.childNodes[i];
-		Sky.removeEvent(child);
-	}
-	var parent=ele.parentNode;
-	if(parent){
-		parent.removeChild(ele);
-	}
-};
 (function(){
 	function parseNodeSelector(selector){
 		var result={};
@@ -3266,3 +2659,579 @@ Sky.destroy=function(ele){
 		return node;
 	};
 })();
+//数字开头补零
+Sky.pad=function(value,width,chars){
+	if(!chars){chars=" ";}
+	if(Sky.isNumber(value)){
+		chars="0";
+	}
+	value+='';
+	return value.padStart(width,chars);
+};
+//清除HTML代码
+Sky.escapeHtml=function(str) {
+	return str.replace(/&/g,'&amp;')
+		.replace(/</g,'&lt;')
+		.replace(/>/g,'&gt;');
+};
+Sky.escapeAttribute=function(str,quot){
+	var esc=Sky.escapeHtml(str);
+	if(!quot || quot=='"'){
+		return esc.replace(/"/g,'&quot;');
+	}else{
+		return esc.replaceAll(quot.charAt(0),'&#'+quot.charCodeAt(0)+";");
+	}
+};
+(function(){
+	var div=document.createElement('div');
+	var htmlEscapes={
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#39;',
+		'`': '&#96;'
+	};
+	Sky.escape=function(text){
+		return text.replace(/[&<>"'`]/g,function(i){
+			return htmlEscapes[i];
+		});
+	};
+	Sky.unescape=function(html){
+		div.innerHTML=html;
+		return div.innerText || div.textContent ;
+	};
+})();
+Sky.escapeRegExp=function(str){//from lodash
+	if(str){
+		var reRegExpChars = /^[:!,]|[\\^$.*+?()[\]{}|\/]|(^[0-9a-fA-Fnrtuvx])|([\n\r\u2028\u2029])/g;
+		reRegExpChars.lastIndex = 0;
+		return (reRegExpChars.test(str))
+			? str.replace(reRegExpChars, function(chr, leadingChar, whitespaceChar) {
+			if (leadingChar) {
+				var regexpEscapes = {
+					'0': 'x30', '1': 'x31', '2': 'x32', '3': 'x33', '4': 'x34',
+					'5': 'x35', '6': 'x36', '7': 'x37', '8': 'x38', '9': 'x39',
+					'A': 'x41', 'B': 'x42', 'C': 'x43', 'D': 'x44', 'E': 'x45', 'F': 'x46',
+					'a': 'x61', 'b': 'x62', 'c': 'x63', 'd': 'x64', 'e': 'x65', 'f': 'x66',
+					'n': 'x6e', 'r': 'x72', 't': 'x74', 'u': 'x75', 'v': 'x76', 'x': 'x78'
+				};
+				chr = regexpEscapes[chr];
+			} else if (whitespaceChar) {
+				var stringEscapes = {
+					'\\': '\\',
+					"'": "'",
+					'\n': 'n',
+					'\r': 'r',
+					'\u2028': 'u2028',
+					'\u2029': 'u2029'
+				};
+				chr = stringEscapes[chr];
+			}
+			return '\\' + chr;
+		})
+			: str;
+	}
+	return "(?:)";
+};
+Sky.replaceAll=function(str, reallyDo, replaceWith, ignoreCase) {
+	return str.replace(new RegExp(Sky.escapeRegExp(reallyDo), (ignoreCase ? "gi": "g")), replaceWith);
+};
+//获取字符串占位长度
+Sky.strlen=function(str){
+	var len=0;
+	for(var i = 0; i < str.length; i++){
+		if (str.charCodeAt(i) > 127 || str.charCodeAt(i) < 0){
+			len+=2;
+		}else{
+			len++;
+		}
+	}
+	return len;
+};
+//截取字符串占位长度
+Sky.trunc=function(str,len,replaceStr){
+	var relen=Sky.strlen(replaceStr);
+	if(relen>len){
+		for (var i = relen.length-1; i >= 0; i--){
+			if (relen.charCodeAt(i) > 127 || relen.charCodeAt(i) < 0){
+				len-=2;
+			}else{
+				len--;
+			}
+			if(len<0){
+				i++;
+				return replaceStr.substr(i,replaceStr.length-i);
+			}
+		}
+	}else{
+		len-=relen;
+		var p=0;
+		for (var i = 0; i < str.length; i++){
+			if (str.charCodeAt(i) > 127 || str.charCodeAt(i) < 0){
+				p+=2;
+			}else{
+				p++;
+			}
+			if(p>len){
+				return str.substring(0,i)+replaceStr;
+			}
+		}
+		return str;
+	}
+};
+(function(){
+	var defaultNextSequence;
+	var sequenceMap=new Map();
+	Sky.nextSequence=function(arg1,arg2){
+		if(Sky.isString(arg1)){
+			var s=sequenceMap.get(arg1);
+			if(Sky.isDefined(s)){
+				s++;
+			}else{
+				if(Sky.isNumber(arg2)){
+					s=arg2
+				}else{
+					s=1;
+				}
+			}
+			sequenceMap.set(arg1,s);
+			return s;
+		}else{
+			return Sky.uniqueId();
+		}
+	};
+	Sky.uniqueId=function(name){
+		if(Sky.isDefined(defaultNextSequence)){
+			defaultNextSequence++;
+		}else{
+			defaultNextSequence=1;
+		}
+		if(!name){
+			return defaultNextSequence;
+		}
+		return name+defaultNextSequence;
+	};
+})();
+/* ceil floor round */
+(function(){
+	function createRound(methodName) {
+		var func = Math[methodName];
+		return function(number, precision) {
+			precision = precision === undefined ? 0 : (+precision || 0);
+			if (precision) {
+				precision =Math.pow(10,precision);
+				return func(number * precision) / precision;
+			}
+			return func(number);
+		};
+	}
+	Sky.round=createRound('round');
+	Sky.floor=createRound('floor');
+	Sky.ceil=createRound('ceil');
+})();
+Sky.random=function(a,b){
+	var length=b-a+1;
+	return Math.floor(Math.random()*length)+a;
+};
+Sky.UUID=function() {
+	return new Promise(function(resolve, reject){
+		var d=new Date().getTime();
+		var uuid='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){
+			var r=(d+Math.random()*16)%16|0;
+			d=Math.floor(d/16);
+			return (c=='x'?r:(r&0x3|0x8)).toString(16);
+		});
+		resolve(uuid);
+	});
+};
+Sky.times=function(n,iteratee,thisArg){
+	if(n<1){
+		return [];
+	}
+	var index = -1,
+		result = Array(n);
+	while (++index < n) {
+		result[index] = iteratee.apply(this,thisArg);
+	}
+	return result;
+};
+Sky.findIndex=function(arr,key,value){
+	for(var i=0; i<arr.length; i++){
+		if(arr[i][key]===value){return i;}
+	}
+	return -1;
+};
+Sky.findLastIndex=function(arr,key,value){
+	for(var i=arr.length-1; i>=0; i--){
+		if(arr[i][key]===value){return i;}
+	}
+	return -1;
+};
+Sky.find=function(arr,key,value){
+	for(var i=0; i<arr.length; i++){
+		if(arr[i][key]===value){return arr[i];}
+	}
+};
+Sky.findLast=function(arr,key,value){
+	for(var i=arr.length-1; i>=0; i--){
+		if(arr[i][key]===value){return value;}
+	}
+};
+Sky.shuffle=function(arr){
+	var copyArr=arr.slice();
+	var ubound=arr.length-1;
+	for(var i=0; i<ubound; i++){
+		var r=Sky.random(0,ubound);
+		var tmp=copyArr[r];
+		copyArr[r]=copyArr[i];
+		copyArr[i]=tmp;
+	}
+	return copyArr;
+};
+Sky.sortBy=function(arr,key){
+	return arr.sort(function(a,b){
+		return a[key] > b[key];
+	});
+};
+Sky.pluck=function(arr,key){
+	return arr.map(function(item){
+		return item[key];
+	});
+};
+Sky.sortedIndex=function(arr,value){
+	for(var i=0; i<arr.length; i++){
+		if(arr[i]>=value){
+			return i;
+		}
+	}
+	return arr.length;
+};
+Sky.sortedLastIndex=function(arr,value){
+	for(var i=arr.length-1; i>=0; i--){
+		if(arr[i]<=value){
+			return i+1;
+		}
+	}
+};
+Sky.extend=function(){//扩展对象
+	var args=arguments;
+	if(args.length==0) return;
+	if(args.length==1) return args[0];
+	var temp=args[0]==true?args[1]:args[0]; //调用复制对象方法
+	for (var n=args[0]==true?2:1;n<args.length;n++){
+		for(var i in args[n]){
+			if(Sky.hasOwn(args[n],i)){
+				if(args[n][i]!=null && args[0]==true && Sky.isObject(args[n][i]) && Sky.isObject(temp[i])){
+					temp[i]=Sky.extend(true,temp[i],args[n][i]);
+					//temp[i] = args[n][i];
+				}else{
+					temp[i] = args[n][i];
+				}
+			}
+		}
+	}
+	return temp;
+};
+Sky.apply=function(obj,config){
+	console.warn("Deprecated. use Object.assign");
+	Sky.forIn(config,function(v,k){
+		obj[k]=v;
+	});
+	return obj;
+};
+Sky.applyIf=function(obj,config){
+	Sky.forIn(config,function(v,k){
+		if(!(k in obj)){
+			obj[k]=v;
+		}
+	});
+	return obj;
+};
+
+Sky.getCookie=function(name){
+	var arr=document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
+	if(arr != null) return decodeURIComponent(arr[2]); return null;
+};
+Sky.setCookie=function(name,value){
+	var path="/";
+	var seconds;
+	var domain;
+	var expires;
+	if(arguments.length>2){
+		for(var i=2;i<arguments.length;i++){
+			if(Sky.isNumber(arguments[i])){
+				seconds=arguments[i];
+			}else if(Sky.isString(arguments[i])){
+				if(arguments[i].indexOf(".")>=0){
+					domain=arguments[i];
+				}else if(arguments[i].indexOf("/")>=0){
+					path=arguments[i];
+				}
+			}
+		}
+	}
+	if(value==null || seconds<=0) {
+		value='';
+		seconds=-2592000;
+	}
+	if(!isNaN(seconds)){
+		expires=new Date();
+		expires.setTime(expires.getTime() + seconds * 1000);
+	}
+	document.cookie=name+'='+encodeURIComponent(value)
+		+(expires?'; expires='+expires.toGMTString():'')
+		+'; path='+path
+		+(domain?'; domain='+domain:'');
+};
+
+Sky.clearSelect="getSelection" in window ? function(){
+	window.getSelection().removeAllRanges();
+} : function(){
+	document.selection.empty();
+};
+Sky.addFavorite=function(sURL, sTitle){
+	try{
+		window.external.addFavorite(sURL, sTitle);
+	}catch (e){
+		try{
+			window.sidebar.addPanel(sTitle, sURL, "");
+		}catch (e){
+			if(Sky.browser.moblie){
+				alert("请点击菜单上的“☆”加入收藏");
+			}else{
+				alert("\u52a0\u5165\u6536\u85cf\u5931\u8d25\uff0c\u8bf7\u4f7f\u7528Ctrl+D\u8fdb\u884c\u6dfb\u52a0");
+			}
+		}
+	}
+};
+Sky.setHome=function(ele,url){
+	ele.onclick=function(){
+		try{
+			this.style.behavior='url(#default#homepage)';
+			this.setHomePage(url);
+			return false;
+		}catch(e){
+			if('netscape' in window){
+				try{
+					netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+				}catch(e){
+					alert("抱歉，此操作被浏览器拒绝！\n\n请在浏览器地址栏输入“about:config”并回车然后将[signed.applets.codebase_principal_support]设置为'true'");
+					return false;
+				}
+			}
+		}
+	};
+};
+Sky.copyToClipboard=function(txt){
+	if(window.clipboardData){
+		try{
+			window.clipboardData.setData("Text",txt);
+			return ;
+		}catch(e){
+		}
+	}
+	var tip=Sky.browser.moblie?"长按复制到剪贴板：":"Ctrl+C复制到剪贴板：";
+	prompt(tip,txt);
+};
+//document.getElementById("text").select();
+//document.execCommand("copy",false,null);
+Sky.getFormData=function(form){
+	if(Sky.isString(form)){
+		form=document.forms[form];
+	}
+	if(form.tagName.toUpperCase()!="FORM"){
+		throw "form is not exit";
+	}
+	var o={};
+	for(var i=0; i<form.length; i++){
+		var input=form[i];
+		if(input.name){
+			var arr,name,value;
+			switch (input.type) {
+				case "checkbox":
+					if(input.checked){
+						if(arr=input.name.match(/(.*)\[\]$/)){
+							name=arr[1];
+							value=o[name];
+							if(!value){
+								o[name]=value=[];
+							}
+							if(input.value){
+								value.push(input.value);
+							}else{
+								value.push("on");
+							}
+						}else if(arr=input.name.match(/(.*)\[([^\]]+)\]$/)){
+							name=arr[1];
+							var key=arr[2];
+							value=o[name];
+							if(!value){
+								o[name]=value={};
+							}
+							if(input.value){
+								value[key]=input.value;
+							}else{
+								value[key]="on";
+							}
+						}else{
+							o[input.name]=input.value;
+						}
+					}
+					break;
+				case "radio":
+					if(input.checked){
+						o[input.name]=input.value;
+					}
+					break;
+				default:
+					o[input.name]=input.value;
+			}
+		}
+	}
+	return o;
+};
+Sky.setFormData=function(form,data){
+	if(Sky.isString(form)){
+		form=document.forms[form];
+	}
+	if(form.tagName.toUpperCase()!="FORM"){
+		throw "form is not exit";
+	}
+	for(var i=0; i<form.length; i++){
+		var input=form[i];
+		if(input.name){
+			var arr,name,value;
+			switch (input.type) {
+				case "checkbox":
+					if(data){
+						if(arr=input.name.match(/(.*)\[\]$/)){
+							name=arr[1];
+							if(name in data){
+								value=data[name];
+								if(value.split) value=value.split(",");
+								if(value.indexOf && value.indexOf(input.value)>=0){
+									input.checked=true;
+								}else{
+									input.checked=false;
+								}
+							}
+						}else if(arr=input.name.match(/(.*)\[([^\]]+)\]$/)){
+							name=arr[1];
+							if(name in data){
+								var key=arr[2];
+								value=data[name];
+								if(value && value[key]){
+									input.value=value[key];
+									input.checked=true;
+								}else{
+									input.checked=false;
+								}
+							}
+						}else{
+							if(input.name in data){
+								value=data[input.name];
+								if(value){
+									input.value=value;
+									input.checked=true;
+								}else{
+									input.checked=false;
+								}
+							}
+						}
+					}else{
+						input.checked=false
+					}
+					break;
+				case "radio":
+					if(data){
+						if(input.name in data){
+							input.checked=data[input.name]==input.value;
+						}
+					}else{
+						input.checked=false
+					}
+					break;
+				default:
+					if(data){
+						if(input.name in data){
+							input.value=data[input.name];
+						}
+					}else{
+						input.value="";
+					}
+			}
+		}
+	}
+};
+Sky.clearFormData=function(form){
+	if(Sky.isString(form)){
+		form=document.forms[form];
+	}
+	if(form.tagName.toUpperCase()!="FORM"){
+		throw "form is not exit";
+	}
+	for(var i=0; i<form.length; i++){
+		var input=form[i];
+		switch (input.type) {
+			case "checkbox":
+			case "radio":
+				input.checked=false;
+				break;
+			default:
+				input.value="";
+		}
+	}
+};
+Sky.support.localStorage=true;
+if(!this.localStorage){
+	Sky.support.localStorage=false;
+	localStorage=new function(){
+		var ele=document.createElement("localStorage");
+		if(ele.addBehavior){
+			ele.addBehavior("#default#userData");
+			document.head.appendChild(ele);
+			this.getItem=function(key){
+				ele.load("localStorage");
+				return ele.getAttribute(key);
+			};
+			this.setItem=function(key,value){
+				ele.setAttribute(key,value+"");
+				ele.save("localStorage");
+			};
+			this.removeItem=function(key){
+				ele.removeAttribute(key);
+				ele.save("localStorage");
+			};
+		}
+	}();
+}
+Sky.support.sessionStorage=true;
+if(!this.sessionStorage){
+	Sky.support.sessionStorage=false;
+	sessionStorage=new function(){
+		var ele=document.createElement("sessionStorage");
+		var sessionId=Sky.getCookie("JSESSIONID");
+		if(!sessionId){
+			sessionId=Math.random().toString(16).replace("0.","");
+			Sky.setCookie("JSESSIONID",sessionId);
+		}
+		if(ele.addBehavior){
+			ele.addBehavior("#default#userData");
+			var head=document.documentElement.firstChild;
+			head.appendChild(ele);
+			this.getItem=function(key){
+				ele.load(sessionId);
+				return ele.getAttribute(key);
+			};
+			this.setItem=function(key,value){
+				ele.setAttribute(key,value+"");
+				ele.save(sessionId);
+			};
+			this.removeItem=function(key){
+				ele.removeAttribute(key);
+				ele.save(sessionId);
+			};
+		}
+	}();
+}

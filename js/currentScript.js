@@ -1,43 +1,4 @@
 
-Sky.getScript=function(src,func,charset){
-	var script=document.createElement('script');
-	if(!charset){charset="UTF-8"};
-	script.charset=charset;
-	script.src=src;
-	script.async=true;
-	if(func){
-		var event='onreadystatechange';
-		if(event in script){
-			script.attachEvent(event,function(){
-				if(script.readyState==='loaded'){
-					document.head.appendChild(script);
-				}else if(script.readyState==='interactive'){
-					if(!Object.defineProperty){
-						document.currentScript=script;
-					}
-				}else if(script.readyState==='complete'){
-					if(!Object.defineProperty){
-						document.currentScript=void 0;
-					}
-					script.detachEvent(event,arguments.callee);
-					var evt=window.event;
-					//evt.target=evt.currentTarget=evt.srcElement;
-					func.call(script,evt);
-				}
-			});
-		}else{
-			if('onafterscriptexecute' in script){
-				script.onafterscriptexecute=func;
-			}else{
-				script.onload=func;
-			}
-			document.head.appendChild(script);
-		}
-	}else{
-		document.head.appendChild(script);
-	}
-	return script;
-};
 (function(){
 	var nodes=document.getElementsByTagName('SCRIPT');
 	var currentScript=nodes[nodes.length-1];
@@ -63,20 +24,6 @@ Sky.getScript=function(src,func,charset){
 						return Sky.getCurrentScript();
 					}
 				});
-			}else{
-				window.execScript([
-					'Class VBDocProxy',
-					'	Public Property Get [currentScript]',
-					'		[currentScript]=Sky.getCurrentScript()',
-					'	End Property',
-					'End Class',
-					'Function VBDocProxyFactory()',
-					'	Dim o',
-					'	Set o = New VBDocProxy',
-					'	Set VBDocProxyFactory = o',
-					'End Function'
-				].join('\n'), 'VBScript');
-				window.document=VBDocProxyFactory();
 			}
 		}else{
 			document.addEventListener('load',function(e){

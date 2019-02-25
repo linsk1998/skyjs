@@ -1,4 +1,60 @@
 
+Sky.parseQuery=function(str){
+	var arr;
+	if(str.indexOf('?')!=-1){
+		arr=str.split("?");
+		str=arr[arr.length-1];
+	}
+	var o = new Object();
+	var strs = str.split("&");
+	for(var i = 0; i < strs.length; i ++) {
+		arr=strs[i].split("=");
+		if(arr.length!=2) break ;
+		var key=arr[0],value=decodeURIComponent(arr[1]),name,k,v;
+		if(arr=key.match(/(.*)\[\]$/)){
+			name=arr[1];
+			v=o[name];
+			if(!v){
+				o[name]=v=[];
+			}
+			v.push(value);
+		}else if(arr=key.match(/(.*)\[([^\]]+)\]$/)){
+			name=arr[1];
+			k=arr[2];
+			v=o[name];
+			if(!v){
+				o[name]=v={};
+			}
+			v[k]=value;
+		}else{
+			o[key]=value;
+		}
+	}
+	return o;
+};
+Sky.buildQuery=function(obj){
+	var s='';
+	if(obj instanceof Map){
+		obj.forEach(fn);
+	}else{
+		Sky.forOwn(obj,fn);
+	}
+	function fn(value,key){
+		if(value.toJSON) value=value.toJSON();
+		if(value.forEach){
+			value.forEach(function(value){
+				s=s+key+'[]='+encodeURIComponent(value)+'&';
+			});
+		}else if(Sky.isObject(value)){
+			Sky.forOwn(value,function(v,k){
+				s=s+key+'['+k+']='+encodeURIComponent(v)+'&';
+			});
+		}else{
+			s=s+key+'='+encodeURIComponent(value)+'&';
+		}
+	}
+	return s.substring(0,s.length-1);
+};
 Sky.ajax=function(options){
 	var dfd=Sky.Deferred();
 	var targetUrl=options.url;
@@ -129,14 +185,14 @@ Sky.ajax.post=function(targetUrl,data,dataType,contentType){
 	});
 };
 Sky.getJSONP=function(url, callback){
-	var cbname="cb"+Sky.id();
+	var cbname=Sky.uniqueId("cb");
 	if(url.indexOf("=?")!=-1){
 		url=url.replace("=?","="+cbname);
 	}else{
 		url+=cbname;
 	}
 	var script=document.createElement("script");
-	if(document.addEventListener()){
+	if(document.addEventListener){
 		window[cbname]=function(response){
 			try{
 				callback(response);
