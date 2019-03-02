@@ -9,7 +9,7 @@ if(!this.Proxy){
 		var afterRevoke=function(){
 			throw "illegal operation attempted on a revoked proxy";
 		};
-		if(Sky.support.defineProperty){
+		if(Object.defineProperties){
 			window.Proxy=function(target, handler){
 				var me=this;
 				if(!handler.get){
@@ -30,7 +30,7 @@ if(!this.Proxy){
 					});
 				}
 			};
-		}else if(Sky.support.VBScript){
+		}else if(window.execScript){
 			//从avalon学到的方式，通过VB
 			window.VBProxySetter=function(target, property, value, receiver, handler){
 				return handler.set(target, property, value, receiver);
@@ -38,11 +38,12 @@ if(!this.Proxy){
 			window.VBProxyGetter=function(target,property, receiver, handler){
 				return handler.get(target,property, receiver);
 			};
+			window.VBProxyIndex=1;
 			window.VBProxyPool=new Map();
 			window.VBProxyFactory=function(target,handler){
 				var className=VBProxyPool.get(target);
 				if(!className){
-					className="VBClass_"+Sky.uniqueId();
+					className="VBClass_"+(VBProxyIndex++);
 					VBProxyPool.set(target,className);
 					var buffer=["Class "+className];
 					buffer.push('Public [__target__]');
