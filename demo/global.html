@@ -39,13 +39,6 @@ sessionStorage.removeItem('key');</code></pre>
 		<a class="btn btn-primary" href="javascript:sessionStorage.removeItem('key')">sessionStorage.removeItem</a>
 		<h3 id="XMLHttpRequest">XMLHttpRequest</h3>
 		<p>用于在后台与服务器交换数据。</p>
-		<h3 id="DOMParser">DOMParser</h3>
-		<p>解析XML用的。</p>
-		<pre><code>var stringContainingXMLSource='&lt;eg&gt;&lt;hahaha value="ggg"/&gt;&lt;/eg&gt;';
-var parser = new DOMParser();
-var doc = parser.parseFromString(stringContainingXMLSource, "text/xml");
-alert(doc.getElementsByTagName("hahaha")[0].getAttribute("value"));</code></pre>
-		<a class="btn btn-primary" href="javascript:void 0">试一试</a>
 		<script>
 			Sky.getPrevElement(Sky.getCurrentScript()).onclick=function(){
 				var stringContainingXMLSource='<eg><hahaha value="ggg"/></eg>';
