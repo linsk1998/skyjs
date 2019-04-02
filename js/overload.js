@@ -80,10 +80,13 @@ Sky.isWindow=function(obj){
 	return obj && typeof obj === "object" && "setInterval" in obj;
 };
 Sky.isPlainObject=function(obj){
+	if(obj===null){
+		return true;
+	}
 	if(typeof obj!=="object" || obj.nodeType || Sky.isWindow(obj)){
 		return false;
 	}
-	return obj.constructor===Object;
+	return Object.getPrototypeOf(obj)===Object.prototype;
 };
 Sky.isArrayLike=function(obj){
 	var length=obj.length;
