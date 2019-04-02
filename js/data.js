@@ -151,18 +151,19 @@ if(!String.prototype.trim){
 		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,'');
 	};
 }
-if(!String.prototype.trimLeft){
-	String.prototype.trimLeft=function() {
+if(!String.prototype.trimStart){
+	String.prototype.trimStart=function() {
 		return this.replace(/^[\s\uFEFF\xA0]+/g,'');
 	};
 }
-if(!String.prototype.trimRight){
-	String.prototype.trimRight=function() {
+if(!String.prototype.trimEnd){
+	String.prototype.trimEnd=function() {
 		return this.replace(/[\s\uFEFF\xA0]+$/g,'');
 	};
 }
 if(!String.prototype.startsWith){
 	String.prototype.startsWith=function(prefix,position){
+		if(prefix===null){ return false;}
 		position=position?position:0;
 		return this.slice(position, prefix.length) === prefix;
 	};
