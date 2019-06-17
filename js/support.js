@@ -44,3 +44,4 @@ if(window.execScript){
 		}
 	}catch(e){}
 }
+var globalThis=this;

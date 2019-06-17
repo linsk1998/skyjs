@@ -89,6 +89,15 @@ console.log(o1);  // { a: 1, b: 2, c: 3 }, 注意目标对象自身也会改变�
 		</ul>
 	</div>
 	<h4>Object.getPrototypeOf</h4>
+	<script>
+		function Animal(){}
+		function Cat(){}
+		Sky.inherits(Cat,Animal);
+		var animal=new Animal();
+		var cat=new Cat();
+	</script>
+	<a class="btn btn-primary" href="javascript:alert(Object.getPrototypeOf(animal)===Animal.prototype)">Animal</a>
+	<a class="btn btn-primary" href="javascript:alert(Object.getPrototypeOf(cat)===Cat.prototype)">Cat</a>
 	<p>返回其原型的对象。</p>
 	<h3 id="Date">Date</h3>
 	<h4>Date.prototype.toLocaleFormat</h4>
