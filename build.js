@@ -12,6 +12,7 @@ out+=fs.readFileSync(__dirname+'/js/collection.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/../url-polyfill/URLSearchParams.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/../url-polyfill/URL.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/JSON.js', 'utf-8');
+out+=fs.readFileSync(__dirname+'/js/proxy.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/setImmediate.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/promise.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/request.js', 'utf-8');

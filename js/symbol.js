@@ -1,11 +1,11 @@
 
-Sky.support.symbol=true;
+Sky.support.Symbol=true;
 if(typeof Symbol!=="function"){
-	Sky.support.symbol=false;
+	Sky.support.Symbol=false;
 	(function(window){
 		var sqe=0;
 		function Symbol(desc){
-			this.__name__="@@Symbol["+desc+"]:"+sqe;
+			this.__name__="@@Symbol{"+desc+"}:"+sqe;
 			sqe++;
 		}
 		Symbol.prototype.toString=function(){

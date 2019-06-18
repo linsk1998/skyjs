@@ -279,8 +279,9 @@ searchParams.append("arr[]","1");
 searchParams.append("arr[]","2");
 searchParams.toString();//"a=b&arr[]=1&arr[]=2"</code></pre>
 		<h3 id="setImmediate">setImmediate</h3>
-		<p>多层setImmediate在setTimeout 0之前执行。</p>
-		<pre><code>setImmediate(function(){
+		<p>在浏览器完成后面的其他语句后,就立刻执行这个回调函数。多层setImmediate在setTimeout 0之前执行。</p>
+		<pre><code>setTimeout(function(){alert(1)},0);
+setImmediate(function(){
 	setImmediate(function(){
 		setImmediate(function(){
 			setImmediate(function(){
@@ -294,8 +295,37 @@ searchParams.toString();//"a=b&arr[]=1&arr[]=2"</code></pre>
 			});
 		});
 	});
+});</code></pre>
+		<h2 id="Proxy">Proxy</h2>
+		<p>对象用于定义基本操作的自定义行为(目前支持：属性查找,赋值)</p>
+		<pre><code>var person = {
+	name: "张三"
+};
+var proxy = new Proxy(person, {
+	set:function(target, property, value) {
+		if(property in target) {
+			alert("set "+property+":"+value);
+		}else{
+			throw "Property \"" + property + "\" does not exist.";
+		}
+	}
 });
-setTimeout(function(){alert(1)},0);</code></pre>
+proxy.name="李四";</code></pre>
+		<script>
+			var person = {
+				name: "张三"
+			};
+			var proxy = new Proxy(person, {
+				set:function(target, property, value) {
+					if(property in target) {
+						alert("set "+property+":"+value);
+					}else{
+						throw "Property \""+property+"\" does not exist.";
+					}
+				}
+			});
+		</script>
+		<button type="button" class="btn btn-primary" onclick='proxy.name="李四"'>测试</button>
 	</div>
 </body>
 </html>
