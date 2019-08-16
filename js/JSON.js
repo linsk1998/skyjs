@@ -39,10 +39,10 @@ if(!this.JSON){
 								return JSON.stringify(obj.toJSON());
 							}
 							var items=[];
-							Sky.forOwn(function(value,key){
+							Sky.forOwn(obj,function(value,key){
 								if(value!==void 0){
 									if(!Sky.isFunction(value)){
-										items.push('"'+Sky.escapeString(k)+'":'+JSON.stringify(value));
+										items.push('"'+Sky.escapeString(key)+'":'+JSON.stringify(value));
 									}
 								}
 							});

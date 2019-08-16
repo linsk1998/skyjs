@@ -84,10 +84,10 @@
 	<a class="btn btn-primary" href='javascript:$.post("?","a=3",function(data){alert(data)});void 0'>试一试</a>
 	<h3 id="getJSONP">Sky.getJSONP</h3>
 	<p>获取JSONP数据</p>
-<pre><code>Sky.getJSONP("https://api.douban.com/v2/book/search?q=movie&callback=?",function(data){
+<pre><code>Sky.getJSONP("https://suggest.taobao.com/sug?code=utf-8&q="+prompt("关键词联想","jk")+"&callback=?",function(data){
 	console.log(data);
 });</code></pre>
-	<a class="btn btn-primary" href='javascript:Sky.getJSONP("https://api.douban.com/v2/book/search?q=movie&callback=?",function(data){console.log(data);});void 0'>试一试</a>
+	<a class="btn btn-primary" href='javascript:Sky.getJSONP("http://suggest.taobao.com/sug?code=utf-8&q="+prompt("关键词联想","jk")+"&callback=?",function(data){alert(data.result[0][0]);});void 0'>试一试</a>
 	<h3 id="getScript">Sky.getScript</h3>
 	<p>getScript() 方法通过 HTTP GET 请求载入并执行 JavaScript 文件。</p>
 	<pre><code>Sky.getScript("http://pv.sohu.com/cityjson?ie=utf-8",function(){alert(returnCitySN.cname)});</code></pre>

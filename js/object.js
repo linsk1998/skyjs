@@ -103,7 +103,7 @@ if(Object.defineProperties){
 	};
 }
 (function(){
-	if(Sky.support.symbol){
+	if(Sky.support.Symbol){
 		Sky.forIn=function(obj,fn,thisArg){
 			thisArg=thisArg || window;
 			for(var key in obj) {
