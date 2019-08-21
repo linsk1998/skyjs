@@ -5,7 +5,7 @@ if(typeof Symbol!=="function"){
 	(function(window){
 		var sqe=0;
 		function Symbol(desc){
-			this.__name__="@@Symbol{"+desc+"}:"+sqe;
+			this.__name__="@@"+desc+":"+sqe;
 			sqe++;
 		}
 		Symbol.prototype.toString=function(){

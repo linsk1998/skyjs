@@ -68,21 +68,6 @@ sessionStorage.removeItem('key');</code></pre>
 			<tr>
 				<td>forEach</td><td></td><td>对数组的每个元素执行一次提供的函数(回调函数)</td>
 			</tr>
-			<tr>
-				<td>remove</td><td>返回是否移除</td><td>从集中移除指定的元素</td>
-			</tr>
-			<tr>
-				<td>addAll</td><td>返回Set对象本身</td><td>添加多个元素</td>
-			</tr>
-			<tr>
-				<td>removeAll</td><td>返回Set对象本身</td><td>移除多个元素</td>
-			</tr>
-			<tr>
-				<td>retainAll</td><td>返回Set对象本身</td><td>保留元素其他都删了</td>
-			</tr>
-			<tr>
-				<td>toArray</td><td>返回数组</td><td>转化为数组</td>
-			</tr>
 			</tbody>
 		</table>
 		<pre><code>var s = new Set();
@@ -106,20 +91,6 @@ s.forEach(function (item) {
 				});
 			};
 		</script>
-		<pre><code>var a=new Set();
-a.add(1);
-a.add(2);
-var b = new Set();
-b.add(2);
-b.add(3);
-
-//交集
-var c=new Set().addAll(a).retainAll(b);
-//并集
-var d=new Set().addAll(a).addAll(b);
-//差集
-var c=new Set().addAll(a).removeAll(b);</code></pre>
-		<a class="btn btn-primary" href="javascript:void 0">试一试</a>
 		<script>
 			Sky.getPrevElement(Sky.getCurrentScript()).onclick=function(){
 				var a=new Set();
@@ -158,9 +129,6 @@ var c=new Set().addAll(a).removeAll(b);</code></pre>
 			</tr>
 			<tr>
 				<td>forEach</td><td></td><td>对数组的每个元素执行一次提供的函数(回调函数)</td>
-			</tr>
-			<tr>
-				<td>remove</td><td>返回是否移除</td><td>从集中移除指定的元素</td>
 			</tr>
 			<tr>
 				<td>get</td><td>返回之前设置的值</td><td>获取键对应的值，如果不存在，则返回undefined</td>

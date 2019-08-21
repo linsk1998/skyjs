@@ -35,7 +35,7 @@
 	<div class="btn-toolbar">
 		<a class="btn btn-primary" href='javascript:Sky.addEvent(Sky.byId("bindBtn"),"click",testHandle2);void 0'>绑定事件</a>
 		<a class="btn btn-primary" href='javascript:Sky.removeEvent(Sky.byId("bindBtn"),"click",testHandle2);void 0'>解除绑定</a>
-		<a class="btn btn-default" href='javascript:void 0' id="bindBtn"><span class="align-middle">测试按钮</span> <span class="badge">2</span></a>
+		<a class="btn btn-default" href='javascript:void 0' id="bindBtn"><span class="btn-label">测试按钮</span> <span class="badge">2</span></a>
 	</div>
 	<div class="alert alert-info">
 		<p>绑定后可以会记录到一个内部变量中，解除绑定时可以解除多个。</p>
@@ -53,8 +53,8 @@
 	<h3 id="delegate">Sky.delegate Sky.undelegate</h3>
 	<p>父被选元素的子元素添加事件</p>
 	<div class="alert alert-info" id="delegateWrap">
-		<a class="btn btn-default" href='javascript:void 0'><span class="align-middle">测试按钮</span> <span class="badge">2</span></a>
-		<a class="btn btn-default" href='javascript:void 0'><span class="align-middle">测试按钮</span> <span class="badge">2</span></a>
+		<a class="btn btn-default" href='javascript:void 0'><span class="btn-label">测试按钮</span> <span class="badge">2</span></a>
+		<a class="btn btn-default" href='javascript:void 0'><span class="btn-label">测试按钮</span> <span class="badge">2</span></a>
 	</div>
 	<script>
 		function testHandle3(e){
@@ -92,11 +92,13 @@
 		<input type="text" value="" name="eg">
 	</form>
 	<script>
-		var textNode=document.createTextNode("");
-		Sky.getPrevElement(document.inputForm).appendChild(textNode);
-		Sky.addEvent(document.inputForm.eg,'input',function(){
-			textNode.data=this.value;
-		});
+		(function(){
+			var textNode=document.createTextNode("");
+			Sky.getPrevElement(document.inputForm).appendChild(textNode);
+			Sky.addEvent(document.inputForm.eg,'input',function(){
+				textNode.data=this.value;
+			});
+		})();
 	</script>
 	<div class="alert alert-warning">
 		<p>input事件不能代替change事件。</p>

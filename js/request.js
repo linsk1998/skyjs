@@ -2,9 +2,9 @@
 Sky.support.XMLHttpRequest=true;
 if(!this.XMLHttpRequest){
 	Sky.support.XMLHttpRequest=false;
-	XMLHttpRequest=function(){
-		if(XMLHttpRequest.progid){
-			return new ActiveXObject(XMLHttpRequest.progid);
+	Sky.createXMLHttpRequest=function(){
+		if(Sky.XHRProgid){
+			return new ActiveXObject(Sky.XHRProgid);
 		}
 		var versions=["Microsoft.XMLHTTP","MSXML2.XMLHTTP","Msxml2.XMLHTTP.5.0"];
 		var i=versions.length;
@@ -13,10 +13,15 @@ if(!this.XMLHttpRequest){
 				var progid=versions[i];
 				var request=new ActiveXObject(progid);
 				if(request){
-					XMLHttpRequest.progid=progid;
+					Sky.XHRProgid=progid;
 					return request;
 				}
 			}catch(e){}
 		}
+	};
+	XMLHttpRequest=Sky.createXMLHttpRequest;//如果你不想要ie6使用new XMLHttpRequest来创建，则去掉这行
+}else{
+	Sky.createXMLHttpRequest=function(){
+		return new XMLHttpRequest();
 	};
 }
