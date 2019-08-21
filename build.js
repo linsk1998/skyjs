@@ -32,6 +32,7 @@ out+=fs.readFileSync(__dirname+'/js/utils-string.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/utils-number.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/utils-array.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/utils-object.js', 'utf-8');
+out+=fs.readFileSync(__dirname+'/js/utils-collection.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/utils-browser.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/utils-form.js', 'utf-8');
 out+=fs.readFileSync(__dirname+'/js/storage.js', 'utf-8');
