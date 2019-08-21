@@ -486,7 +486,7 @@ if(typeof Symbol!=="function"){
 	(function(window){
 		var sqe=0;
 		function Symbol(desc){
-			this.__name__="@@Symbol{"+desc+"}:"+sqe;
+			this.__name__="@@"+desc+":"+sqe;
 			sqe++;
 		}
 		Symbol.prototype.toString=function(){
@@ -1002,7 +1002,7 @@ if(!this.URLSearchParams){
 	};
 	URLSearchParams.prototype.toString=function(){
 		return this._data.map(function(item){
-			return encodeURIComponent(item[1])+"="+encodeURIComponent(item[0]);
+			return encodeURIComponent(item[0])+"="+encodeURIComponent(item[1]);
 		}).join("&");
 	};
 	URLSearchParams.prototype.sort=function(){
@@ -1188,41 +1188,45 @@ if(!this.URLSearchParams){
 			}
 		}
 	}else{
-		window.execScript([
-			'Class VBURL',
-			'	Public [protocol]',
-			'	Public [hostname]',
-			'	Public [pathname]',
-			'	Public [port]',
-			'	Public [search]',
-			'	Public [searchParams]',
-			'	Public [hash]',
-			'	Public [username]',
-			'	Public [password]',
-			'	Public Property Let [host](var)',
-			'		Call URL.properties.host.set.call(Me,var)',
-			'	End Property',
-			'	Public Property Get [host]',
-			'		[host]=URL.properties.host.get.call(Me)',
-			'	End Property',
-			'	Public Property Let [origin](var)',
-			'	End Property',
-			'	Public Property Get [origin]',
-			'		[origin]=URL.properties.origin.get.call(Me)',
-			'	End Property',
-			'	Public Property Let [href](var)',
-			'		Call URL.properties.href.set.call(Me,var)',
-			'	End Property',
-			'	Public Property Get [href]',
-			'		[href]=URL.properties.href.get.call(Me)',
-			'	End Property',
-			'End Class',
-			'Function VBUrlFactory()',
-			'	Dim o',
-			'	Set o = New VBURL',
-			'	Set VBUrlFactory = o',
-			'End Function'
-		].join('\n'), 'VBScript');
+		try{
+			window.execScript([
+				'Class VBURL',
+				'	Public [protocol]',
+				'	Public [hostname]',
+				'	Public [pathname]',
+				'	Public [port]',
+				'	Public [search]',
+				'	Public [searchParams]',
+				'	Public [hash]',
+				'	Public [username]',
+				'	Public [password]',
+				'	Public Property Let [host](var)',
+				'		Call URL.properties.host.set.call(Me,var)',
+				'	End Property',
+				'	Public Property Get [host]',
+				'		[host]=URL.properties.host.get.call(Me)',
+				'	End Property',
+				'	Public Property Let [origin](var)',
+				'	End Property',
+				'	Public Property Get [origin]',
+				'		[origin]=URL.properties.origin.get.call(Me)',
+				'	End Property',
+				'	Public Property Let [href](var)',
+				'		Call URL.properties.href.set.call(Me,var)',
+				'	End Property',
+				'	Public Property Get [href]',
+				'		[href]=URL.properties.href.get.call(Me)',
+				'	End Property',
+				'End Class',
+				'Function VBUrlFactory()',
+				'	Dim o',
+				'	Set o = New VBURL',
+				'	Set VBUrlFactory = o',
+				'End Function'
+			].join('\n'), 'VBScript');
+		}catch(e){
+			alert("仿真模式下不支持VBScript");
+		}
 	}
 })(this);
 Sky.escapeString=function(str) {//from lodash
@@ -1265,10 +1269,10 @@ if(!this.JSON){
 								return JSON.stringify(obj.toJSON());
 							}
 							var items=[];
-							Sky.forOwn(function(value,key){
+							Sky.forOwn(obj,function(value,key){
 								if(value!==void 0){
 									if(!Sky.isFunction(value)){
-										items.push('"'+Sky.escapeString(k)+'":'+JSON.stringify(value));
+										items.push('"'+Sky.escapeString(key)+'":'+JSON.stringify(value));
 									}
 								}
 							});
@@ -1333,49 +1337,44 @@ if(!this.Proxy){
 			window.VBProxyGetter=function(target,property, receiver, handler){
 				return handler.get(target,property, receiver);
 			};
-			window.VBProxyPool=new Map();
 			window.VBProxyFactory=function(target,handler){
-				var className=VBProxyPool.get(target);
-				if(!className){
-					className="VBClass_"+(seq++);
-					VBProxyPool.set(target,className);
-					var buffer=["Class "+className];
-					buffer.push('Public ['+TARGET_KEY+']');
-					buffer.push('Public ['+HANDLE_KEY+']');
-					Object.keys(target).forEach(function(key){
-						if(key.match(/[a-zA-Z0-9_$]/)){
-							buffer.push(
-								'Public Property Let ['+key+'](var)',
-								'	Call VBProxySetter(['+TARGET_KEY+'],"'+key+'",var,Me,['+HANDLE_KEY+'])',
-								'End Property',
-								'Public Property Set ['+key+'](var)',
-								'	Call VBProxySetter(['+TARGET_KEY+'],"'+key+'",var,Me,['+HANDLE_KEY+'])',
-								'End Property',
-								'Public Property Get ['+key+']',
-								'	On Error Resume Next', //必须优先使用set语句,否则它会误将数组当字符串返回
-								'	Set ['+key+']=VBProxyGetter(['+TARGET_KEY+'],"'+key+'",Me,['+HANDLE_KEY+'])',
-								'	If Err.Number <> 0 Then',
-								'		['+key+']=VBProxyGetter(['+TARGET_KEY+'],"'+key+'",Me,['+HANDLE_KEY+'])',
-								'	End If',
-								'	On Error Goto 0',
-								'End Property');
-						}
-					});
-					buffer.push('End Class');
-					buffer.push(
-						'Function '+className+'_Factory(target,handler)',
-						'	Dim o',
-						'	Set o = New '+className,
-						'	Set o.['+TARGET_KEY+']=target',
-						'	Set o.['+HANDLE_KEY+']=handler',
-						'	Set '+className+'_Factory=o',
-						'End Function'
-					);
-					try{
-						window.execScript(buffer.join('\n'), 'VBScript');
-					}catch(e){
-						alert(buffer.join('\n'));
+				var className="VBProxyClass_"+(seq++);
+				var buffer=["Class "+className];
+				buffer.push('Public ['+TARGET_KEY+']');
+				buffer.push('Public ['+HANDLE_KEY+']');
+				Object.keys(target).forEach(function(key){
+					if(key.match(/[a-zA-Z0-9_$]/)){
+						buffer.push(
+							'Public Property Let ['+key+'](var)',
+							'	Call VBProxySetter(['+TARGET_KEY+'],"'+key+'",var,Me,['+HANDLE_KEY+'])',
+							'End Property',
+							'Public Property Set ['+key+'](var)',
+							'	Call VBProxySetter(['+TARGET_KEY+'],"'+key+'",var,Me,['+HANDLE_KEY+'])',
+							'End Property',
+							'Public Property Get ['+key+']',
+							'	On Error Resume Next', //必须优先使用set语句,否则它会误将数组当字符串返回
+							'	Set ['+key+']=VBProxyGetter(['+TARGET_KEY+'],"'+key+'",Me,['+HANDLE_KEY+'])',
+							'	If Err.Number <> 0 Then',
+							'		['+key+']=VBProxyGetter(['+TARGET_KEY+'],"'+key+'",Me,['+HANDLE_KEY+'])',
+							'	End If',
+							'	On Error Goto 0',
+							'End Property');
 					}
+				});
+				buffer.push('End Class');
+				buffer.push(
+					'Function '+className+'_Factory(target,handler)',
+					'	Dim o',
+					'	Set o = New '+className,
+					'	Set o.['+TARGET_KEY+']=target',
+					'	Set o.['+HANDLE_KEY+']=handler',
+					'	Set '+className+'_Factory=o',
+					'End Function'
+				);
+				try{
+					window.execScript(buffer.join('\n'), 'VBScript');
+				}catch(e){
+					alert(buffer.join('\n'));
 				}
 				return window[className+'_Factory'](target,handler); //得到其产品
 			};
@@ -1398,6 +1397,8 @@ if(!this.Proxy){
 			};
 			return r;
 		};
+		Proxy.HANDLE_KEY=HANDLE_KEY;
+		Proxy.TARGET_KEY=HANDLE_KEY;
 	})(this);
 }
 //setImmediate在setTimeout之前执行
@@ -1986,69 +1987,93 @@ Sky.ajaxSettings={};
 Sky.param=function(obj,traditional){
 	if(traditional || Sky.ajaxSettings.traditional){
 		var r=new URLSearchParams();
-		Sky.forOwn(obj,function(value,key){
-			r.append(key,value);
-		});
+		var keys=Object.keys(obj);
+		for(var i=0;i<keys.length;i++){
+			var key=keys[i];
+			r.append(key,obj[key]);
+		}
 		return r.toString();
 	}
 	return Sky.buildQuery(obj);
 };
-Sky.parseQuery=function(str){
-	var arr;
-	if(str.indexOf('?')!=-1){
-		arr=str.split("?");
-		str=arr[arr.length-1];
-	}
-	var o = new Object();
-	var strs = str.split("&");
-	for(var i = 0; i < strs.length; i ++) {
-		arr=strs[i].split("=");
-		if(arr.length!=2) break ;
-		var key=arr[0],value=decodeURIComponent(arr[1]),name,k,v;
-		if(arr=key.match(/(.*)\[\]$/)){
-			name=arr[1];
-			v=o[name];
-			if(!v){
-				o[name]=v=[];
-			}
-			v.push(value);
-		}else if(arr=key.match(/(.*)\[([^\]]+)\]$/)){
-			name=arr[1];
-			k=arr[2];
-			v=o[name];
-			if(!v){
-				o[name]=v={};
-			}
-			v[k]=value;
-		}else{
-			o[key]=value;
+(function(){
+	Sky.parseQuery=function(str){//TODO
+		var arr;
+		if(str.indexOf('?')!=-1){
+			arr=str.split("?");
+			str=arr[arr.length-1];
 		}
-	}
-	return o;
-};
-Sky.buildQuery=function(obj){
-	var s='';
-	if(obj instanceof Map){
-		obj.forEach(fn);
-	}else{
-		Sky.forOwn(obj,fn);
-	}
-	function fn(value,key){
+		var o = new Object();
+		var strs = str.split("&");
+		for(var i = 0; i < strs.length; i ++) {
+			arr=strs[i].split("=");
+			if(arr.length!=2) break ;
+			var key=arr[0],value=decodeURIComponent(arr[1]),name,k,v;
+			if(arr=key.match(/(.*)\[\]$/)){
+				name=arr[1];
+				v=o[name];
+				if(!v){
+					o[name]=v=[];
+				}
+				v.push(value);
+			}else if(arr=key.match(/(.*)\[([^\]]+)\]$/)){
+				name=arr[1];
+				k=arr[2];
+				v=o[name];
+				if(!v){
+					o[name]=v={};
+				}
+				v[k]=value;
+			}else{
+				o[key]=value;
+			}
+		}
+		return o;
+	};
+	Sky.buildQuery=function(obj){
+		var params=new URLSearchParams();
+		var keys=Object.keys(obj);
+		var key,value;
+		var i,j;
+		for(j=0;j<keys.length;j++){
+			key=keys[j];value=obj[key];
+			if(value.toJSON) value=value.toJSON();
+			if(Array.isArray(value)){
+				for(i=0;i<value.length;i++){
+					add(value[i],"",key,params);
+				}
+			}else if(Sky.isObject(value)){
+				var keys=Object.keys(value);
+				var k,v;
+				for(i=0;i<keys.length;i++){
+					k=keys[i];v=value[k];
+					add(v,k,key,params);
+				}
+			}else{
+				params.append(key,value);
+			}
+		}
+		return params.toString();
+	};
+	function add(value,key,prefix,params){
 		if(value.toJSON) value=value.toJSON();
-		if(value.forEach){
-			value.forEach(function(value){
-				s=s+key+'[]='+encodeURIComponent(value)+'&';
-			});
+		var i;
+		if(Array.isArray(value)){
+			for(i=0;i<value.length;i++){
+				add(value[i],"",prefix+"["+key+"]",params);
+			}
 		}else if(Sky.isObject(value)){
-			Sky.forOwn(value,function(v,k){
-				s=s+key+'['+k+']='+encodeURIComponent(v)+'&';
-			});
+			var keys=Object.keys(value);
+			var k,v;
+			for(i=0;i<keys.length;i++){
+				k=keys[i];v=value[k];
+				add(v,k,prefix+"["+key+"]",params);
+			}
 		}else{
-			s=s+key+'='+encodeURIComponent(value)+'&';
+			params.append(prefix+"["+key+"]",value);
 		}
 	}
-	return s.substring(0,s.length-1);
-};
+})();
 Sky.ajax=function(options){
 	var dfd=Sky.Deferred();
 	var targetUrl=options.url;
@@ -2178,36 +2203,30 @@ Sky.ajax.post=function(targetUrl,data,dataType,contentType){
 		});
 	});
 };
-Sky.getJSONP=function(url, callback){
-	var cbname=Sky.uniqueId("cb");
-	if(url.indexOf("=?")!=-1){
-		url=url.replace("=?","="+cbname);
-	}else{
-		url+=cbname;
-	}
-	var script=document.createElement("script");
-	if(document.addEventListener){
-		window[cbname]=function(response){
+(function(){
+	var i=0;
+	Sky.getJSONP=function(url, callback){
+		var cbname="cb"+(++i);
+		var a=url.indexOf("?");
+		var pathname=url.substring(0,a);
+		var search=url.substring(a,url.length);
+		search=search.replace("=?","=Sky."+cbname);
+		url=pathname+search;
+
+		var script=document.createElement("script");
+		Sky[cbname]=function(response){
 			try{
 				callback(response);
 			}finally{
-				delete window[cbname];
+				delete Sky[cbname];
 				script.parentNode.removeChild(script);
+				script=null;
 			}
 		};
-	}else{
-		window[cbname]=function(response){
-			try{
-				callback(response);
-			}finally{
-				window[cbname]=undefined;
-				script.parentNode.removeChild(script);
-			}
-		};
-	}
-	script.src=url;
-	document.body.appendChild(script);
-};
+		script.src=url;
+		document.body.appendChild(script);
+	};
+})();
 Sky.byId=function(id){
 	return document.getElementById(id);
 };
@@ -3170,6 +3189,47 @@ Sky.applyIf=function(obj,config){
 	return obj;
 };
 
+(function(){
+	Sky.union=function(){
+		var r=new Set();
+		var i=arguments.length;
+		while(i-->0){
+			var c=arguments[i];
+			c.forEach(union,r);
+		}
+		return r;
+	};
+	function union(value){
+		this.add(value);
+	}
+	Sky.difference=function(q1){
+		var r=Sky.union(q1);
+		var i=arguments.length;
+		while(i-->1){
+			var c=arguments[i];
+			r.forEach(function(item){
+				if(c.has){
+					if(!c.has(item)) r['delete'](item);
+				}else if(c.indexOf){
+					if(c.indexOf(item)<0) r['delete'](item);
+				}
+			},this);
+		}
+		return r;
+	};
+	Sky.intersection=function(q1){
+		var r=Sky.union(q1);
+		var i=arguments.length;
+		while(i-->1){
+			var c=arguments[i];
+			c.forEach(intersection,r);
+		}
+		return r;
+	};
+	function intersection(value){
+		this['delete'](value);
+	}
+})();
 Sky.getCookie=function(name){
 	var arr=document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
 	if(arr != null) return decodeURIComponent(arr[2]); return null;
@@ -3291,18 +3351,18 @@ Sky.getFormData=function(form){
 								o[name]=value={};
 							}
 							if(input.value){
-								value[key]=input.value;
+								value[key]=input.getAttribute('value');
 							}else{
 								value[key]="on";
 							}
 						}else{
-							o[input.name]=input.value;
+							o[input.name]=input.getAttribute('value');
 						}
 					}
 					break;
 				case "radio":
 					if(input.checked){
-						o[input.name]=input.value;
+						o[input.name]=input.getAttribute('value');
 					}
 					break;
 				default:

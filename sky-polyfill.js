@@ -486,7 +486,7 @@ if(typeof Symbol!=="function"){
 	(function(window){
 		var sqe=0;
 		function Symbol(desc){
-			this.__name__="@@Symbol{"+desc+"}:"+sqe;
+			this.__name__="@@"+desc+":"+sqe;
 			sqe++;
 		}
 		Symbol.prototype.toString=function(){
@@ -1002,7 +1002,7 @@ if(!this.URLSearchParams){
 	};
 	URLSearchParams.prototype.toString=function(){
 		return this._data.map(function(item){
-			return encodeURIComponent(item[1])+"="+encodeURIComponent(item[0]);
+			return encodeURIComponent(item[0])+"="+encodeURIComponent(item[1]);
 		}).join("&");
 	};
 	URLSearchParams.prototype.sort=function(){
@@ -1188,41 +1188,45 @@ if(!this.URLSearchParams){
 			}
 		}
 	}else{
-		window.execScript([
-			'Class VBURL',
-			'	Public [protocol]',
-			'	Public [hostname]',
-			'	Public [pathname]',
-			'	Public [port]',
-			'	Public [search]',
-			'	Public [searchParams]',
-			'	Public [hash]',
-			'	Public [username]',
-			'	Public [password]',
-			'	Public Property Let [host](var)',
-			'		Call URL.properties.host.set.call(Me,var)',
-			'	End Property',
-			'	Public Property Get [host]',
-			'		[host]=URL.properties.host.get.call(Me)',
-			'	End Property',
-			'	Public Property Let [origin](var)',
-			'	End Property',
-			'	Public Property Get [origin]',
-			'		[origin]=URL.properties.origin.get.call(Me)',
-			'	End Property',
-			'	Public Property Let [href](var)',
-			'		Call URL.properties.href.set.call(Me,var)',
-			'	End Property',
-			'	Public Property Get [href]',
-			'		[href]=URL.properties.href.get.call(Me)',
-			'	End Property',
-			'End Class',
-			'Function VBUrlFactory()',
-			'	Dim o',
-			'	Set o = New VBURL',
-			'	Set VBUrlFactory = o',
-			'End Function'
-		].join('\n'), 'VBScript');
+		try{
+			window.execScript([
+				'Class VBURL',
+				'	Public [protocol]',
+				'	Public [hostname]',
+				'	Public [pathname]',
+				'	Public [port]',
+				'	Public [search]',
+				'	Public [searchParams]',
+				'	Public [hash]',
+				'	Public [username]',
+				'	Public [password]',
+				'	Public Property Let [host](var)',
+				'		Call URL.properties.host.set.call(Me,var)',
+				'	End Property',
+				'	Public Property Get [host]',
+				'		[host]=URL.properties.host.get.call(Me)',
+				'	End Property',
+				'	Public Property Let [origin](var)',
+				'	End Property',
+				'	Public Property Get [origin]',
+				'		[origin]=URL.properties.origin.get.call(Me)',
+				'	End Property',
+				'	Public Property Let [href](var)',
+				'		Call URL.properties.href.set.call(Me,var)',
+				'	End Property',
+				'	Public Property Get [href]',
+				'		[href]=URL.properties.href.get.call(Me)',
+				'	End Property',
+				'End Class',
+				'Function VBUrlFactory()',
+				'	Dim o',
+				'	Set o = New VBURL',
+				'	Set VBUrlFactory = o',
+				'End Function'
+			].join('\n'), 'VBScript');
+		}catch(e){
+			alert("仿真模式下不支持VBScript");
+		}
 	}
 })(this);
 Sky.escapeString=function(str) {//from lodash
@@ -1265,10 +1269,10 @@ if(!this.JSON){
 								return JSON.stringify(obj.toJSON());
 							}
 							var items=[];
-							Sky.forOwn(function(value,key){
+							Sky.forOwn(obj,function(value,key){
 								if(value!==void 0){
 									if(!Sky.isFunction(value)){
-										items.push('"'+Sky.escapeString(k)+'":'+JSON.stringify(value));
+										items.push('"'+Sky.escapeString(key)+'":'+JSON.stringify(value));
 									}
 								}
 							});
@@ -1333,49 +1337,44 @@ if(!this.Proxy){
 			window.VBProxyGetter=function(target,property, receiver, handler){
 				return handler.get(target,property, receiver);
 			};
-			window.VBProxyPool=new Map();
 			window.VBProxyFactory=function(target,handler){
-				var className=VBProxyPool.get(target);
-				if(!className){
-					className="VBClass_"+(seq++);
-					VBProxyPool.set(target,className);
-					var buffer=["Class "+className];
-					buffer.push('Public ['+TARGET_KEY+']');
-					buffer.push('Public ['+HANDLE_KEY+']');
-					Object.keys(target).forEach(function(key){
-						if(key.match(/[a-zA-Z0-9_$]/)){
-							buffer.push(
-								'Public Property Let ['+key+'](var)',
-								'	Call VBProxySetter(['+TARGET_KEY+'],"'+key+'",var,Me,['+HANDLE_KEY+'])',
-								'End Property',
-								'Public Property Set ['+key+'](var)',
-								'	Call VBProxySetter(['+TARGET_KEY+'],"'+key+'",var,Me,['+HANDLE_KEY+'])',
-								'End Property',
-								'Public Property Get ['+key+']',
-								'	On Error Resume Next', //必须优先使用set语句,否则它会误将数组当字符串返回
-								'	Set ['+key+']=VBProxyGetter(['+TARGET_KEY+'],"'+key+'",Me,['+HANDLE_KEY+'])',
-								'	If Err.Number <> 0 Then',
-								'		['+key+']=VBProxyGetter(['+TARGET_KEY+'],"'+key+'",Me,['+HANDLE_KEY+'])',
-								'	End If',
-								'	On Error Goto 0',
-								'End Property');
-						}
-					});
-					buffer.push('End Class');
-					buffer.push(
-						'Function '+className+'_Factory(target,handler)',
-						'	Dim o',
-						'	Set o = New '+className,
-						'	Set o.['+TARGET_KEY+']=target',
-						'	Set o.['+HANDLE_KEY+']=handler',
-						'	Set '+className+'_Factory=o',
-						'End Function'
-					);
-					try{
-						window.execScript(buffer.join('\n'), 'VBScript');
-					}catch(e){
-						alert(buffer.join('\n'));
+				var className="VBProxyClass_"+(seq++);
+				var buffer=["Class "+className];
+				buffer.push('Public ['+TARGET_KEY+']');
+				buffer.push('Public ['+HANDLE_KEY+']');
+				Object.keys(target).forEach(function(key){
+					if(key.match(/[a-zA-Z0-9_$]/)){
+						buffer.push(
+							'Public Property Let ['+key+'](var)',
+							'	Call VBProxySetter(['+TARGET_KEY+'],"'+key+'",var,Me,['+HANDLE_KEY+'])',
+							'End Property',
+							'Public Property Set ['+key+'](var)',
+							'	Call VBProxySetter(['+TARGET_KEY+'],"'+key+'",var,Me,['+HANDLE_KEY+'])',
+							'End Property',
+							'Public Property Get ['+key+']',
+							'	On Error Resume Next', //必须优先使用set语句,否则它会误将数组当字符串返回
+							'	Set ['+key+']=VBProxyGetter(['+TARGET_KEY+'],"'+key+'",Me,['+HANDLE_KEY+'])',
+							'	If Err.Number <> 0 Then',
+							'		['+key+']=VBProxyGetter(['+TARGET_KEY+'],"'+key+'",Me,['+HANDLE_KEY+'])',
+							'	End If',
+							'	On Error Goto 0',
+							'End Property');
 					}
+				});
+				buffer.push('End Class');
+				buffer.push(
+					'Function '+className+'_Factory(target,handler)',
+					'	Dim o',
+					'	Set o = New '+className,
+					'	Set o.['+TARGET_KEY+']=target',
+					'	Set o.['+HANDLE_KEY+']=handler',
+					'	Set '+className+'_Factory=o',
+					'End Function'
+				);
+				try{
+					window.execScript(buffer.join('\n'), 'VBScript');
+				}catch(e){
+					alert(buffer.join('\n'));
 				}
 				return window[className+'_Factory'](target,handler); //得到其产品
 			};
@@ -1398,6 +1397,8 @@ if(!this.Proxy){
 			};
 			return r;
 		};
+		Proxy.HANDLE_KEY=HANDLE_KEY;
+		Proxy.TARGET_KEY=HANDLE_KEY;
 	})(this);
 }
 //setImmediate在setTimeout之前执行

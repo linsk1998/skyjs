@@ -1,60 +1,95 @@
 
-Sky.parseQuery=function(str){
-	var arr;
-	if(str.indexOf('?')!=-1){
-		arr=str.split("?");
-		str=arr[arr.length-1];
-	}
-	var o = new Object();
-	var strs = str.split("&");
-	for(var i = 0; i < strs.length; i ++) {
-		arr=strs[i].split("=");
-		if(arr.length!=2) break ;
-		var key=arr[0],value=decodeURIComponent(arr[1]),name,k,v;
-		if(arr=key.match(/(.*)\[\]$/)){
-			name=arr[1];
-			v=o[name];
-			if(!v){
-				o[name]=v=[];
-			}
-			v.push(value);
-		}else if(arr=key.match(/(.*)\[([^\]]+)\]$/)){
-			name=arr[1];
-			k=arr[2];
-			v=o[name];
-			if(!v){
-				o[name]=v={};
-			}
-			v[k]=value;
-		}else{
-			o[key]=value;
+Sky.ajaxSettings={};
+Sky.param=function(obj,traditional){
+	if(traditional || Sky.ajaxSettings.traditional){
+		var r=new URLSearchParams();
+		var keys=Object.keys(obj);
+		for(var i=0;i<keys.length;i++){
+			var key=keys[i];
+			r.append(key,obj[key]);
 		}
+		return r.toString();
 	}
-	return o;
+	return Sky.buildQuery(obj);
 };
-Sky.buildQuery=function(obj){
-	var s='';
-	if(obj instanceof Map){
-		obj.forEach(fn);
-	}else{
-		Sky.forOwn(obj,fn);
-	}
-	function fn(value,key){
+(function(){
+	Sky.parseQuery=function(str){//TODO
+		var arr;
+		if(str.indexOf('?')!=-1){
+			arr=str.split("?");
+			str=arr[arr.length-1];
+		}
+		var o = new Object();
+		var strs = str.split("&");
+		for(var i = 0; i < strs.length; i ++) {
+			arr=strs[i].split("=");
+			if(arr.length!=2) break ;
+			var key=arr[0],value=decodeURIComponent(arr[1]),name,k,v;
+			if(arr=key.match(/(.*)\[\]$/)){
+				name=arr[1];
+				v=o[name];
+				if(!v){
+					o[name]=v=[];
+				}
+				v.push(value);
+			}else if(arr=key.match(/(.*)\[([^\]]+)\]$/)){
+				name=arr[1];
+				k=arr[2];
+				v=o[name];
+				if(!v){
+					o[name]=v={};
+				}
+				v[k]=value;
+			}else{
+				o[key]=value;
+			}
+		}
+		return o;
+	};
+	Sky.buildQuery=function(obj){
+		var params=new URLSearchParams();
+		var keys=Object.keys(obj);
+		var key,value;
+		var i,j;
+		for(j=0;j<keys.length;j++){
+			key=keys[j];value=obj[key];
+			if(value.toJSON) value=value.toJSON();
+			if(Array.isArray(value)){
+				for(i=0;i<value.length;i++){
+					add(value[i],"",key,params);
+				}
+			}else if(Sky.isObject(value)){
+				var keys=Object.keys(value);
+				var k,v;
+				for(i=0;i<keys.length;i++){
+					k=keys[i];v=value[k];
+					add(v,k,key,params);
+				}
+			}else{
+				params.append(key,value);
+			}
+		}
+		return params.toString();
+	};
+	function add(value,key,prefix,params){
 		if(value.toJSON) value=value.toJSON();
-		if(value.forEach){
-			value.forEach(function(value){
-				s=s+key+'[]='+encodeURIComponent(value)+'&';
-			});
+		var i;
+		if(Array.isArray(value)){
+			for(i=0;i<value.length;i++){
+				add(value[i],"",prefix+"["+key+"]",params);
+			}
 		}else if(Sky.isObject(value)){
-			Sky.forOwn(value,function(v,k){
-				s=s+key+'['+k+']='+encodeURIComponent(v)+'&';
-			});
+			var keys=Object.keys(value);
+			var k,v;
+			for(i=0;i<keys.length;i++){
+				k=keys[i];v=value[k];
+				add(v,k,prefix+"["+key+"]",params);
+			}
 		}else{
-			s=s+key+'='+encodeURIComponent(value)+'&';
+			params.append(prefix+"["+key+"]",value);
 		}
 	}
-	return s.substring(0,s.length-1);
-};
+})();
 Sky.ajax=function(options){
 	var dfd=Sky.Deferred();
 	var targetUrl=options.url;
@@ -114,7 +149,7 @@ Sky.ajax=function(options){
 		if(data){
 			if(Sky.isPlainObject(data) || data instanceof Map){
 				xhr.setRequestHeader('Content-Type',contentType || 'application/x-www-form-urlencoded');
-				xhr.send(Sky.buildQuery(data));
+				xhr.send(Sky.param(data));
 			}else{//字符串 ， 二进制流 ， 文件等
 				if(contentType){
 					contentType && xhr.setRequestHeader('Content-Type',contentType);
@@ -184,33 +219,27 @@ Sky.ajax.post=function(targetUrl,data,dataType,contentType){
 		});
 	});
 };
-Sky.getJSONP=function(url, callback){
-	var cbname=Sky.uniqueId("cb");
-	if(url.indexOf("=?")!=-1){
-		url=url.replace("=?","="+cbname);
-	}else{
-		url+=cbname;
-	}
-	var script=document.createElement("script");
-	if(document.addEventListener){
-		window[cbname]=function(response){
+(function(){
+	var i=0;
+	Sky.getJSONP=function(url, callback){
+		var cbname="cb"+(++i);
+		var a=url.indexOf("?");
+		var pathname=url.substring(0,a);
+		var search=url.substring(a,url.length);
+		search=search.replace("=?","=Sky."+cbname);
+		url=pathname+search;
+
+		var script=document.createElement("script");
+		Sky[cbname]=function(response){
 			try{
 				callback(response);
 			}finally{
-				delete window[cbname];
+				delete Sky[cbname];
 				script.parentNode.removeChild(script);
+				script=null;
 			}
 		};
-	}else{
-		window[cbname]=function(response){
-			try{
-				callback(response);
-			}finally{
-				window[cbname]=undefined;
-				script.parentNode.removeChild(script);
-			}
-		};
-	}
-	script.src=url;
-	document.body.appendChild(script);
-};
+		script.src=url;
+		document.body.appendChild(script);
+	};
+})();
