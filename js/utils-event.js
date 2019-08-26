@@ -1,303 +1,350 @@
 
+if(document.addEventListener){
+	Sky.attachEvent=function(obj, evt, func, useCapture){
+		obj.addEventListener(evt, func, !!useCapture);
+	};
+	Sky.detachEvent=function(obj, evt, func, useCapture){
+		obj.removeEventListener(evt, func, !!useCapture);
+	};
+	Sky.fireEvent=function(e,eventName){
+		var ev=document.createEvent('Event');
+		ev.initEvent(eventName, true, true);
+		e.dispatchEvent(ev);
+	};
+}else{
+	Sky.attachEvent=function(obj, evt, func){
+		obj.attachEvent( 'on'+evt, func);
+	};
+	Sky.detachEvent=function(obj, evt, func){
+		obj.detachEvent('on'+evt, func);
+	};
+	Sky.fireEvent=function(e,eventName){
+		e.fireEvent("on"+eventName);
+	};
+}
 (function(window){
-	if(document.addEventListener){
-		Sky.attachEvent=function(obj, evt, func){
-			obj.addEventListener(evt, func, false);
-		};
-		Sky.detachEvent=function(obj, evt, func){
-			obj.removeEventListener(evt, func, false);
-		};
-		Sky.fireEvent=function(e,eventName){
-			var ev=document.createEvent('Event');
-			ev.initEvent(eventName, false, false);
-			e.dispatchEvent(ev);
-		};
-	}else{
-		Sky.attachEvent=function(obj, evt, func){
-			obj.attachEvent( 'on'+evt, func);
-		};
-		Sky.detachEvent=function(obj, evt, func){
-			obj.detachEvent('on'+evt, func);
-		};
-		Sky.fireEvent=function(e,eventName){
-			e.fireEvent("on"+eventName);
-		};
+	var notCapture=["load","unload","scroll","resize","blur","focus","mouseenter","mouseleave","input","propertychange"];
+	var EVENTS=Symbol("events");
+	var CAPTURES=Symbol("captures");
+
+	
+	function attachEvent(obj, evt, func){
+		obj['on'+evt]=func;
+	}
+	function detachEvent(obj, evt){
+		obj['on'+evt]=null;
+	}
+
+	function addEvent(ele, evt, func, useCapture){
+		var key=useCapture?CAPTURES:EVENTS;
+		var set,map=ele[key];
+		if(!map){
+			map=ele[key]=new Object();
+		}
+		set=map[evt];
+		if(!set){
+			set=map[evt]=new Array();
+		}
+		if(!set.includes(func)){
+			set.push(func);
+		}
+	}
+	function removeEvent(ele, evt, func, useCapture){
+		var key=useCapture?CAPTURES:EVENTS;
+		var map=ele[key];
+		if(map){
+			var set=map[evt];
+			if(set){
+				var i=set.indexOf(func);
+				if(i>=0){
+					set.splice(i,1);
+				}
+			}
+		}
+	}
+	function isEmpty(ele, evt, useCapture){
+		var key=useCapture?CAPTURES:EVENTS;
+		var map=ele[key];
+		if(!map) return false;
+		var set=map[evt];
+		if(set) return set.length;
+	}
+	function dispatchEvent(ele, evt, e){
+		var map,set,func,i;
+		if(e.eventPhase<=2){
+			map=ele[CAPTURES];
+			if(map){
+				set=map[evt];
+				if(set && set.length){
+					for(i=0;i<set.length;i++){
+						func=set[i];
+						func.call(ele,e);
+						if(e.cancelBubble){
+							return ;
+						}
+					}
+				}
+			}
+		}
+		if(e.eventPhase>=2){
+			map=ele[EVENTS];
+			if(map){
+				set=map[evt];
+				if(set && set.length){
+					for(i=0;i<set.length;i++){
+						func=set[i];
+						func.call(ele,e);
+						if(e.cancelBubble){
+							return ;
+						}
+					}
+				}
+			}
+		}
 	}
 	function stopPropagation(){
 		this.cancelBubble=true;
 	}
 	function preventDefault(){
+		this.defaultPrevented=true;
 		this.returnValue=false;
 	}
-	var eventMap=new Map();
-	var proxyMap=new Map();
-	proxyMap.addEvent=function(ele,evt,proxyHandle){
-		var handles=this.get(ele);
-		if(!handles){
-			handles=new Array();
-			this.set(ele,handles);
-		}
-		handles.push(proxyHandle);
-		Sky.attachEvent(ele,evt,proxyHandle);
-	};
-	proxyMap.removeEvent=function(ele,evt,func,selector){
-		var proxyList=this.get(ele);
-		if(!proxyList) return ;
-		var arr=proxyList.filter(function(handle){
-			if(evt){
-				if(handle.event!=evt){
-					return true;
-				}
-			}
-			if(selector){
-				if(handle.selector!=selector){
-					return true;
-				}
-			}
-			if(func){
-				if(handle.target!=func){
-					return true;
-				}
-			}
-			Sky.detachEvent(ele,evt,handle);
-			return false;
-		});
-		this.set(ele,arr);
-	};
-	Sky.addEvent=function(ele, evt, func){
-		evt=evt.toLowerCase();
-		var events=eventMap.get(ele);
-		if(!events){
-			events={};
-			eventMap.set(ele,events);
-		}
-		var handles=events[evt];
-		if(!handles){
-			handles=new Set();
-			events[evt]=handles;
-		}
-		if(!handles.has(func)){
-			handles.add(func);
-			if(evt in Sky.event.fix){
-				Sky.event.fix[evt].attachEvent(ele,evt,func);
-			}else if(ele.addEventListener){
-				Sky.attachEvent(ele,evt,func);
-			}else{
-				var proxyHandle=function(e){
-					e=e || window.event;
-					e.target=e.srcElement;
-					e.currentTarget=ele;
-					e.relatedTarget=e.toElement || e.fromElement;
-					e.stopPropagation=stopPropagation;
-					e.preventDefault=preventDefault;
-					return func.call(ele,e);
-				};
-				proxyHandle.target=func;
-				proxyHandle.element=ele;
-				proxyHandle.event=evt;
-				proxyMap.addEvent(ele,evt,proxyHandle);
-			}
-		}
-	};
-	Sky.removeEvent=function(ele, evt, func) {
-		var events=eventMap.get(ele);
-		if(!events) return ;
-		if(evt){
-			var handles=events[evt];
-			if(!handles) return ;
-			if(func){
-				handles['delete'](func);
-				if(evt in Sky.event.fix){
-					Sky.event.fix[evt].detachEvent(ele,evt,func);
-				}else if(ele.removeEventListener){
-					ele.removeEventListener(evt, func, false);
-				}else{
-					proxyMap.removeEvent(ele, evt, func);
-				}
-			}else{
-				handles.forEach(function(func){
-					Sky.removeEvent(ele, evt, func);
-				});
-			}
-		}else{
-			for(evt in events){
-				Sky.removeEvent(ele, evt);
-			}
-		}
-	};
-	Sky.trigger=function(ele, evt){
-		var events=eventMap.get(ele);
-		if(!events) return ;
-		var handles=events[evt];
-		if(!handles) return ;
-		if('on'+evt in ele){
-			Sky.fireEvent(ele, evt);
-		}else{
-			handles.forEach(function(func){
-				var e={};
-				e.target=ele;
-				e.currentTarget=ele;
-				e.relatedTarget=ele;
+	function createIeNotCaptureProxy(ieTrigger){
+		return function(){
+			var e=window.event;
+			e.currentTarget=this;
+			e.target=e.srcElement;
+			e.stopPropagation=stopPropagation;
+			e.preventDefault=preventDefault;
+			e.eventPhase=2;
+			return ieTrigger.call(this,e);
+		};
+	}
+	function createIeProxy(ieTrigger){
+		return function(){
+			var parents,i,current;
+			var e=window.event;
+			if(!e.eventPhase){
+				e.target=e.srcElement;
 				e.stopPropagation=stopPropagation;
 				e.preventDefault=preventDefault;
-				try{
-					func.call(ele,e);
-				}catch(e){
-					console.error(e);
+				e.eventPhase=1;
+				parents=Sky.getParents(e.target);
+				i=parents.length;
+				while(i-->0){
+					current=parents[i];
+					e.currentTarget=current;
+					e.returnValue=ieTrigger.call(current,e);
+					e.defaultPrevented=e.returnValue===false;
+					if(e.cancelBubble){
+						return ;
+					}
 				}
-			});
-		}
+			}
+			if(e.target===this){
+				e.eventPhase=2;
+			}else{
+				e.eventPhase=3;
+			}
+			e.currentTarget=this;
+			return ieTrigger.call(this,e);
+		};
+	}
+	var fix={
+		addEvent:{},
+		removeEvent:{},
+		dispatchEvent:{}
 	};
-	Sky.event={};
-	Sky.event.fix={};
-	if(!("onmouseenter" in document) && !Sky.browser.ie){
-		Sky.event.fix.mouseenter={
-			attachEvent:function(ele, evt, func){
-				var proxyHandle=function(e){
-					var target= e.target;
-					var related=e.relatedTarget;
-					if(!related || (related!==ele && !ele.contains(related)) ){
-						return func.call(ele, e);
+	if(!("onwheel" in document)){
+		if('onmousewheel' in document){
+			var ieWheelProxy=function(e){
+				dispatchEvent(this, 'wheel', e);
+			};
+			if(document.attachEvent){
+				ieWheelProxy=createIeProxy(ieWheelProxy);
+				fix.addEvent.wheel=function(ele, evt, func, useCapture){
+					addEvent(ele, evt, func, useCapture);
+					attachEvent(ele, 'mousewheel', ieWheelProxy);
+				};
+				fix.removeEvent.wheel=function(ele, evt, func, useCapture){
+					removeEvent(ele, evt, func, useCapture);
+					if(isEmpty(ele, evt, useCapture)){
+						detachEvent(ele, 'mousewheel', ieWheelProxy);
 					}
 				};
-				proxyHandle.target=func;
-				proxyHandle.element=ele;
-				proxyHandle.event=evt;
-				proxyMap.addEvent(ele,"mouseover",proxyHandle);
-			},
-			detachEvent:function(ele, evt, func){
-				proxyMap.removeEvent(ele, evt, func);
+			}else{
+				fix.addEvent.wheel=function(ele, evt, func, useCapture){
+					addEvent(ele, evt, func, useCapture);
+					ele.addEventListener('mousewheel', ieWheelProxy, !!useCapture);
+				};
+				fix.removeEvent.wheel=function(ele, evt, func, useCapture){
+					removeEvent(ele, evt, func, useCapture);
+					if(isEmpty(ele, evt, useCapture)){
+						ele.removeEventListener('mousewheel', ieWheelProxy, !!useCapture);
+					}
+				};
+			}
+			fix.dispatchEvent.wheel=function(ele){
+				Sky.fireEvent(ele,'mousewheel');
+			};
+		}else{
+			function ffWheelProxy(e){
+				e.wheelDelta=-e.detail*40;
+				dispatchEvent(this, "wheel", e);
+			}
+			fix.addEvent.wheel=function(ele, evt, func, useCapture){
+				addEvent(ele, evt, func, useCapture);
+				ele.addEventListener('DOMMouseScroll', ffWheelProxy, !!useCapture);
+			};
+			fix.removeEvent.wheel=function(ele, evt, func, useCapture){
+				removeEvent(ele, evt, func, useCapture);
+				if(isEmpty(ele, evt, useCapture)){
+					ele.removeEventListener('DOMMouseScroll', ffWheelProxy, !!useCapture);
+				}
+			};
+			fix.dispatchEvent.wheel=function(ele, evt){
+				Sky.fireEvent(ele,'DOMMouseScroll');
+			};
+		}
+	}
+	if(Sky.browser.ie9){
+		function ie9InputProxy(e){
+			dispatchEvent(this, 'input', e);
+		}
+		fix.addEvent.input=function(ele, evt, func, useCapture){
+			addEvent(ele, evt, func, useCapture);
+			ele.addEventListener('selectionchange', ie9InputProxy, !!useCapture);
+			ele.addEventListener('keyup', ie9InputProxy, !!useCapture);
+			ele.addEventListener('input', ie9InputProxy, !!useCapture);
+		};
+		fix.removeEvent.input=function(ele, func, useCapture){
+			removeEvent(ele, evt, func, useCapture);
+			if(isEmpty(ele, evt, useCapture)){
+				ele.removeEventListener('selectionchange', ie9InputProxy, !!useCapture);
+				ele.removeEventListener('keyup', ie9InputProxy, !!useCapture);
+				ele.removeEventListener('input', ie9InputProxy, !!useCapture);
+			}
+		};
+	}else if(document.attachEvent){
+		var ieInputProxy=createIeProxy(function(e){
+			if(e.propertyName==='value'){
+				var target=e.srcElement;
+				if(!target.disabled && !target.readOnly){
+					dispatchEvent(target,"input",e);
+				}
+			}
+		});
+		fix.addEvent.input=function(ele, evt, func, useCapture){
+			addEvent(ele, evt, func, useCapture);
+			attachEvent(ele, 'propertychange', ieInputProxy);
+		};
+		fix.removeEvent.input=function(ele, evt, func, useCapture){
+			removeEvent(ele, evt, func, useCapture);
+			if(isEmpty(ele, evt, useCapture)){
+				detachEvent(ele, 'propertychange', ieInputProxy);
+			}
+		};
+		fix.dispatchEvent.input=function(ele, evt){
+			var e=document.createEventObject();
+			e.propertyName='value';
+			ele.fireEvent('onpropertychange', e);
+		};
+	}
+	if(!("onmouseenter" in document) && !Sky.browser.ie){
+		function mouseenterProxy(e){
+			var target= e.target;
+			var related=e.relatedTarget;
+			if(!related || (related!==this && !this.contains(related)) ){
+				dispatchEvent(this, 'mouseenter', e);
+			}
+		}
+		fix.addEvent.mouseenter=function(ele, evt, func, useCapture){
+			addEvent(ele, evt, func, useCapture);
+			ele.addEventListener('mouseover', mouseenterProxy, !!useCapture);
+		};
+		fix.removeEvent.mouseenter=function(ele, func, useCapture){
+			removeEvent(ele, evt, func, useCapture);
+			if(isEmpty(ele, evt, useCapture)){
+				ele.removeEventListener('mouseover', mouseenterProxy, !!useCapture);
 			}
 		};
 	}
 	if(!("onmouseleave" in document) && !Sky.browser.ie){
-		Sky.event.fix.mouseleave={
-			attachEvent:function(ele, evt, func){
-				var proxyHandle=function(e){
-					var target=e.target;
-					var related=e.relatedTarget;
-					if(!related || (related!==ele && !ele.contains(related)) ){
-						return func.call(ele, e);
-					}
-				};
-				proxyHandle.target=func;
-				proxyHandle.element=ele;
-				proxyHandle.event=evt;
-				proxyMap.addEvent(ele,"mouseout",proxyHandle);
-			},
-			detachEvent:function(ele, evt, func){
-				proxyMap.removeEvent(ele, evt, func);
+		function mouseleaveProxy(e){
+			var target= e.target;
+			var related=e.relatedTarget;
+			if(!related || (related!==this && !this.contains(related)) ){
+				dispatchEvent(this, 'mouseleave', e);
+			}
+		}
+		fix.addEvent.mouseleave=function(ele, evt, func, useCapture){
+			addEvent(ele, evt, func, useCapture);
+			ele.addEventListener('mouseout', mouseleaveProxy, !!useCapture);
+		};
+		fix.removeEvent.mouseleave=function(ele, func, useCapture){
+			removeEvent(ele, evt, func, useCapture);
+			if(isEmpty(ele, evt, useCapture)){
+				ele.removeEventListener('mouseout', mouseleaveProxy, !!useCapture);
 			}
 		};
-	}
-	if(!("onwheel" in document)){
-		if('onmousewheel' in document){
-			Sky.event.fix.wheel={
-				attachEvent:function(ele, evt, func){
-					Sky.addEvent(ele, 'mousewheel', func);
-				},
-				detachEvent:function(ele, evt, func){
-					Sky.removeEvent(ele, 'mousewheel', func);
-				}
-			};
-		}else{
-			Sky.event.fix.wheel=Sky.event.fix.mousewheel={
-				attachEvent:function(ele, evt, func){
-					var proxyHandle=function(e){
-						e.wheelDelta=-e.detail*40;
-						return func.call(ele, e);
-					};
-					proxyHandle.target=func;
-					proxyHandle.element=ele;
-					proxyHandle.event=evt;
-					proxyMap.addEvent(ele,"DOMMouseScroll",proxyHandle);
-				},
-				detachEvent:function(ele, evt, func){
-					proxyMap.removeEvent(ele, evt, func);
-				}
-			};
-		}
 	}
 
-	if(Sky.browser.ie9){
-		Sky.event.fix.input={
-			attachEvent:function(ele, evt, func){
-				Sky.attachEvent(ele,'selectionchange',func);
-				Sky.attachEvent(ele,'keyup',func);
-				Sky.attachEvent(ele,'input',func);
-			},
-			detachEvent:function(ele, evt, func){
-				Sky.detachEvent(ele,'selectionchange',func);
-				Sky.detachEvent(ele,'keyup',func);
-				Sky.detachEvent(ele,'input',func);
+
+	if(document.addEventListener){
+		Sky.addEvent=function(ele, evt, func, useCapture){
+			var fixfunc=fix.addEvent[evt];
+			if(fixfunc){
+				fixfunc(ele, evt, func, useCapture);
+			}else{
+				addEvent(ele, evt, func, useCapture);
+				ele.addEventListener(evt, func, !!useCapture);
 			}
 		};
-	}else if(document.attachEvent){
-		Sky.event.fix.input={
-			attachEvent:function(ele, evt, func){
-				var proxyHandle=function(e){
-					e=e || window.event;
-					if(e.propertyName==='value'){
-						if(!e.srcElement.disabled && !e.srcElement.readOnly){
-							e.target=e.srcElement;
-							e.currentTarget=ele;
-							e.stopPropagation=stopPropagation;
-							e.preventDefault=preventDefault;
-							return func.call(ele,e);
-						}
-					};
-				};
-				proxyMap.addEvent(ele,"propertychange",proxyHandle);
-			},
-			detachEvent:function(ele, evt, func){
-				proxyMap.removeEvent(ele, evt, func);
+		Sky.removeEvent=function(ele, evt, func, useCapture){
+			var fixfunc=fix.removeEvent[evt];
+			if(fixfunc){
+				fixfunc(ele, evt, func, useCapture);
+			}else{
+				removeEvent(ele, evt, func, useCapture);
+				ele.removeEventListener(ffWheelProxy, !!useCapture);
+			}
+		};
+	}else{
+		function commonTrigger(e){
+			dispatchEvent(this,e.type,e);
+		}
+		var ieProxy=createIeProxy(commonTrigger);
+		var ieNotCaptureProxy=createIeNotCaptureProxy(commonTrigger);
+		Sky.addEvent=function(ele, evt, func, useCapture){
+			var fixfunc=fix.addEvent[evt];
+			if(fixfunc){
+				fixfunc(ele, evt, func, useCapture);
+			}else{
+				addEvent(ele, evt, func, useCapture);
+				if(notCapture.includes(evt)){
+					attachEvent(ele, evt, ieNotCaptureProxy);
+				}else{
+					attachEvent(ele, evt, ieProxy);
+				}
+			}
+		};
+		Sky.removeEvent=function(ele, evt, func, useCapture){
+			var fixfunc=fix.removeEvent[evt];
+			if(fixfunc){
+				fixfunc(ele, evt, func, useCapture);
+			}else{
+				removeEvent(ele, evt, func, useCapture);
+				detachEvent(ele, evt);
 			}
 		};
 	}
-	Sky.delegate=function(ele,evt,selector,func){
-		var proxyHandle=function(e){
-			e=e || window.event;
-			e.target || (e.target=e.srcElement);
-			if(e.target==document){
-				return ;
-			}
-			e.stopPropagation || (e.stopPropagation=stopPropagation);
-			e.preventDefault || (e.preventDefault=preventDefault);
-			e.currentTarget || (e.currentTarget=ele);
-			var me=Sky.matches(e.target, selector, ele);
-			if(me){
-				var related;
-				switch(evt){
-					case 'mouseleave':
-						related=e.relatedTarget || e.toElement;
-						break;
-					case 'mouseenter':
-						related=e.relatedTarget || e.fromElement;
-						break;
-					default:
-						return func.call(me,e);
-				}
-				if(!related || (related!==me && !me.contains(related)) ){
-					return func.call(me, e);
-				}
-			}
-		};
-		proxyHandle.target=func;
-		proxyHandle.element=ele;
-		proxyHandle.selector=selector;
-		proxyHandle.event=evt;
-		switch(evt){
-			case 'mouseleave':
-				proxyMap.addEvent(ele,'mouseout',proxyHandle);
-				break;
-			case 'mouseenter':
-				proxyMap.addEvent(ele,'mouseover',proxyHandle);
-				break;
-			default:
-				proxyMap.addEvent(ele,evt,proxyHandle);
+	Sky.dispatchEvent=function(ele, evt){
+		var fixfunc=fix.dispatchEvent[evt];
+		if(fixfunc){
+			fixfunc(ele, evt);
+		}else{
+			Sky.fireEvent(ele,evt);
 		}
 	};
-	Sky.undelegate=function(ele,evt,selector,func){
-		proxyMap.removeEvent(ele, evt, func, selector);
-	};
+	Sky.delegate=Sky.undelegate=Sky.noop;
 })(this);

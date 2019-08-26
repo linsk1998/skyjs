@@ -82,6 +82,15 @@ Sky.getPrevElement=function(element){
 		return Sky.getPrevElement(e);
 	}
 };
+Sky.getParents=function(ele){
+	var arr=[];
+	var p=ele.parentNode;
+	while(p!==null){
+		arr.push(p);
+		p=p.parentNode;
+	}
+	return arr;
+};
 Sky.getAttrs=function(ele){
 	var arr=[];
 	var i=ele.attributes.length;
@@ -116,7 +125,7 @@ if(document.getElementsByClassName){
 }
 Sky.destroy=function(ele){
 	for(var key in ele){
-		if(key.startsWith('on')){
+		if(key.startsWith('on') || key.startsWith('@@')){
 			ele[key]=null;
 		}
 	}
