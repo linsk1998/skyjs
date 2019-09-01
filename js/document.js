@@ -87,7 +87,7 @@ if(this.HTMLElement) {
 	}
 }
 if(!document.createEvent){
-	document=document.createEventObject;
+	document.createEvent=document.createEventObject;
 }
 if(typeof Event!=="function"){
 	Event=function(evt){
