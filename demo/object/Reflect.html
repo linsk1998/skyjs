@@ -1,0 +1,64 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>Reflect</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../demo.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h2>Reflect</h2>
+	<h3>Reflect.apply</h3>
+	<p>Reflect.construct() 方法的行为有点像 new 操作符 构造函数 ， 相当于运行 new target(...args)。</p>
+	<h3>Reflect.construct</h3>
+	<p>通过指定的参数列表发起对目标(target)函数的调用。</p>
+	<h3>Reflect.getPrototypeOf</h3>
+	<p>与 Object.getPrototypeOf() 方法是一样的。都是返回指定对象的原型。</p>
+	<h3>Reflect.defineProperty</h3>
+	<p>定义一个对象的属性。</p>
+	<h3>Reflect.getOwnPropertyDescriptor</h3>
+	<p>获取通过Reflect.defineProperty定义的属性。</p>
+	<h3>Reflect.set</h3>
+	<p>在一个对象上设置一个属性。</p>
+	<h3>Reflect.get</h3>
+	<p>获取通从对象中读取属性。</p>
+	<pre class="code">var o={};
+Reflect.defineProperty(o,'name', {
+	get: function(){ return "Tom";},
+	set: function(value){ alert("setName:"+value);},
+	configurable:true
+});
+alert(Reflect.get(o,'name'));
+//Tom
+
+Reflect.set(o,'name',"Tony")
+//setName:Tony
+
+Reflect.defineProperty(o,'name', { value: "Mike", configurable:true});
+alert(Reflect.get(o,'name'));
+//Mike
+
+Reflect.deleteProperty(o,'name');
+alert(Reflect.get(o,'name'));
+//undefined
+</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<pre class="code">var script=Reflect.get(document,'currentScript');
+alert(script.src);
+//无法使用getter setter的浏览器可以使用Reflect.get、Reflect.set。</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="Sky.getScript('../currentScript.js?r='+Math.random())">运行</a>
+	</div>
+</div>
+</body>
+</html>

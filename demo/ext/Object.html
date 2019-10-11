@@ -1,0 +1,64 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>扩展对象</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../demo.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h3>Object</h3>
+	<h4>Object.keys</h4>
+	<p>方法会返回一个由给定对象的自身可枚举属性组成的数组</p>
+	<pre class="code">var o={a:1,toString:2};
+var key=Symbol("key");
+o[key]=3;
+
+alert(Object.keys(o));
+//a,toString
+</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Object.assign</h4>
+	<p>如果目标对象中的属性具有相同的键，则属性将被源中的属性覆盖。后来的源的属性将类似地覆盖早先的属性</p>
+	<pre class="code">var o1 = { a: 1, b: 1, c: 1 };
+var o2 = { b: 2, c: 2 };
+var o3 = { c: 3 };
+
+var obj = Object.assign( o1, o2, o3);
+alert(o1===obj);
+alert(JSON.stringify(o1));  // { a: 1, b: 2, c: 3 }, 注意目标对象自身也会改变。</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<div class="alert alert-warning">
+		<ul>
+			<li>浅拷贝</li>
+			<li>继承属性不拷贝，建议使用PlainObject</li>
+		</ul>
+	</div>
+	<h4>Object.getPrototypeOf</h4>
+	<p>返回其原型的对象。</p>
+	<pre class="code">function Animal(){}
+function Cat(){}
+Sky.inherits(Cat,Animal);
+var animal=new Animal();
+var cat=new Cat();
+
+alert(Object.getPrototypeOf(animal)===Animal.prototype);//true
+alert(Object.getPrototypeOf(cat)===Cat.prototype);//true</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+</div>
+</body>
+</html>

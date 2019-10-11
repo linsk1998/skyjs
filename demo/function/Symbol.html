@@ -1,0 +1,36 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>Symbol</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../demo.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h3>Symbol</h3>
+	<p>Symbol函数会返回唯一标识符。一般用于键名，或枚举值。</p>
+	<pre class="code">var o={};
+var KEY=Symbol();
+o[KEY]=1;</pre>
+	<pre class="code">var STATUS={
+	OPENED:Symbol(),
+	CLOSED:Symbol(),
+	DONE:Symbol()
+};
+var status=STATUS.OPENED;
+switch(status){
+	case STATUS.OPENED:
+	case STATUS.CLOSED:
+	case STATUS.DONE:
+}</pre>
+</div>
+</body>
+</html>

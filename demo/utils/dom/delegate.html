@@ -1,0 +1,38 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>元素操作</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../../demo.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<h3 id="delegate">Sky.delegate Sky.undelegate</h3>
+		<p>父被选元素的子元素添加事件</p>
+		<div class="alert alert-info" id="delegateWrap">
+			<a class="btn btn-default" href='javascript:void 0'><span class="btn-label">测试按钮</span> <span class="badge">2</span></a>
+			<a class="btn btn-default" href='javascript:void 0'><span class="btn-label">测试按钮</span> <span class="badge">2</span></a>
+		</div>
+		<script>
+			function testHandle3(e){
+				alert("事件测试");
+				alert(e.currentTarget.className);//alert alert-info
+				alert(this.className);//btn btn-default
+				alert(e.target.className);//btn btn-default OR align-middle OR badge
+			}
+		</script>
+		<div class="btn-toolbar">
+			<a class="btn btn-primary" href='javascript:Sky.delegate(Sky.byId("delegateWrap"),"click",".btn",testHandle3);void 0'>绑定事件</a>
+			<a class="btn btn-primary" href='javascript:Sky.undelegate(Sky.byId("delegateWrap"),"click",".btn",testHandle3);void 0'>解除绑定</a>
+		</div>
+	</div>
+</body>
+</html>

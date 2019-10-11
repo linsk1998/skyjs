@@ -1,0 +1,37 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>元素操作</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../../demo.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h2>元素操作</h2>
+	<h3 id="matches">Sky.matchesSelector(element, selector, ancestor)</h3>
+	<p>判断一个元素是否满足id css attribute。</p>
+	<div class="btn-toolbar" id="matches-eg">
+		<button class="btn btn-default" type="button" onclick='alert(Sky.matchesSelector(this, ".btn"))'>alert(Sky.matchesSelector(this, ".btn"))</button>
+		<button class="btn btn-default" type="button" onclick='alert(Sky.matchesSelector(this, ".button"))'>alert(Sky.matchesSelector(this, ".button"))</button>
+	</div>
+	<h3 id="querySelector">Sky.querySelector(selector, ancestor)</h3>
+	<p>多个元素是否满足id css attribute，返回一个Array不是HTMLCollection。</p>
+	<div class="btn-toolbar" id="query-eg">
+		<button type="button" class="btn btn-default" href='javascript:void 0' onclick='Sky.querySelector( ".container-fluid .btn-toolbar button")[2].disabled=true'>
+			Sky.querySelector( ".container-fluid .btn-toolbar button")[2].disabled=true
+		</button>
+		<button type="button" class="btn btn-default" href='javascript:void 0' onclick='Sky.querySelector(".btn",Sky.byId("query-eg"))[1].disabled=true'>
+			Sky.querySelector(".btn",Sky.byId("query-eg"))[1].disabled=true
+		</button>
+	</div>
+</div>
+</body>
+</html>

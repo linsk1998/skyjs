@@ -1,0 +1,80 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>URLSearchParams</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../demo.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h3>URLSearchParams</h3>
+	<p>定义了一些实用的方法来处理 URL 的查询字符串。</p>
+	<table class="table table-bordered table-condensed table-striped">
+		<thead>
+		<tr class="info">
+			<th>方法</th><th>描述</th>
+		</tr>
+		</thead>
+		<tbody class="table-hover">
+		<tr>
+			<td>append</td><td>插入一个指定的键/值对作为新的搜索参数。</td>
+		</tr>
+		<tr>
+			<td>delete</td><td>从搜索参数列表里删除指定的搜索参数及其对应的值。</td>
+		</tr>
+		<tr>
+			<td>get</td><td>获取指定搜索参数的第一个值。</td>
+		</tr>
+		<tr>
+			<td>getAll</td><td>获取指定搜索参数的所有值，返回是一个数组。</td>
+		</tr>
+		<tr>
+			<td>has</td><td>返回 Boolean 判断是否存在此搜索参数。</td>
+		</tr>
+		<tr>
+			<td>set</td><td>设置一个搜索参数的新值，假如原来有多个值将删除其他所有的值。</td>
+		</tr>
+		<tr>
+			<td>toString</td><td>返回搜索参数组成的字符串，可直接使用在URL上。</td>
+		</tr>
+		</tbody>
+	</table>
+	<pre class="code">//解析参数
+var url = "?mod=viewthread&tid=4596&t=1&t=2";
+var params = new URLSearchParams(url);
+alert(params.get("mod"));
+alert(params.getAll("t"));
+alert(params.has("tid"));</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<pre class="code">//删除
+var url = "?mod=viewthread&tid=4596&t=1&t=2";
+var params = new URLSearchParams(url);
+alert(params.has("tid"));
+params['delete']("tid");
+alert(params.has("tid"));</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<pre class="code">//拼接参数
+var params = new URLSearchParams();
+params.set('key',"value");
+params.append('results',"A");
+params.append('results',"B");
+params.append('results',"D");
+alert(params.toString());</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+</div>
+</body>
+</html>

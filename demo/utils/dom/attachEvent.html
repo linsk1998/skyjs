@@ -1,0 +1,46 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>元素操作</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../../demo.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<h3 id="attachEvent">Sky.attachEvent detachEvent fireEvent</h3>
+		<p>绑定事件 解除绑定 触发事件</p>
+		<div class="btn-toolbar">
+			<a class="btn btn-primary" href='javascript:Sky.attachEvent(Sky.byId("attachBtn"),"click",testHandle);void 0'>绑定事件</a>
+			<a class="btn btn-primary" href='javascript:Sky.detachEvent(Sky.byId("attachBtn"),"click",testHandle);void 0'>解除绑定</a>
+			<a class="btn btn-primary" href='javascript:testFireEvent(Sky.byId("attachBtn"));void 0'>强制触发</a>
+		</div>
+		<div class="alert alert-info" id="attachWrap">
+			<a class="btn btn-default" href='javascript:void 0' id="attachBtn">测试按钮</a>
+		</div>
+		<script>
+			function testHandle(e){
+				e=Sky.fixEvent(e);
+				alert(e.target.tagName+" "+e.type+"事件测试:clientX="+e.clientX);
+			}
+			function testFireEvent(ele){
+				Sky.fireEvent(ele,"click",{clientX:66});
+			}
+			Sky.attachEvent(Sky.byId("attachWrap"),'click',function(){
+				Sky.byId("attachWrap").className="alert alert-danger";
+			},true);
+		</script>
+		<div class="alert alert-info">
+			<p>上面只是做了最基本的封装。没有修改this、没有判断多次绑定。</p>
+			<p>是为进一封装的。</p>
+		</div>
+	</div>
+</body>
+</html>

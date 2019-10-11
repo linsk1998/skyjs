@@ -1,0 +1,56 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>元素操作</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../../demo.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h2>元素操作</h2>
+	<h3 id="byId">Sky.byId</h3>
+	<p>根据ID获取当前元素</p>
+	<h3 id="getCurrentScript">Sky.getCurrentScript</h3>
+	<p>获取当前脚本元素</p>
+	<pre class="code">Sky.getPrevElement(Sky.getCurrentScript()).onclick=function(){};</pre>
+	<div class="btn-toolbar">
+		<button type="button" class="btn btn-primary">按钮</button>
+		<script>
+			Sky.getPrevElement(Sky.getCurrentScript()).onclick=function(){
+				alert("绑定测试");
+			};
+		</script>
+	</div>
+	<h3 id="getCurrentPath">Sky.getCurrentPath</h3>
+	<p>获取当前脚本的路径</p>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href='javascript:Sky.getScript("../../getCurrentPath.js");void 0'>alert(Sky.getCurrentPath());</a>
+	</div>
+	<h3 id="getElementStyle">Sky.getElementStyle</h3>
+	<p>获取元素的样式，包括在CSS中设置的</p>
+	<pre class="code">Sky.getElementStyle(this,prompt('样式名称','color'))</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href='javascript:void 0' onclick="alert(Sky.getElementStyle(this,prompt('样式名称','color')))">运行</a>
+	</div>
+	<h3 id="hasClass">Sky.hasClass addClass removeClass toggleClass</h3>
+	<p>判断是否有一个类样式 添加类样式 移除类样式 切换类样式</p>
+	<h3 id="getPrevElement">Sky.getPrevElement getNextElement</h3>
+	<p>获取前一个元素节点 获取后一个元素节点。排除文本节点之类的。</p>
+	<h3 id="getElementsByClassName">Sky.getElementsByClassName(selector, ancestor)</h3>
+	<p>根据一个类样式查找元素，返回一个Array不是HTMLCollection。</p>
+	<pre class="code">Sky.getElementsByClassName("btn")</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href='javascript:void 0' onclick='Sky.getElementsByClassName("btn",this.parentNode)[1].innerHTML="button"'>Sky.getElementsByClassName("btn",this.parentNode)[1].innerHTML="button"</a>
+		<a class="btn btn-primary" href='http://shengdiyage.us/'>btn</a>
+	</div>
+</div>
+</body>
+</html>

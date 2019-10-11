@@ -1,0 +1,122 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>网络</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../../demo.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h2>网络功能</h2>
+	Sky.ajaxSettings
+	<p>ajax 基本配置。</p>
+	<table class="table table-bordered table-condensed table-striped">
+		<thead>
+		<tr class="info">
+			<th>参数</th><th>描述</th><th>默认</th><th>例子</th>
+		</tr>
+		</thead>
+		<tbody class="table-hover">
+		<tr>
+			<td>processData</td>
+			<td>是否使用urlencoded序列化。如果为false使用JSON序列化。</td>
+			<td>true</td>
+			<td>Sky.ajaxSettings.processData=false</td>
+		</tr>
+		<tr>
+			<td>traditional</td>
+			<td>是否使用传统urlencoded序列化。如果为true使用传统风格，如果为false使用PHP和Ruby on Rails风格。</td>
+			<td>false</td>
+			<td>Sky.ajaxSettings.traditional=true</td>
+		</tr>
+		<tr>
+			<td>headers</td>
+			<td>是否使用urlencoded序列化。如果为false使用JSON序列化。</td>
+			<td>{'X-Requested-With': "XMLHttpRequest"}</td>
+			<td>Sky.ajaxSettings.headers['CSRF_TOKEN']="2B37CBSDF047N"</td>
+		</tr>
+		</tbody>
+	</table>
+	<h3>Sky.ajax</h3>
+	<p>ajax() 方法通过 HTTP 请求加载远程数据。</p>
+	<pre class="code">Sky.ajax(settings)</pre>
+	<table class="table table-bordered table-condensed table-striped">
+		<thead>
+		<tr class="info">
+			<th>参数</th><th>描述</th><th>例子</th>
+		</tr>
+		</thead>
+		<tbody class="table-hover">
+		<tr>
+			<td>url</td><td>发送请求的地址</td><td>"?action=add"</td>
+		</tr>
+		<tr>
+			<td>type</td><td>默认值: "GET")。请求方式 ("POST" 或 "GET")， 默认为 "GET"。</td><td>"POST"</td>
+		</tr>
+		<tr>
+			<td>data</td><td>发送到服务器的数据。将自动转换为请求字符串格式。</td><td>"a=1&b=2&c=3"</td>
+		</tr>
+		<tr>
+			<td>success</td><td>请求成功后的回调函数。</td>
+			<td>
+<pre class="code">function(result,status,xhr){
+	console.log(xhr.status);
+}</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>error</td><td>自动判断 (xml 或 html)。请求失败时调用此函数。</td>
+			<td>
+<pre class="code">function(xhr,status,error){
+	console.log(xhr.status);
+}</pre></td>
+		</tr>
+		<tr>
+			<td>dataType</td><td>预期服务器返回的数据类型。</td><td>"xml" "json" "text"</td>
+		</tr>
+		<tr>
+			<td>complete</td><td>请求完成后回调函数 (请求成功或失败之后均调用)。</td>
+			<td>
+<pre class="code">function(xhr,status){
+	console.log(xhr.status);
+}</pre></td>
+		</tr>
+		<tr>
+			<td>timeout</td><td>设置请求超时时间（毫秒）。</td><td>3000</td>
+		</tr>
+		<tr>
+			<td>contentType</td><td>请求类型。</td><td>text/xml</td>
+		</tr>
+		</tbody>
+	</table>
+	<h3>Sky.get</h3>
+	<h4>语法：</h4>
+	<pre class="code">Sky.get(url,data);</pre>
+	<h4>实例：</h4>
+	<pre class="code">Sky.get("?").then(function(data){alert(data)});</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h3>Sky.post</h3>
+	<h4>语法：</h4>
+	<pre class="code">Sky.post(URL,data);</pre>
+	<h4>实例：</h4>
+	<pre class="code">Sky.post("?","a=3").then(function(data){
+	alert(data)
+},function(xhr){
+	alert(xhr.status);
+});</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+</div>
+</body>
+</html>

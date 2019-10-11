@@ -1,0 +1,209 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>扩展对象</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../demo.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h3 id="Array">Array</h3>
+	<h4>Array.prototype.indexOf</h4>
+	<p>返回给定元素能找在数组中找到的第一个索引值,否则返回-1。</p>
+	<pre class="code">var beasts = ['ant', 'bison', 'camel', 'duck', 'bison'];
+
+alert(beasts.indexOf('bison'));
+// expected output: 1
+
+// start from index 2
+alert(beasts.indexOf('bison', 2));
+// expected output: 4
+
+alert(beasts.indexOf('giraffe'));
+// expected output: -1</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.prototype.lastIndexOf</h4>
+	<p>返回指定元素在数组中的最后一个的索引，如果不存在则返回 -1。从数组的后面向前查找，从 fromIndex 处开始。</p>
+	<pre class="code">var animals = ['Dodo', 'Tiger', 'Penguin', 'Dodo'];
+
+alert(animals.lastIndexOf('Dodo'));
+// expected output: 3
+
+alert(animals.lastIndexOf('Dodo',2));
+// expected output: 0
+
+alert(animals.lastIndexOf('Tiger'));
+// expected output: 1
+
+alert(animals.lastIndexOf('Cat'));
+// expected output: -1
+</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.prototype.find</h4>
+	<p>方法返回数组中满足提供的测试函数的第一个元素的值。否则返回 undefined。</p>
+	<pre class="code">var array1 = [5, 12, 8, 130, 44];
+
+var found = array1.find(function(element) {
+	return element > 10;
+});
+
+alert(found);
+// expected output: 12</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.prototype.findIndex</h4>
+	<p>方法返回数组中满足提供的测试函数的第一个元素的索引。否则返回-1。</p>
+<pre class="code">function isBigEnough(element) {
+	return element >= 15;
+}
+
+var arr=[12, 5, 8, 130, 44];
+alert(arr.find(isBigEnough)); // 130
+alert(arr.findIndex(isBigEnough)); // 3</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.prototype.forEach</h4>
+	<p>对数组的每个元素执行一次提供的函数(回调函数)。</p>
+	<pre class="code">var words=["one","two","three","four"];
+words.forEach(function(word){
+	alert(word);
+});</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.prototype.map</h4>
+	<p>返回一个由原数组中的每个元素调用一个指定方法后的返回值组成的新数组。</p>
+<pre class="code">var numbers = [1, 4, 9];
+var roots = numbers.map(Math.sqrt);
+/* roots的值为[1, 2, 3], numbers的值仍为[1, 4, 9] */
+alert(JSON.stringify(roots));
+
+var users = [{id:"admin", name:"管理员"}, {id:"100360", name:"王小明"}, {id:"100361", name:"张敏敏"}];
+var ids = users.map(function(user){
+	return user.id;
+});
+//["admin", "100360", "100361"]
+alert(JSON.stringify(ids));</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.prototype.filter</h4>
+	<p>使用指定的函数测试所有元素，并创建一个包含所有通过测试的元素的新数组。</p>
+	<pre class="code">var words = ['spray', 'limit', 'elite', 'exuberant', 'destruction', 'present'];
+
+var result = words.filter(function(word){
+	return word.length > 6;
+});
+
+alert(JSON.stringify(words));//输出原数组
+alert(JSON.stringify(result));
+// expected output: Array ["exuberant", "destruction", "present"]</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.prototype.some</h4>
+	<p>测试数组中的某些元素是否通过了指定函数的测试。</p>
+	<pre class="code">var array = [1, 2, 3, 4, 5];
+
+var even = function(element) {
+	// checks whether an element is even
+	return element % 2 === 0;
+};
+
+alert(array.some(even));
+// expected output: true
+alert(array.every(even));
+// expected output: false</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.prototype.every</h4>
+	<p>测试数组的所有元素是否都通过了指定函数的测试。</p>
+	<pre class="code">function isBelowThreshold(currentValue) {
+	return currentValue < 40;
+}
+
+var array1 = [1, 30, 39, 29, 10, 13];
+
+alert(array1.every(isBelowThreshold));
+// expected output: true
+alert(array1.some(isBelowThreshold));
+// expected output: true</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.prototype.reduce</h4>
+	<p>reduce() 方法对数组中的每个元素执行一个由您提供的reducer函数(升序执行)，将其结果汇总为单个返回值。</p>
+	<pre class="code">var array1 = [1, 2, 3, 4];
+var array2 = [14];
+var reducer = function(accumulator, currentValue){
+	return accumulator + currentValue;
+}
+
+// 1 + 2 + 3 + 4
+alert(array1.reduce(reducer));
+// expected output: 10
+
+// 5 + 1 + 2 + 3 + 4
+alert(array1.reduce(reducer, 5));
+// expected output: 15
+
+// 14
+alert(array2.reduce(reducer));
+// expected output: 14</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.from</h4>
+	<p>将一个类似数组的对象转化为数组，如arguments、NodeList。</p>
+<pre class="code">alert(JSON.stringify(Array.from({})));
+// expected output: Array []
+
+alert(JSON.stringify(Array.from("foo")));
+// expected output: Array ["f", "o", "o"]
+
+alert(JSON.stringify(Array.from({'1':1,'length':2})));
+// expected output: Array [null,1]
+
+alert(JSON.stringify(Array.from(new Set([1,2,3,2]))));
+// expected output: Array [1,2,3]</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.isArray</h4>
+	<p>判断一个对象是否是数组。</p>
+	<pre class="code">alert(Array.isArray([1, 2, 3]));
+// true
+alert(Array.isArray({foo: 123}));
+// false
+alert(Array.isArray("foobar"));
+// false
+alert(Array.isArray(undefined));
+// false</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<h4>Array.of</h4>
+	<p>创建一个具有可变数量参数的新数组实例，而不考虑参数的数量或类型。</p>
+	<pre class="code">Array.of(7);       // [7] 
+Array.of(1, 2, 3); // [1, 2, 3]
+
+Array(7);          // [ , , , , , , ]
+Array(1, 2, 3);    // [1, 2, 3]</pre>
+</div>
+</body>
+</html>

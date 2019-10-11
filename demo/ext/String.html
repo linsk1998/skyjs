@@ -1,0 +1,40 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>扩展对象</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../demo.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h3>String</h3>
+	<h4>String.prototype.trim</h4>
+	<h4>String.prototype.trimStart</h4>
+	<h4>String.prototype.trimEnd</h4>
+	<p>方法会删除一个字符串两端的空白字符。在这个字符串里的空格包括所有的空格字符 (space, tab, no-break space 等)以及所有的行结束符（如 LF，CR）。</p>
+	<h4>String.prototype.startsWith</h4>
+	<p>用来判断当前字符串是否是以另外一个给定的子字符串“开头”的，根据判断结果返回 true 或 false。</p>
+	<h4>String.prototype.endsWith</h4>
+	<p>用来判断当前字符串是否是以另外一个给定的子字符串“结尾”的，根据判断结果返回 true 或 false。</p>
+	<h4>String.prototype.includes</h4>
+	<p>这个方法可以帮你判断一个字符串是否包含另外一个字符串。</p>
+	<h4>String.prototype.repeat</h4>
+	<p>构造并返回一个新字符串，该字符串包含被连接在一起的指定数量的字符串的副本。</p>
+	<h4>String.prototype.padStart</h4>
+	<p>会用第二个参数中指定的填充字符串，在当前字符串的头部不断填充，直到它达到第一个参数中指定的目标长度。</p>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:alert('20'.padStart(5,'0'))">'20'.padStart(5,'0')</a>
+	</div>
+	<h4>String.prototype.padEnd</h4>
+	<p>会用第二个参数中指定的填充字符串，在当前字符串的尾部不断填充，直到它达到第一个参数中指定的目标长度。</p>
+</div>
+</body>
+</html>

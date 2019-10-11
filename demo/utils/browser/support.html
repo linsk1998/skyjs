@@ -1,0 +1,60 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>ready</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../../demo.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<h3>Sky.browser</h3>
+		<p>获取浏览器类型</p>
+		<table class="table table-bordered table-condensed table-striped">
+			<thead>
+			<tr class="info">
+				<th>属性</th><th>描述</th>
+			</tr>
+			</thead>
+			<tbody class="table-hover">
+			<tr><td>version</td><td>版本</td></tr>
+			<tr><td>webkit</td><td>webkit</td></tr>
+			<tr><td>opera</td><td>opera</td></tr>
+			<tr><td>msie</td><td>ie</td></tr>
+			<tr><td>firefox</td><td>火狐</td></tr>
+			<tr><td>safari</td><td>safari</td></tr>
+			<tr><td>chrome</td><td>chrome</td></tr>
+			<tr><td>moblie</td><td>移动</td></tr>
+			<tr><td>android</td><td>安卓</td></tr>
+			<tr><td>ios</td><td>IOS</td></tr>
+			<tr><td>ie</td><td>ie的版本</td></tr>
+			<tr><td>ie6</td><td>ie6</td></tr>
+			<tr><td>ie11</td><td>ie11</td></tr>
+			</tbody>
+		</table>
+		<h3>Sky.support</h3>
+		<p>获取浏览器支持情况</p>
+		<table class="table table-bordered table-condensed table-striped">
+			<thead>
+			<tr class="info">
+				<th>属性</th><th>描述</th>
+			</tr>
+			</thead>
+			<tbody class="table-hover">
+				<script>
+					for(var key in Sky.support){
+						document.write('<tr><td>'+Sky.escapeHtml(key)+'</td><td>'+Sky.escapeHtml(Sky.support[key])+'</td></tr>');
+					}
+				</script>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

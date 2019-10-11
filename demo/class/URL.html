@@ -1,0 +1,89 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>URL</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../demo.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h3>URL</h3>
+	<p>对象保存键值对。任何值(对象或者原始值) 都可以作为一个键或一个值。</p>
+	<table class="table table-bordered table-condensed table-striped">
+		<thead>
+		<tr class="info">
+			<th>属性</th><th>描述</th><th>例子</th>
+		</tr>
+		</thead>
+		<tbody class="table-hover">
+		<tr>
+			<td>href</td><td>完整 URL</td><td>http://shengdiyage.us:80/abc/index.asp?id=1&amp;t=1400#top</td>
+		</tr>
+		<tr>
+			<td>protocol</td><td>协议名，末尾带 ':'</td><td>http:</td>
+		</tr>
+		<tr>
+			<td>host</td><td>域名，':'，和端口号</td><td>shengdiyage.us:80</td>
+		</tr>
+		<tr>
+			<td>hostname</td><td>域名</td><td>shengdiyage.us</td>
+		</tr>
+		<tr>
+			<td>port</td><td>端口号</td><td>80</td>
+		</tr>
+		<tr>
+			<td>pathname</td><td>以 '/' 起头紧跟着 URL 文件路径</td><td>/abc/index.asp</td>
+		</tr>
+		<tr>
+			<td>search</td><td>以 '?' 起头紧跟着 URL 请求参数</td><td>?id=1&amp;t=1400</td>
+		</tr>
+		<tr>
+			<td>hash</td><td>以 '#' 起头紧跟着 URL 锚点标记</td><td>#top</td>
+		</tr>
+		<tr>
+			<td>origin</td><td>返回一个包含协议名、域名和端口号</td><td>http://shengdiyage.us:80</td>
+		</tr>
+		<tr>
+			<td>searchParams</td><td colspan="2">返回一个用来访问当前 URL GET 请求参数的 URLSearchParams 对象</td>
+		</tr>
+		</tbody>
+	</table>
+	<pre class="code">//解析URL
+var url=new URL("http://shengdiyage.us:80/abc/index.asp?id=1&amp;t=1400#top");
+var a=[];
+for(var key in url){
+	a.push(key+":"+url[key]);
+}
+alert(a.join("\n"))
+alert("id="+url.searchParams.get("id"))</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<pre class="code">//获取绝对路径
+alert(new URL("/index.html",location).href);
+alert(new URL("?name=admin",location).href);
+alert(new URL("#/eg",location).href);
+alert(new URL("./index.aspx",location).href);
+alert(new URL("../../index.php",location).href);</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+	<pre class="code">//修改属性
+var url=new URL("http://shengdiyage.us/index.asp?id=1&amp;t=1400");
+url.searchParams.set('id',"2");
+url.hostname="linsk.me";
+alert(url.href);</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+</div>
+</body>
+</html>

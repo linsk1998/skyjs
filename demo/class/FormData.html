@@ -1,0 +1,51 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>FormData</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../demo.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h3>FormData<small>（未完成）</small></h3>
+	<p>用于ajax提交表单内容。不支持附件。</p>
+	<form method="post" name="form1">
+		<label>text<input name="text" type="text" value="text"/></label><br/>
+		<label><input name="checkbox" type="checkbox"/>checkbox</label><br/>
+		<label><input name="checkboxs[]" type="checkbox" value="php"/>php</label> <label><input name="checkboxs[]" type="checkbox" value="java"/>java</label><br/>
+		<label><input name="checks[1]" type="checkbox" value="on"/>checks1</label> <label><input name="checks[2]" type="checkbox" value="1"/>checks2</label><br/>
+		<label><input type="radio" name="sex" value="male">Male</label> <label><input type="radio" name="sex" value="female">Female</label><br/>
+		<select name="cars">
+			<option value="volvo">Volvo</option>
+			<option value="saab">Saab</option>
+			<option value="fiat" selected>Fiat</option>
+			<option value="audi">Audi</option>
+		</select>
+		<button type="submit">submit</button>
+	</form>
+	<pre class="code">
+		var data=new FormData(document.form1);
+		data.append("ajax","1");
+		Sky.ajax({
+			type:"POST",
+			url:"?",
+			data:data,
+			complete:function(){
+				alert("从开发工具看发送请求");
+			}
+		});
+	</pre>
+	<div class="btn-toolbar">
+		<a class="btn btn-primary" href="javascript:void 0;" onclick="run(this)">运行</a>
+	</div>
+</div>
+</body>
+</html>

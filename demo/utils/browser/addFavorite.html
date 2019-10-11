@@ -1,0 +1,29 @@
+<!-- quirks -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="renderer" content="webkit"/>
+	<title>ready</title>
+	<link href="/linsk1998/ting/master/ting/ting-quirks.css" rel="stylesheet"/>
+	<!--[if lt IE 9]><script src="../../../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../../../sky.modern.js"></script><!--><![endif]-->
+	<script src="../../demo.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<h3>Sky.addFavorite</h3>
+		<pre class="code">Sky.addFavorite(url,description);</pre>
+		<p><a onclick="Sky.addFavorite(location.origin,'站名');" href="javascript:void 0;">加入收藏</a>
+		<h3>Sky.setHome</h3>
+		<pre class="code">Sky.setHome(anchorElement,url)</pre>
+		<p><a href="https://www.baidu.com/cache/sethelp/index.html">设为首页</a
+		><script>
+			Sky.setHome(Sky.getCurrentScript().previousSibling,"http://www.baidu.com/");
+		</script></p>
+	</div>
+</body>
+</html>
