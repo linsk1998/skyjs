@@ -1,7 +1,5 @@
 
-Sky.support.XMLHttpRequest=true;
 if(!this.XMLHttpRequest){
-	Sky.support.XMLHttpRequest=false;
 	Sky.createXMLHttpRequest=function(){
 		if(Sky.XHRProgid){
 			return new ActiveXObject(Sky.XHRProgid);
@@ -19,7 +17,8 @@ if(!this.XMLHttpRequest){
 			}catch(e){}
 		}
 	};
-	XMLHttpRequest=Sky.createXMLHttpRequest;//如果你不想要ie6使用new XMLHttpRequest来创建，则去掉这行
+	XMLHttpRequest=Sky.createXMLHttpRequest;//如果你不想要ie6使用new XMLHttpRequest来创建，则去掉这2行
+	XMLHttpRequest.sham=true;
 }else{
 	Sky.createXMLHttpRequest=function(){
 		return new XMLHttpRequest();

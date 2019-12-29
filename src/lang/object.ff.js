@@ -20,7 +20,7 @@ if(!Sky.inherits){
 		clazz.prototype.constructor=clazz;
 	}
 }
-if(Sky.support.__defineSetter__){
+if(Object.prototype.__defineSetter__){
 	if(!Object.defineProperty) {
 		Object.defineProperty=function(obj, prop, descriptor){
 			if(descriptor.value){
@@ -60,7 +60,7 @@ if(Object.defineProperties){
 }
 
 (function(){
-	if(Sky.support.Symbol){
+	if(globalThis.Symbol && !Symbol.sham){
 		Sky.forIn=function(obj,fn,thisArg){
 			thisArg=thisArg || window;
 			for(var key in obj) {

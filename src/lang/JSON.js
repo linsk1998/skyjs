@@ -13,10 +13,9 @@ Sky.escapeString=function(str) {//from lodash
 			: "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
 	}): str;
 };
-Sky.support.JSON=true;
 if(!this.JSON){
-	Sky.support.JSON=false;
 	JSON={
+		'sham':true,
 		'stringify':function(obj){
 			switch(obj){
 				case undefined:

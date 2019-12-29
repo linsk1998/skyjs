@@ -1,7 +1,5 @@
 
-Sky.support.Symbol=true;
 if(typeof Symbol!=="function"){
-	Sky.support.Symbol=false;
 	(function(window){
 		var sqe=0;
 		var all={};
@@ -10,6 +8,7 @@ if(typeof Symbol!=="function"){
 			sqe++;
 			all[this.__name__]=this;
 		}
+		Symbol.sham=true;
 		Symbol.prototype.toString=function(){
 			return this.__name__;
 		};

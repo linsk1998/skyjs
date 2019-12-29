@@ -6,7 +6,7 @@ if(Object.defineProperties){
 		};
 		SearchParams.prototype=Object.create(URLSearchParams.prototype);
 		["append","set","delete"].forEach(function(method){
-			SearchParams.prototype[method]=function(key,value){
+			SearchParams.prototype[method]=function(){
 				var searchParams=new URLSearchParams(this._url.search.replace(/^\?/,""));
 				searchParams[method].apply(searchParams,arguments);
 				this._url.search="?"+searchParams.toString();

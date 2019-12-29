@@ -1,5 +1,4 @@
 
-Sky.support={};
 (function(){
 	var userAgent = navigator.userAgent.toLowerCase();
 	Sky.browser={
@@ -29,20 +28,3 @@ Sky.support={};
 		Sky.browser.ie=parseInt(Sky.browser.version);
 	}
 })();
-
-Sky.support.VBScript=false;
-Sky.toString=function(o){
-	return new String(o).toString();
-};
-if(window.execScript){
-	try{
-		window.execScript([
-			'Function alert(msg)',
-			'	Msgbox Sky.toString(msg)',
-			'End Function' //去除弹窗的图标
-		].join('\n'), 'VBScript');
-		if(typeof alert=="unknown"){
-			Sky.support.VBScript=true;
-		}
-	}catch(e){}
-}

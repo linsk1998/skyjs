@@ -75,7 +75,7 @@
 			return this.then(undefined,onRejected);
 		};
 		Promise.all=function(promises){
-			if (!Sky.isArray(promises)) {
+			if (!Array.isArray(promises)) {
 				throw new TypeError('You must pass an array to all.');
 			}
 			return new Promise(function(resolve,reject){
@@ -137,7 +137,7 @@ if(!('finally' in Promise.prototype)){
 }
 if(!Promise.allSettled){
 	Promise.allSettled=function(promises){
-		if (!Sky.isArray(promises)) {
+		if (!Array.isArray(promises)) {
 			throw new TypeError('You must pass an array to all.');
 		}
 		return new Promise(function(resolve,reject){

@@ -16,15 +16,9 @@ if(!('__proto__' in Object.prototype)){
 		};
 		Sky.inherits=function(clazz,superClazz){
 			Object.assign(clazz,superClazz);
-			clazz.prototype=superClazz===Array?Sky.createArrayPrototype():Object.create(superClazz.prototype);
+			clazz.prototype=Object.create(superClazz.prototype);
 			clazz.prototype.__proto__=superClazz.prototype;
 			clazz.prototype.constructor=clazz;
-		};
-		Sky.createArrayPrototype=function(){
-			var arr=Sky.pick(Array.prototype, ["concat","join","pop","push","reverse","shift","slice","sort","splice","toString","unshift"]);
-			Object.assign(arr,Array.prototype);
-			arr.length=0;
-			return arr;
 		};
 	}
 }

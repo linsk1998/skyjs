@@ -1,6 +1,5 @@
-Sky.support.Proxy=true;
+
 if(!this.Proxy){
-	Sky.support.Proxy=false;
 	(function(window){
 		var dfGetter=function(target, property, receiver){
 			return target[property];
@@ -40,6 +39,7 @@ if(!this.Proxy){
 				}
 			});
 		}
+		Proxy.sham=true;
 		Proxy.HANDLE_KEY=HANDLE_KEY;
 		Proxy.TARGET_KEY=TARGET_KEY;
 	})(this);

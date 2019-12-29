@@ -1,6 +1,5 @@
 
 if(!this.localStorage){
-	Sky.support.localStorage=false;
 	localStorage=new function(){
 		var ele=document.createElement("localStorage");
 		if(ele.addBehavior){
@@ -20,9 +19,9 @@ if(!this.localStorage){
 			};
 		}
 	}();
+	localStorage.sham=true;
 }
 if(!this.sessionStorage){
-	Sky.support.sessionStorage=false;
 	sessionStorage=new function(){
 		var ele=document.createElement("sessionStorage");
 		var sessionId=Sky.getCookie("JSESSIONID");
@@ -47,4 +46,5 @@ if(!this.sessionStorage){
 			};
 		}
 	}();
+	sessionStorage.sham=true;
 }
