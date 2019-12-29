@@ -18,39 +18,54 @@ Sky.param=function(obj,traditional){
 	return Sky.buildQuery(obj);
 };
 (function(){
-	Sky.parseQuery=function(str){//TODO
-		var arr;
-		if(str.indexOf('?')!=-1){
-			arr=str.split("?");
-			str=arr[arr.length-1];
-		}
+	Sky.parseQuery=function(str){
+		var params=new URLSearchParams(str);
 		var o = new Object();
-		var strs = str.split("&");
-		for(var i = 0; i < strs.length; i ++) {
-			arr=strs[i].split("=");
-			if(arr.length!=2) break ;
-			var key=arr[0],value=decodeURIComponent(arr[1]),name,k,v;
-			if(arr=key.match(/(.*)\[\]$/)){
-				name=arr[1];
-				v=o[name];
-				if(!v){
-					o[name]=v=[];
-				}
-				v.push(value);
-			}else if(arr=key.match(/(.*)\[([^\]]+)\]$/)){
-				name=arr[1];
-				k=arr[2];
-				v=o[name];
-				if(!v){
-					o[name]=v={};
-				}
-				v[k]=value;
-			}else{
-				o[key]=value;
-			}
-		}
+		params.forEach(parseOne,o);
 		return o;
 	};
+	function parseOne(value,key){
+		key=key.replace(/\]$/,"");
+		var keys=key.split(/\]?\[/);
+		var cur=this;
+		for(var i=0;i<keys.length;i++){
+			var k=keys[i];
+			var v;
+			if(i<keys.length-1){
+				if(k){
+					v=cur[k];
+					if(!v){v=cur[k]=new Object();}
+					checkLength(cur,k);
+				}else{
+					v=new Object();
+					push(cur,v);
+				}
+				cur=v;
+			}else{
+				if(k){
+					cur[k]=value;
+					checkLength(cur,k);
+				}else{
+					push(cur,value);
+				}
+			}
+		}
+	}
+	function push(arrlike,value){
+		if(arrlike.length){
+			arrlike[arrlike.length]=value;
+			arrlike.length++;
+		}else{
+			arrlike[0]=value;
+			arrlike.length=1;
+		}
+	}
+	function checkLength(arrLike,k){
+		var i=parseFloat(k);
+		if(Number.isInteger(i) && i>=0){
+			arrLike.length=Math.max(i+1,arrLike.length);
+		}
+	}
 	Sky.buildQuery=function(obj){
 		var params=new URLSearchParams();
 		var keys=Object.keys(obj);
@@ -61,7 +76,12 @@ Sky.param=function(obj,traditional){
 			if(value.toJSON) value=value.toJSON();
 			if(Array.isArray(value)){
 				for(i=0;i<value.length;i++){
-					add(value[i],"",key,params);
+					var vi=value[i];
+					if(Sky.isObject(vi)){
+						add(vi,i,key,params);
+					}else{
+						add(vi,"",key,params);
+					}
 				}
 			}else if(Sky.isObject(value)){
 				var keys=Object.keys(value);
@@ -81,7 +101,12 @@ Sky.param=function(obj,traditional){
 		var i;
 		if(Array.isArray(value)){
 			for(i=0;i<value.length;i++){
-				add(value[i],"",prefix+"["+key+"]",params);
+				var vi=value[i];
+				if(Sky.isObject(vi)){
+					add(vi,i,prefix+"["+key+"]",params);
+				}else{
+					add(vi,"",prefix+"["+key+"]",params);
+				}
 			}
 		}else if(Sky.isObject(value)){
 			var keys=Object.keys(value);
