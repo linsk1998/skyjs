@@ -93,13 +93,6 @@ Sky.isEmpty=function(obj){
 	}
 	return false;
 };
-Sky.isArrayLike=function(obj){
-	var length=obj.length;
-	if(typeof length !="number" || length<0 || isNaN(length) || Math.ceil(length)!=length){
-		return false;
-	}
-	return true;
-};
 Sky.isNumeric=function(obj){
 	var n=parseFloat(obj);
 	return !isNaN(n);
