@@ -1,5 +1,5 @@
 
-if(!this.Map || !this.Map.prototype.entries){
+if(!this.Map){
 	Map=function(arr){
 		this.items=new Array();
 		if(arr){
@@ -60,23 +60,6 @@ if(!this.Map || !this.Map.prototype.entries){
 		this.size=this.items.length;
 		return this;
 	};
-}else{
-	(function(){
-		var GMap=globalThis.Map;
-		try{
-			Map.call({});
-		}catch(e){
-			globalThis.Map=function(args){
-				var map=new GMap(args);
-				Object.setPrototypeOf(map,Object.getPrototypeOf(this));
-				return map;
-			};
-			Map.prototype=GMap.prototype;
-		}
-	})();
-}
-if(!Map.prototype.remove){
-	Map.prototype.remove=Map.prototype['delete'];
 }
 if(!Map.prototype[Symbol.iterator]){
 	Map.prototype[Symbol.iterator]=Map.prototype.entries;

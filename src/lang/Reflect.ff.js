@@ -27,19 +27,34 @@ if(!Reflect.defineProperty){
 			return target[propertyKey];
 		};
 		Reflect.set=function(target,propertyKey,value,receiver){
-			if(receiver===void 0){ receiver=target}
-			var o=target,attributes;
+			if(receiver===void 0){ 
+				try{
+					target[propertyKey]=value;
+					return true;
+				}catch(e){
+					return false;
+				}
+			}
+			var o=target,desc;
 			do{
-				attributes=Reflect.getOwnPropertyDescriptor(o,propertyKey);
-				if(attributes){
-					if(attributes.set){
-						attributes.set.call(receiver,value);
+				desc=Reflect.getOwnPropertyDescriptor(o,propertyKey);
+				if(desc){
+					if(desc.set){
+						try{
+							descriptor.set.call(receiver,value);
+							return true;
+						}catch(e){
+							return false;
+						}
+					}else if('value' in desc){
+						target[propertyKey]=value;
+						return true;
 					}
-					return value;
 				}
 				o=Reflect.getPrototypeOf(o);
 			}while(o && o!==Object.prototype);
-			return target[propertyKey]=value;
+			target[propertyKey]=value;
+			return true;
 		};
 		Reflect.deleteProperty=function(target, key){
 			delete target[key];

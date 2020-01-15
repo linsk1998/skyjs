@@ -29,8 +29,11 @@ if(!Object.defineProperties){
 		}
 		var value=obj[key];
 		if(typeof obj==="object" && !(obj instanceof Object)){
-			var proto=Object.getPrototypeOf(obj);
-			return proto[key]!==value;
+			var constructor=obj.constructor;
+			if(constructor){
+				var proto=constructor.prototype;
+				return proto[key]!==value;
+			}
 		}
 		return Object.prototype.hasOwnProperty.call(obj,key);
 	};

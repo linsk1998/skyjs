@@ -8,7 +8,6 @@ if(typeof Symbol!=="function"){
 			sqe++;
 			all[this.__name__]=this;
 		}
-		Symbol.sham=true;
 		Symbol.prototype.toString=function(){
 			return this.__name__;
 		};
@@ -28,6 +27,7 @@ if(typeof Symbol!=="function"){
 		window.Symbol=function(desc){
 			return new Symbol(desc);
 		};
+		window.Symbol.sham=true;
 		window.Symbol.iterator="@@iterator";
 		Object.getOwnPropertySymbols=function(obj){
 			var arr=[];

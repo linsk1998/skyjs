@@ -2,12 +2,12 @@
 if(!this.Reflect){
 	this.Reflect={
 		apply:function(target, thisArgument, argumentsList){
-			Function.prototype.apply.call(target, thisArgument, argumentsList);
+			return Function.prototype.apply.call(target, thisArgument, argumentsList);
 		},
 		construct:function(target, argumentsList,NewTarget){
-			if(!NewTarget){ NewTarget=target;}
-			var o=Object.create(NewTarget.prototype);
-			var o2=Reflect.apply(target,o,argumentsList);
+			var o=Object.create(target.prototype);
+			if(!NewTarget){ NewTarget=o;}
+			var o2=Reflect.apply(target,NewTarget,argumentsList);
 			if(o2!==void 0){
 				return o2;
 			}

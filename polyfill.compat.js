@@ -223,7 +223,6 @@ if(typeof Symbol!=="function"){
 			sqe++;
 			all[this.__name__]=this;
 		}
-		Symbol.sham=true;
 		Symbol.prototype.toString=function(){
 			return this.__name__;
 		};
@@ -243,6 +242,7 @@ if(typeof Symbol!=="function"){
 		window.Symbol=function(desc){
 			return new Symbol(desc);
 		};
+		window.Symbol.sham=true;
 		window.Symbol.iterator="@@iterator";
 		Object.getOwnPropertySymbols=function(obj){
 			var arr=[];
@@ -291,8 +291,11 @@ if(!Object.defineProperties){
 		}
 		var value=obj[key];
 		if(typeof obj==="object" && !(obj instanceof Object)){
-			var proto=Object.getPrototypeOf(obj);
-			return proto[key]!==value;
+			var constructor=obj.constructor;
+			if(constructor){
+				var proto=constructor.prototype;
+				return proto[key]!==value;
+			}
 		}
 		return Object.prototype.hasOwnProperty.call(obj,key);
 	};
@@ -407,12 +410,12 @@ if(!Sky.forIn){
 if(!this.Reflect){
 	this.Reflect={
 		apply:function(target, thisArgument, argumentsList){
-			Function.prototype.apply.call(target, thisArgument, argumentsList);
+			return Function.prototype.apply.call(target, thisArgument, argumentsList);
 		},
 		construct:function(target, argumentsList,NewTarget){
-			if(!NewTarget){ NewTarget=target;}
-			var o=Object.create(NewTarget.prototype);
-			var o2=Reflect.apply(target,o,argumentsList);
+			var o=Object.create(target.prototype);
+			if(!NewTarget){ NewTarget=o;}
+			var o2=Reflect.apply(target,NewTarget,argumentsList);
 			if(o2!==void 0){
 				return o2;
 			}
@@ -655,10 +658,14 @@ if(!Array.prototype.find){
 		}
 		return result;
 	};
-	Array.prototype.entries=function(){
-		return new Iterator(this);
-	};
-	Array.prototype[Symbol.iterator]=Array.prototype.entries;
+	if(!Array.prototype.entries){
+		Array.prototype.entries=function(){
+			return new Iterator(this);
+		};
+	}
+	if(!Array.prototype[Symbol.iterator]){
+		Array.prototype[Symbol.iterator]=Array.prototype.entries;
+	}
 })();
 
 (function(){
@@ -728,7 +735,7 @@ if(!Date.now){
 
 Math.log2 = Math.log2 || function(n){ return Math.log(n) / Math.log(2); };
 
-if(!this.Set || !this.Set.prototype.entries){
+if(!this.Set){
 	Set=function(arr){
 		this.items=new Array();
 		if(arr){
@@ -776,29 +783,129 @@ if(!this.Set || !this.Set.prototype.entries){
 	Set.prototype.values=function(){
 		return this.items.entries();
 	};
-}else{
-	(function(){
-		var GSet=globalThis.Set;
-		try{
-			Set.call({});
-		}catch(e){
-			globalThis.Set=function(args){
-				var set=new GSet(args);
-				Object.setPrototypeOf(set,Object.getPrototypeOf(this));
-				return set;
-			};
-			Set.prototype=GSet.prototype;
-		}
-	})();
-}
-if(!Set.prototype.remove){
-	Set.prototype.remove=Set.prototype['delete'];
 }
 if(!Set.prototype[Symbol.iterator]){
 	Set.prototype[Symbol.iterator]=Set.prototype.values;
 }
 
-if(!this.Map || !this.Map.prototype.entries){
+Sky.times=function(n,iteratee,thisArg){
+	if(n<1){
+		return [];
+	}
+	var index = -1,
+		result = Array(n);
+	while (++index < n) {
+		result[index] = iteratee.apply(this,thisArg);
+	}
+	return result;
+};
+Sky.findIndex=function(arr,key,value){
+	for(var i=0; i<arr.length; i++){
+		if(arr[i][key]===value){return i;}
+	}
+	return -1;
+};
+Sky.findLastIndex=function(arr,key,value){
+	for(var i=arr.length-1; i>=0; i--){
+		if(arr[i][key]===value){return i;}
+	}
+	return -1;
+};
+Sky.find=function(arr,key,value){
+	for(var i=0; i<arr.length; i++){
+		if(arr[i][key]===value){return arr[i];}
+	}
+};
+Sky.findLast=function(arr,key,value){
+	for(var i=arr.length-1; i>=0; i--){
+		if(arr[i][key]===value){return value;}
+	}
+};
+Sky.shuffle=function(arr){
+	var copyArr=arr.slice();
+	var ubound=arr.length-1;
+	for(var i=0; i<ubound; i++){
+		var r=Sky.random(0,ubound);
+		var tmp=copyArr[r];
+		copyArr[r]=copyArr[i];
+		copyArr[i]=tmp;
+	}
+	return copyArr;
+};
+Sky.sortBy=function(arr,key){
+	return arr.sort(function(a,b){
+		return a[key] > b[key];
+	});
+};
+Sky.pluck=function(arr,key){
+	return arr.map(function(item){
+		return item[key];
+	});
+};
+Sky.sortedIndex=function(arr,value){
+	for(var i=0; i<arr.length; i++){
+		if(arr[i]>=value){
+			return i;
+		}
+	}
+	return arr.length;
+};
+Sky.sortedLastIndex=function(arr,value){
+	for(var i=arr.length-1; i>=0; i--){
+		if(arr[i]<=value){
+			return i+1;
+		}
+	}
+};
+Sky.union=function(){
+	var set=new Set();
+	for(var i=0;i<arguments.length;i++){
+		var arr=arguments[i];
+		if(!Array.isArray(arr)){
+			arr=Array.from(arr);
+		}
+		var j=arr.length;
+		while(j-->0){
+			set.add(arr[j]);
+		}
+	}
+	return Array.from(set);
+};
+Sky.difference=function(arg1){
+	if(arguments.length===0){
+		return new Array();
+	}
+	var set=new Set(arg1);
+	for(var i=1;i<arguments.length;i++){
+		var arr=arguments[i];
+		if(!Array.isArray(arr)){
+			arr=Array.from(arr);
+		}
+		var j=arr.length;
+		while(j-->0){
+			set['delete'](arr[j]);
+		}
+	}
+	return Array.from(set);
+};
+Sky.intersection=function(arg1){
+	if(arguments.length===0){
+		return new Array();
+	}
+	var set=new Set(arg1);
+	for(var i=1;i<arguments.length;i++){
+		var arr=arguments[i];
+		if(!Array.isArray(arr)){
+			arr=Array.from(arr);
+		}
+		set.forEach(function(item){
+			if(arr.indexOf(item)<0) this['delete'](item);
+		},set);
+	}
+	return Array.from(set);
+};
+
+if(!this.Map){
 	Map=function(arr){
 		this.items=new Array();
 		if(arr){
@@ -859,23 +966,6 @@ if(!this.Map || !this.Map.prototype.entries){
 		this.size=this.items.length;
 		return this;
 	};
-}else{
-	(function(){
-		var GMap=globalThis.Map;
-		try{
-			Map.call({});
-		}catch(e){
-			globalThis.Map=function(args){
-				var map=new GMap(args);
-				Object.setPrototypeOf(map,Object.getPrototypeOf(this));
-				return map;
-			};
-			Map.prototype=GMap.prototype;
-		}
-	})();
-}
-if(!Map.prototype.remove){
-	Map.prototype.remove=Map.prototype['delete'];
 }
 if(!Map.prototype[Symbol.iterator]){
 	Map.prototype[Symbol.iterator]=Map.prototype.entries;
@@ -952,10 +1042,6 @@ if(!this.URLSearchParams){
 					this._data[i]=new Array(pairs[1],pairs[0]);
 				}
 			}else{
-				var arr=paramsString.split("?");
-				if(arr.length>1){
-					paramsString=arr[1];
-				}
 				var pairs=paramsString.split("&");
 				i=this._data.length=pairs.length;
 				while(i-->0){
@@ -1021,6 +1107,7 @@ if(!this.URLSearchParams){
 }
 
 if(!Object.defineProperties){
+	var VBURLDesc;
 	(function(window){
 		var SearchParams=function(url){
 			this.url=url;
@@ -1164,10 +1251,11 @@ if(!Object.defineProperties){
 		}
 		//var DESC_KEY=Reflect.DESC_KEY;
 		//URL.prototype[DESC_KEY]=properties;
-		window.VBURLDesc=properties;
+		VBURLDesc=properties;
 		try{
 			window.execScript([
 				'Class VBURL',
+				'	Public [constructor]',
 				'	Public [protocol]',
 				'	Public [hostname]',
 				'	Public [pathname]',
@@ -1200,6 +1288,7 @@ if(!Object.defineProperties){
 				//'	Set o.['+DESC_KEY+'] = url.['+DESC_KEY+']',
 				'	Call Object.assign(o,url)',
 				'	Set o.searchParams.url = o',
+				'	Set o.constructor = URL',
 				'	Set VBUrlFactory = o',
 				'End Function'
 			].join('\n'), 'VBScript');

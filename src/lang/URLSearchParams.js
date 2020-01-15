@@ -11,10 +11,6 @@ if(!this.URLSearchParams){
 					this._data[i]=new Array(pairs[1],pairs[0]);
 				}
 			}else{
-				var arr=paramsString.split("?");
-				if(arr.length>1){
-					paramsString=arr[1];
-				}
 				var pairs=paramsString.split("&");
 				i=this._data.length=pairs.length;
 				while(i-->0){

@@ -12,6 +12,12 @@ if('__proto__' in Object.prototype){
 			return object.__proto__;
 		};
 	}
+	if(!Object.setPrototypeOf){
+		Object.setPrototypeOf=function(obj,proto){
+			obj.__proto__=proto;
+			return obj; 
+		}
+	}
 }
 if(!Sky.inherits){
 	Sky.inherits=function(clazz,superClazz){
@@ -49,6 +55,7 @@ if(Object.prototype.__defineSetter__){
 				};
 				r.set=obj.__lookupSetter__(key);
 				r.get=obj.__lookupGetter__(key);
+				return r;
 			}
 		};
 	}
@@ -60,25 +67,27 @@ if(Object.defineProperties){
 }
 
 (function(){
-	if(globalThis.Symbol && !Symbol.sham){
-		Sky.forIn=function(obj,fn,thisArg){
-			thisArg=thisArg || window;
-			for(var key in obj) {
-				if(fn.call(thisArg,obj[key],key)===false){
-					return false;
+	if(globalThis.Symbol){
+		if(Symbol.sham){
+			var keys=Object.keys;
+			if(keys){
+				Object.keys=function(obj){
+					return keys.call(Object,obj).filter(checkSymbolKey);
+				};
+				function checkSymbolKey(key){
+					return !key.startsWith("@@");
 				}
 			}
-			return true;
-		};
-	}else{
-		var keys=Object.keys;
-		if(keys){
-			Object.keys=function(obj){
-				return keys.call(Object,obj).filter(checkSymbolKey);
+		}else{
+			Sky.forIn=function(obj,fn,thisArg){
+				thisArg=thisArg || window;
+				for(var key in obj) {
+					if(fn.call(thisArg,obj[key],key)===false){
+						return false;
+					}
+				}
+				return true;
 			};
-			function checkSymbolKey(key){
-				return !key.startsWith("@@");
-			}
 		}
 	}
 })();

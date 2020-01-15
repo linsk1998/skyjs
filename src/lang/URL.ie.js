@@ -1,5 +1,6 @@
 
 if(!Object.defineProperties){
+	var VBURLDesc;
 	(function(window){
 		var SearchParams=function(url){
 			this.url=url;
@@ -143,10 +144,11 @@ if(!Object.defineProperties){
 		}
 		//var DESC_KEY=Reflect.DESC_KEY;
 		//URL.prototype[DESC_KEY]=properties;
-		window.VBURLDesc=properties;
+		VBURLDesc=properties;
 		try{
 			window.execScript([
 				'Class VBURL',
+				'	Public [constructor]',
 				'	Public [protocol]',
 				'	Public [hostname]',
 				'	Public [pathname]',
@@ -179,6 +181,7 @@ if(!Object.defineProperties){
 				//'	Set o.['+DESC_KEY+'] = url.['+DESC_KEY+']',
 				'	Call Object.assign(o,url)',
 				'	Set o.searchParams.url = o',
+				'	Set o.constructor = URL',
 				'	Set VBUrlFactory = o',
 				'End Function'
 			].join('\n'), 'VBScript');

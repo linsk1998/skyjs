@@ -1,5 +1,5 @@
 
-if(!this.Set || !this.Set.prototype.entries){
+if(!this.Set){
 	Set=function(arr){
 		this.items=new Array();
 		if(arr){
@@ -47,23 +47,6 @@ if(!this.Set || !this.Set.prototype.entries){
 	Set.prototype.values=function(){
 		return this.items.entries();
 	};
-}else{
-	(function(){
-		var GSet=globalThis.Set;
-		try{
-			Set.call({});
-		}catch(e){
-			globalThis.Set=function(args){
-				var set=new GSet(args);
-				Object.setPrototypeOf(set,Object.getPrototypeOf(this));
-				return set;
-			};
-			Set.prototype=GSet.prototype;
-		}
-	})();
-}
-if(!Set.prototype.remove){
-	Set.prototype.remove=Set.prototype['delete'];
 }
 if(!Set.prototype[Symbol.iterator]){
 	Set.prototype[Symbol.iterator]=Set.prototype.values;

@@ -89,8 +89,12 @@ if(!Array.prototype.find){
 		}
 		return result;
 	};
-	Array.prototype.entries=function(){
-		return new Iterator(this);
-	};
-	Array.prototype[Symbol.iterator]=Array.prototype.entries;
+	if(!Array.prototype.entries){
+		Array.prototype.entries=function(){
+			return new Iterator(this);
+		};
+	}
+	if(!Array.prototype[Symbol.iterator]){
+		Array.prototype[Symbol.iterator]=Array.prototype.entries;
+	}
 })();
