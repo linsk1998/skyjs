@@ -1,5 +1,6 @@
 
 (function(global){
+	var nextTick=Sky.nextTick;
 	var PENDING=Symbol("pending");
 	var RESOLVED=Symbol("resolved");
 	var REJECTED=Symbol("rejected");
@@ -11,7 +12,7 @@
 			
 			var me=this;
 			function resolve(value) {
-				setImmediate(function(){
+				nextTick(function(){
 					if(me._state===PENDING){
 						me.data=value;
 						me._state=RESOLVED;
@@ -21,7 +22,7 @@
 				});
 			}
 			function reject(reason) {
-				setImmediate(function(){
+				nextTick(function(){
 					if(me._state===PENDING){
 						me.data=reason;
 						me._state=REJECTED;
@@ -60,10 +61,10 @@
 			return new Promise(function(resolve,reject){
 				switch(me._state){
 					case RESOLVED:
-						setImmediate(nextPromise(onResolved,resolve,resolve,reject),me.data);
+						nextTick(nextPromise(onResolved,resolve,resolve,reject),me.data);
 						break ;
 					case REJECTED:
-						setImmediate(nextPromise(onRejected,reject,resolve,reject),me.data);
+						nextTick(nextPromise(onRejected,reject,resolve,reject),me.data);
 						break ;
 					default:
 						me._resolveds.push(nextPromise(onResolved,resolve,resolve,reject));

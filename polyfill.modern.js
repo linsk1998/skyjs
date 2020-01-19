@@ -104,36 +104,6 @@ Sky.isDocument=function(obj){
 	return obj===document;
 };
 
-(function(){
-	var userAgent = navigator.userAgent.toLowerCase();
-	Sky.browser={
-		version:(userAgent.match( /.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/ ) || [])[1],
-		webkit:/webkit/.test( userAgent ),
-		opera:/opera/.test( userAgent ),
-		msie:/msie/.test( userAgent ) && !/opera/.test( userAgent ),
-		firefox:/firefox/.test( userAgent ),
-		safari:/safari/.test( userAgent ),
-		chrome:/chrome/.test( userAgent ),
-		android:/android/.test( userAgent ),
-		ios:/(iphone|ipad|ipod)/.test( userAgent ),
-		mobile:/mobile/.test( userAgent ),
-		quirks:(document.compatMode == 'BackCompat')
-	};
-	var ie="ActiveXObject" in window;
-	Sky.browser.ie5=ie&&!document.compatMode;//ie5及以下
-	Sky.browser.ie6=ie&&!!document.compatMode&&!window.XMLHttpRequest;
-	Sky.browser.ie7=ie&&!!window.XMLHttpRequest&&!document.querySelector;
-	Sky.browser.ie8=ie&&!!document.querySelector&&!document.addEventListener;
-	Sky.browser.ie9=ie&&!!document.addEventListener&&!window.atob;
-	Sky.browser.ie10=ie&&!!window.atob&&!!window.attachEvent;
-	Sky.browser.ie11=ie&&!!window.atob&&!window.attachEvent;
-	if(Sky.browser.ie11){
-		Sky.browser.ie=11;
-	}else if(ie){
-		Sky.browser.ie=parseInt(Sky.browser.version);
-	}
-})();
-
 Sky.noop=function(){};
 Sky.toString=function(o){
 	return new String(o).valueOf();
@@ -1387,63 +1357,33 @@ if(Object.defineProperties){
 		}
 	})(this);
 }
-//setImmediate在setTimeout之前执行
-if(!this.setImmediate){
-	if(!this.Promise){
-		(function(global){
-			var index=0;
-			var handles=new Map();
-			var ticks=null;
-			global.setImmediate=function(fn){
-				index++;
-				if(!ticks){
-					ticks=new Array();
-					setTimeout(nextTick);
-				}
-				ticks.push(index);
-				handles.set(index,arguments);
-				return index;
-			};
-			function nextTick(){
-				if(ticks && ticks.length){
-					for(var i=0;i<ticks.length;i++){
-						var id=ticks[i];
-						var args=handles.get(id);
-						if(args){
-							var fn=args[0];
-							args=Array.from(args);
-							args.shift();
-							try{
-								fn.apply(global,args);
-							}catch(e){
-								console.error(e);
-							}
-						}
-					}
-					ticks=null;
-					handles.clear();
-				}
+
+	(function(setTimeout){
+		var ticks=null;
+		Sky.nextTick=function(fn){
+			if(!ticks){
+				ticks=new Array();
+				setTimeout(next);
 			}
-			setImmediate.nextTick=nextTick;
-			var setTimeoutN=setImmediate.setTimeout=setTimeout;
-			if(document.addEventListener){
-				global.setTimeout=function(fn,d){
-					setTimeoutN(function(){
-						setImmediate.nextTick();
+			ticks.push(fn);
+		};
+		function next(){
+			if(ticks && ticks.length){
+				for(var i=0;i<ticks.length;i++){
+					var fn=ticks[i];
+					try{
 						fn();
-					},d)
-				};
-			}else{
-				window.execScript("function setTimeout(fn,d){setImmediate.setTimeout(function(){setImmediate.nextTick();fn();},d)}");
+					}catch(e){
+						console.error(e);
+					}
+				}
+				ticks=null;
 			}
-			global.clearImmediate=function(id){
-				handles['delete'](id);
-			};
-		})(this);
-	}
-}
+		}
+	})(this.Promise?Promise.prototype.then.bind(Promise.resolve(1)):(this.setImmediate?this.setImmediate:setTimeout));
 
 (function(global){
+	var nextTick=Sky.nextTick;
 	var PENDING=Symbol("pending");
 	var RESOLVED=Symbol("resolved");
 	var REJECTED=Symbol("rejected");
@@ -1455,7 +1395,7 @@ if(!this.setImmediate){
 			
 			var me=this;
 			function resolve(value) {
-				setImmediate(function(){
+				nextTick(function(){
 					if(me._state===PENDING){
 						me.data=value;
 						me._state=RESOLVED;
@@ -1465,7 +1405,7 @@ if(!this.setImmediate){
 				});
 			}
 			function reject(reason) {
-				setImmediate(function(){
+				nextTick(function(){
 					if(me._state===PENDING){
 						me.data=reason;
 						me._state=REJECTED;
@@ -1504,10 +1444,10 @@ if(!this.setImmediate){
 			return new Promise(function(resolve,reject){
 				switch(me._state){
 					case RESOLVED:
-						setImmediate(nextPromise(onResolved,resolve,resolve,reject),me.data);
+						nextTick(nextPromise(onResolved,resolve,resolve,reject),me.data);
 						break ;
 					case REJECTED:
-						setImmediate(nextPromise(onRejected,reject,resolve,reject),me.data);
+						nextTick(nextPromise(onRejected,reject,resolve,reject),me.data);
 						break ;
 					default:
 						me._resolveds.push(nextPromise(onResolved,resolve,resolve,reject));
@@ -1670,32 +1610,6 @@ if(!Proxy.revocable){
 			return r;
 		};
 	})();
-}
-
-if(!this.XMLHttpRequest){
-	Sky.createXMLHttpRequest=function(){
-		if(Sky.XHRProgid){
-			return new ActiveXObject(Sky.XHRProgid);
-		}
-		var versions=["Microsoft.XMLHTTP","MSXML2.XMLHTTP","Msxml2.XMLHTTP.5.0"];
-		var i=versions.length;
-		while(i--){
-			try{
-				var progid=versions[i];
-				var request=new ActiveXObject(progid);
-				if(request){
-					Sky.XHRProgid=progid;
-					return request;
-				}
-			}catch(e){}
-		}
-	};
-	XMLHttpRequest=Sky.createXMLHttpRequest;//如果你不想要ie6使用new XMLHttpRequest来创建，则去掉这2行
-	XMLHttpRequest.sham=true;
-}else{
-	Sky.createXMLHttpRequest=function(){
-		return new XMLHttpRequest();
-	};
 }
 
 location.origin=location.origin || location.protocol+"//"+location.host;
