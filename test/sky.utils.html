@@ -1,0 +1,21 @@
+<!Doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Mocha Tests</title>
+	<link href="https://cdn.bootcss.com/mocha/2.2.5/mocha.min.css" rel="stylesheet" />
+	<style>
+		#mocha .test{ *zoom:1;}
+	</style>
+	<!--[if lt IE 9]><script src="../sky.compat.js"></script><![endif]-->
+	<!--[if gte IE 9]><!--><script src="../sky.modern.js"></script><!--><![endif]-->
+</head>
+<body>
+	<div id="mocha"></div>
+	<script src="http://raw.githack.com/Automattic/expect.js/0.3.1/index.js"></script>
+	<script src="https://cdn.bootcss.com/mocha/2.2.5/mocha.js"></script>
+	<script>mocha.setup('bdd')</script>
+	<script src="./utils/nextTick.js"></script>
+	<script>mocha.run()</script>
+</body>
+</html>
