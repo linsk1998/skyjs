@@ -292,7 +292,10 @@ if(typeof Symbol!=="function"){
 			return this.__name__;
 		};
 		var cache={};
-		Symbol['for']=function(desc){
+		window.Symbol=function(desc){
+			return new Symbol(desc);
+		};
+		window.Symbol['for']=function(desc){
 			if(Object.prototype.hasOwnProperty.call(cache,desc)){
 				return cache[desc];
 			}
@@ -301,11 +304,8 @@ if(typeof Symbol!=="function"){
 			cache[desc]=s;
 			return s;
 		};
-		Symbol.keyFor=function(desc){
-			return this.__desc__;
-		};
-		window.Symbol=function(desc){
-			return new Symbol(desc);
+		window.Symbol.keyFor=function(symbol){
+			return symbol.__desc__;
 		};
 		window.Symbol.sham=true;
 		window.Symbol.iterator="@@iterator";
@@ -1391,7 +1391,7 @@ if(!Object.defineProperties){
 				this.url.search="?"+searchParams.toString();
 			};
 		});
-		["getAll","get","has","toString"].forEach(function(method){
+		["getAll","get","has","toString","forEach"].forEach(function(method){
 			SearchParams.prototype[method]=function(key,value){
 				var searchParams=new URLSearchParams(this.url.search.replace(/^\?/,""));
 				return searchParams[method].apply(searchParams,arguments);
@@ -1446,6 +1446,7 @@ if(!Object.defineProperties){
 					this.hash=url.hash;
 					this.username=url.username;
 					this.password=url.password;
+					url=null;
 				}
 			}
 		};
@@ -1507,6 +1508,7 @@ if(!Object.defineProperties){
 				}else{
 					path=absInfo.pathname.replace(/[^\/]*$/,"")+relativePath.replace(/^\.\//,"");
 				}
+				absInfo=null;
 			}else{
 				throw "SYNTAX_ERROR";
 			}
@@ -1595,7 +1597,7 @@ if(Object.defineProperties){
 				this._url.search="?"+searchParams.toString();
 			};
 		});
-		["getAll","get","has","toString"].forEach(function(method){
+		["getAll","get","has","toString","forEach"].forEach(function(method){
 			SearchParams.prototype[method]=function(){
 				var searchParams=new URLSearchParams(this._url.search.replace(/^\?/,""));
 				return searchParams[method].apply(searchParams,arguments);

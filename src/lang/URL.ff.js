@@ -12,7 +12,7 @@ if(Object.defineProperties){
 				this._url.search="?"+searchParams.toString();
 			};
 		});
-		["getAll","get","has","toString"].forEach(function(method){
+		["getAll","get","has","toString","forEach"].forEach(function(method){
 			SearchParams.prototype[method]=function(){
 				var searchParams=new URLSearchParams(this._url.search.replace(/^\?/,""));
 				return searchParams[method].apply(searchParams,arguments);

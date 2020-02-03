@@ -3,17 +3,14 @@
 <head>
 	<meta charset="utf-8">
 	<title>Mocha Tests</title>
-	<link href="https://cdn.bootcss.com/mocha/2.2.5/mocha.min.css" rel="stylesheet" />
-	<style>
-		#mocha .test{ *zoom:1;}
-	</style>
+	<link href="mocha.min.css" rel="stylesheet" />
 	<!--[if lt IE 9]><script src="../polyfill.compat.js"></script><![endif]-->
 	<!--[if gte IE 9]><!--><script src="../polyfill.modern.js"></script><!--><![endif]-->
 </head>
 <body>
 	<div id="mocha"></div>
-	<script src="http://raw.githack.com/Automattic/expect.js/0.3.1/index.js"></script>
-	<script src="https://cdn.bootcss.com/mocha/2.2.5/mocha.js"></script>
+	<script src="expect.js"></script>
+	<script src="mocha.js"></script>
 	<script>mocha.setup('bdd')</script>
 	<script src="./ext/Array.js"></script>
 	<script src="./ext/Object.js"></script>

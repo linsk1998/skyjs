@@ -13,7 +13,7 @@ if(!Object.defineProperties){
 				this.url.search="?"+searchParams.toString();
 			};
 		});
-		["getAll","get","has","toString"].forEach(function(method){
+		["getAll","get","has","toString","forEach"].forEach(function(method){
 			SearchParams.prototype[method]=function(key,value){
 				var searchParams=new URLSearchParams(this.url.search.replace(/^\?/,""));
 				return searchParams[method].apply(searchParams,arguments);
@@ -68,6 +68,7 @@ if(!Object.defineProperties){
 					this.hash=url.hash;
 					this.username=url.username;
 					this.password=url.password;
+					url=null;
 				}
 			}
 		};
@@ -129,6 +130,7 @@ if(!Object.defineProperties){
 				}else{
 					path=absInfo.pathname.replace(/[^\/]*$/,"")+relativePath.replace(/^\.\//,"");
 				}
+				absInfo=null;
 			}else{
 				throw "SYNTAX_ERROR";
 			}
